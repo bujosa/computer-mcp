@@ -50,3 +50,13 @@ public/open-source distribution, decide this repository’s license, audit
 third-party source/notice requirements (including noVNC MPL-2.0 and Linux image
 packages), and establish packaging, signing, update and release policy. There
 has been no public package release, visibility change or license assertion.
+
+## Sendtry brand reuse
+
+David explicitly requested this independent product under his Sendtry brand.
+The existing Sendtry identity was inspected read-only: warm paper surfaces, salmon
+accent, ink text and the send-loop mark. Only the owner-provided mark/wordmark
+SVG assets were narrowly reused; the wordmark viewBox trims unused whitespace.
+No Sendtry product/backend code, configuration, credentials or customer data was
+copied. [Asset provenance](../ui/assets/README.md) records the source and pending
+public trademark/asset terms. Piblo stays a separate product and integration seam.

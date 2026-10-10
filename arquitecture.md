@@ -2,7 +2,7 @@
 
 ## Product boundary
 
-`computer-mcp` supplies a computer to an existing agent harness. It does not own
+**Sendtry Computer** (`computer-mcp`) supplies a computer to an existing agent harness. It does not own
 inference, chat history, bots, routines, billing, connectors or cloud accounts.
 The implemented adapter is a dedicated Linux Docker container with a local
 owner console. Host OS and guest OS are separate properties. Native, VM and
@@ -30,6 +30,27 @@ ask the bridge to start another computer, change Docker context, bind a host pat
 or grant native screen/accessibility permissions. The CLI is a trusted owner
 process with Docker-daemon authority; agents launched with an unrelated host
 shell retain whatever authority that harness already gave them.
+
+The design separates computer capabilities (MCP tools) from procedural knowledge
+(skills). The owner's console configures the existing bridge and exports existing
+Teach data; it does not create a second agent runtime or a Piblo backend.
+
+`src/connection.js` owns credential-free command/argument generation and a strict
+schema for owner setup metadata. `open` sends exact host paths and read/work
+entries with its authenticated ticket request. The guest holds this metadata only
+in the short-lived ticket and owner UI session, never in the agent workspace or
+persistent control store. `/api/ui/connection` permits humans only, including
+when an agent supplies valid work/read credentials. A subsequent CLI `open`
+consumes its new ticket and updates an existing owner's session metadata.
+The strings are displayed/copied, never executed by the UI/runtime.
+
+`runtime/skill.js` converts a completed workflow into an Agent Skills `SKILL.md`.
+It generates a bounded kebab-case folder name with a workflow-ID suffix,
+YAML name/description/metadata, owning computer identity, missing input parameters
+and the recorded procedure. Interrupted recordings cannot export (409). The
+read endpoint `/api/workflows/:id/skill` uses normal authenticated workflow
+observation authority. The static operator skill is public local UI content
+without computer credentials. Neither export installs a skill nor grants control.
 
 ## Protocol and identities
 
@@ -166,7 +187,10 @@ The harness reads `workflow_get` or the `taught-workflow` prompt, supplies missi
 parameters and uses normal tools to follow the instructions. It must review
 selectors/URLs and the user’s authorized effects. Recorded DOM/text remains
 untrusted data; neither Teach nor a workflow grants new permissions. Automatic
-blind replay, generic desktop recording/video and export/archive UI are pending.
+blind replay, generic desktop recording/video and skill archive/import management
+are pending. The skill library can search, review and download a completed
+procedure as `SKILL.md`; exported instructions remain scoped to the originating
+computer unless the owner reviews an adaptation.
 
 ## Compatibility, rollout and future seams
 

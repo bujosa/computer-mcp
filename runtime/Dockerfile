@@ -13,7 +13,7 @@ RUN node scripts/build-ui.mjs
 RUN chmod +x runtime/entrypoint.sh runtime/chromium-agent.sh
 EXPOSE 7070
 ENTRYPOINT ["/opt/computer-mcp/runtime/entrypoint.sh"]
-COPY src/catalog.js ./src/catalog.js
+COPY src/catalog.js src/connection.js ./src/
 
 FROM node:22.21.1-bookworm-slim AS relay
 WORKDIR /opt/computer-mcp

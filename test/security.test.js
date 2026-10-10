@@ -247,3 +247,71 @@ test('CLI state never overwrites an existing computer; compose is local, owned a
   assert.equal(localEndpoint('unix:///var/run/docker.sock'), true);
   assert.equal(localEndpoint('npipe:////./pipe/docker_engine'), true);
 });
+
+test('owner connection configuration has exact state/access without embedding credentials', async (t) => {
+  const {
+    connectionEntry,
+    formatConnection,
+    ownerConnection,
+    connectionSchema,
+  } = await import('../src/connection.js');
+  const state = path.join(await temporary(t), "David's computer state");
+  const config = {
+    name: 'review',
+    token: 'do-not-export-work',
+    ownerToken: 'do-not-export-owner',
+  };
+  const connection = ownerConnection(state, config);
+  assert.equal(connection.work.args[3], state);
+  assert.equal(connection.work.args.at(-1), 'work');
+  assert.equal(connection.read.args.at(-1), 'read');
+  assert.equal(
+    JSON.parse(formatConnection(connection.work)).mcpServers.computer.command,
+    process.execPath,
+  );
+  assert.ok(
+    formatConnection(connection.read, 'codex').includes(JSON.stringify(state)),
+  );
+  assert.ok(!JSON.stringify(connection).includes(config.token));
+  assert.ok(!JSON.stringify(connection).includes(config.ownerToken));
+  assert.equal(
+    connectionSchema.safeParse({ ...connection, extra: true }).success,
+    false,
+  );
+  assert.throws(() => connectionEntry(state, 'admin'));
+  assert.throws(() => formatConnection(connection.work, 'unsupported'));
+});
+
+test('skill export retains identity and missing parameters and refuses interrupted recordings', async () => {
+  const { exportSkill } = await import('../runtime/skill.js');
+  const computerId = randomUUID();
+  const id = randomUUID();
+  const workflow = {
+    id,
+    computerId,
+    name: 'Écrire une note',
+    goal: 'Save the requested project note.',
+    status: 'ready',
+    instructions: '1. fill #project with {{input_1}}',
+    steps: [
+      { type: 'fill', selector: '#project', parameter: 'input_1' },
+      { type: 'terminal', parameter: 'command_2' },
+    ],
+  };
+  const skill = exportSkill(workflow);
+  assert.equal(skill.filename, 'SKILL.md');
+  assert.ok(skill.name.startsWith('sendtry-ecrire-une-note-'));
+  assert.match(skill.name, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+  assert.ok(skill.content.includes(computerId));
+  assert.ok(
+    skill.content.includes('input_1') && skill.content.includes('command_2'),
+  );
+  assert.ok(skill.content.includes(workflow.instructions));
+  const longName = exportSkill({ ...workflow, name: 'a'.repeat(80) });
+  assert.ok(longName.name.length <= 64);
+  const unicode = exportSkill({ ...workflow, name: '任务' });
+  assert.match(unicode.name, /^sendtry-task-/);
+  assert.throws(() => exportSkill({ ...workflow, status: 'interrupted' }), {
+    code: 'skill_not_ready',
+  });
+});

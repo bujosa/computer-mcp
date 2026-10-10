@@ -15,6 +15,8 @@ import { FileService } from './file-service.js';
 import { execute } from './process.js';
 import { Browser } from './browser.js';
 import { Teach } from './teach.js';
+import { exportSkill } from './skill.js';
+import { connectionSchema } from '../src/connection.js';
 import { Fault, requireThat } from './errors.js';
 import { tools } from '../src/catalog.js';
 
@@ -88,6 +90,8 @@ function human(req) {
     return null;
   }
   session.expiresAt = Date.now() + 12 * 3600000;
+  req.ownerConnection = session.connection;
+  req.ownerSession = session;
   return session.actor;
 }
 function sameOrigin(req) {
@@ -106,8 +110,8 @@ app.post('/api/owner/ticket', (req, res) => {
     'Owner credential required.',
     401,
   );
-  for (const [ticket, expiresAt] of tickets)
-    if (expiresAt < Date.now()) tickets.delete(ticket);
+  for (const [ticket, issued] of tickets)
+    if (issued.expiresAt < Date.now()) tickets.delete(ticket);
   requireThat(
     tickets.size < 12,
     'ticket_limit',
@@ -115,7 +119,13 @@ app.post('/api/owner/ticket', (req, res) => {
     429,
   );
   const ticket = randomBytes(32).toString('hex');
-  tickets.set(ticket, Date.now() + 30000);
+  const connection = req.body?.connection;
+  requireThat(
+    connection === undefined || connectionSchema.safeParse(connection).success,
+    'invalid_connection',
+    'Invalid owner connection configuration.',
+  );
+  tickets.set(ticket, { expiresAt: Date.now() + 30000, connection });
   res.json({ ticket });
 });
 app.post('/api/ui/session', (req, res) => {
@@ -126,17 +136,20 @@ app.post('/api/ui/session', (req, res) => {
     403,
   );
   let actor = human(req);
-  if (!actor) {
+  if (!actor || typeof req.body?.ticket === 'string') {
     const ticket = req.body?.ticket;
-    const expiresAt =
-      typeof ticket === 'string' ? tickets.get(ticket) : undefined;
+    const issued = typeof ticket === 'string' ? tickets.get(ticket) : undefined;
     if (typeof ticket === 'string') tickets.delete(ticket);
     requireThat(
-      expiresAt && expiresAt >= Date.now(),
+      issued && issued.expiresAt >= Date.now(),
       'owner_required',
       'Run computer-mcp open to authorize this owner console.',
       401,
     );
+    if (actor) {
+      req.ownerSession.connection = issued.connection;
+      return res.json({ actor, identity });
+    }
     for (const [id, session] of sessions)
       if (session.expiresAt < Date.now()) sessions.delete(id);
     requireThat(
@@ -147,7 +160,11 @@ app.post('/api/ui/session', (req, res) => {
     );
     const id = randomBytes(32).toString('hex');
     actor = `human:${randomUUID()}`;
-    sessions.set(id, { actor, expiresAt: Date.now() + 12 * 3600000 });
+    sessions.set(id, {
+      actor,
+      expiresAt: Date.now() + 12 * 3600000,
+      connection: issued.connection,
+    });
     res.cookie(cookieName, id, {
       httpOnly: true,
       sameSite: 'strict',
@@ -342,6 +359,15 @@ app.post('/api/cancel', (req, res) => {
   res.json({ cancelled: true });
 });
 app.get('/api/info', (_req, res) => res.json(info()));
+app.get('/api/ui/connection', (req, res) => {
+  requireThat(
+    req.kind === 'human',
+    'human_only',
+    'Owner connection setup is available only in the owner console.',
+    403,
+  );
+  res.json({ connection: req.ownerConnection || null });
+});
 app.post('/api/call', async (req, res) =>
   res.json({ result: await call(req, req.body?.name, req.body?.args) }),
 );
@@ -389,6 +415,9 @@ app.get('/api/teach', (_req, res) =>
 );
 app.get('/api/workflows/:id', async (req, res) =>
   res.json(await store.get(req.params.id)),
+);
+app.get('/api/workflows/:id/skill', async (req, res) =>
+  res.json(exportSkill(await store.get(req.params.id))),
 );
 app.use(
   '/novnc',

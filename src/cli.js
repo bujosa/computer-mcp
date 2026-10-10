@@ -3,7 +3,6 @@ import { parseArgs } from 'node:util';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { statePath, setup, readConfig, saveConfig } from './config.js';
 import {
   runDocker,
@@ -17,8 +16,13 @@ import {
 } from './docker.js';
 import { RuntimeClient } from './client.js';
 import { serveMCP } from './mcp.js';
+import {
+  connectionEntry,
+  formatConnection,
+  ownerConnection,
+} from './connection.js';
 
-const help = `computer-mcp — give an MCP agent its own Linux desktop\n\n  setup [--name my-computer] [--context desktop-linux] [--port 17670]\n  start [--name my-computer]      Build/start only this owned computer\n  status | doctor | stop | open   Inspect, check, stop or open its console\n  mcp                            Serve MCP on stdio (computer must be started)\n  config [--client generic|codex] Print credential-free harness configuration\n\nAll commands accept --state /absolute/directory. Docker contexts must be local.\nDefault context: desktop-linux on macOS/Windows; default on Linux.\nDefault network is isolated/offline; setup --network internet enables guest egress.\nNo host desktop permissions, host workspace mounts, remote contexts or cloud.\n`;
+const help = `Sendtry Computer (computer-mcp) — give an MCP agent its own Linux desktop\n\n  setup [--name my-computer] [--context desktop-linux] [--port 17670]\n  start [--name my-computer]      Build/start only this owned computer\n  status | doctor | stop | open   Inspect, check, stop or open its console\n  mcp                            Serve MCP on stdio (computer must be started)\n  config [--client generic|codex] Print credential-free harness configuration\n\nAll commands accept --state /absolute/directory. Docker contexts must be local.\nDefault context: desktop-linux on macOS/Windows; default on Linux.\nDefault network is isolated/offline; setup --network internet enables guest egress.\nNo host desktop permissions, host workspace mounts, remote contexts or cloud.\n`;
 const { positionals, values } = parseArgs({
   allowPositionals: true,
   options: {
@@ -195,21 +199,9 @@ async function main() {
     return;
   }
   if (command === 'config') {
-    const cli = fileURLToPath(import.meta.url),
-      args = [cli, 'mcp', '--state', state, '--access', values.access];
-    if (values.client === 'codex')
-      process.stdout.write(
-        `[mcp_servers.computer]\ncommand = ${JSON.stringify(process.execPath)}\nargs = ${JSON.stringify(args)}\n`,
-      );
-    else if (values.client === 'generic')
-      process.stdout.write(
-        JSON.stringify(
-          { mcpServers: { computer: { command: process.execPath, args } } },
-          null,
-          2,
-        ) + '\n',
-      );
-    else throw new Error('Choose generic or codex configuration.');
+    process.stdout.write(
+      formatConnection(connectionEntry(state, values.access), values.client),
+    );
     return;
   }
   if (command === 'open') {
@@ -220,7 +212,7 @@ async function main() {
         authorization: `Bearer ${config.ownerToken}`,
         'content-type': 'application/json',
       },
-      body: '{}',
+      body: JSON.stringify({ connection: ownerConnection(state, config) }),
     });
     if (!response.ok) throw new Error('Could not authorize the owner console.');
     const { ticket } = await response.json();

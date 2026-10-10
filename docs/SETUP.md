@@ -44,7 +44,8 @@ Windows configuration.
 `open` authorizes the console using a 30-second, single-use ticket; the ticket is
 removed from the browser URL immediately. Opening the bare console URL does not
 grant control. Run `open` again after restarting the guest or switching browsers.
-The agent's work/read credentials cannot create an owner session. Do not share
+The agent's work/read credentials cannot create an owner session or read
+owner-only host connection metadata. Do not share
 the private host state or copy an authorization URL.
 
 ## Claude Code / Cursor / generic stdio
@@ -90,6 +91,33 @@ read tools and uses a scoped credential enforced at the guest API. Read mode
 still reveals the guest’s screen/files/workflows, so it is observation authority,
 not public anonymous access.
 
+## Console connection and skills
+
+In the authorized owner console, **Connect agent** provides the same exact
+machine-specific configuration as `config`. Select JSON or Codex TOML, choose
+work/read authority, then copy or download. It shows the capabilities discovered
+from the running computer, not a guessed provider-connection status. The optional
+first-task text verifies identity and respects the selected access level.
+Registration in a specific harness UI still needs separate validation.
+
+The operator skill downloads as `SKILL.md`. Place it in a folder named
+`sendtry-computer` in your harness's supported skills directory. For taught skills,
+**Skills** → select a completed recording → **Export SKILL.md**; use the exact
+folder name displayed below the export button. Review the URLs, selectors,
+computer identity and missing parameters before installation/use. Interrupted
+recordings need a new completed demonstration before export. Skills do not
+contain typed values or recorded terminal commands, but names, goals and paths
+can contain owner-provided sensitive information: review what you share.
+
+The format follows the [Agent Skills specification](https://agentskills.io/specification):
+a skill folder containing YAML-frontmatter `SKILL.md` and Markdown instructions.
+The repo uses required name/description and string metadata, without an
+`allowed-tools` declaration or a license assertion. This keeps the artifact
+usable with the included local skill validator. Actual discovery and installation
+paths depend on the harness; exporting a valid file does not prove every
+harness has loaded it. No host configuration or global skill directory is changed
+by download.
+
 ## Troubleshooting and recovery
 
 - **Computer busy**: another bridge owns the lease. Release it or take control in
@@ -107,7 +135,8 @@ not public anonymous access.
 - **Lifecycle lock after a crash**: confirm no start/stop command for this
   computer remains active, inspect its owned container, then manually remove
   only `<state>/lifecycle.lock`. There is no automatic stale-lock deletion.
-- **Desktop disconnected**: switch away from Desktop and back to reconnect. An
+- **Desktop disconnected**: the console reconnects on its next refresh; switching
+  away from Computer and back also reconnects. An
   expired/taken lease changes the socket to view-only on refresh. Closing a
   cancelled browser tab can require choosing the new tab in browser_snapshot.
 - **Large files/directories**: use the bounded APIs for text. Use terminal tools

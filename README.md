@@ -1,10 +1,15 @@
-# computer-mcp
+# Sendtry Computer
+
+A computer to work in. Skills to work with.
+
+`computer-mcp` is the technical repository and CLI for this Sendtry product.
 
 Give any MCP agent its own computer, and share its screen when you want to help.
 
 This private MVP runs a dedicated **Linux desktop in Docker**, with Chromium,
 a bounded command runner, a workspace file explorer, desktop screenshots and
-**Teach**: record browser steps and save reusable instructions. A small Node CLI
+**Teach**: record browser steps, review reusable instructions and export
+a portable `SKILL.md`. A small Node CLI
 starts the computer; your harness launches a separate MCP bridge over stdio.
 There is no model subscription, chatbot, gateway, cloud provisioning or Piblo
 backend dependency.
@@ -77,15 +82,29 @@ Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 `files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`.
 MCP also exposes a pinned identity resource and a `taught-workflow` prompt.
 
+## Give the agent skills
+
+MCP supplies **tools** to operate the computer. Skills supply **instructions**
+for using those tools to complete a task. A skill does not add permissions or
+execute itself; the connected harness interprets it within your request.
+
+Open **Connect agent** in the owner console to copy/download the exact JSON or
+TOML configuration, choose work/read access, discover the current tools and
+download the [Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md).
+Install it as `sendtry-computer/SKILL.md` in your harness's supported skills
+directory. Nothing is installed automatically on your existing computer.
+See [setup and skill integration](docs/SETUP.md).
+
 ## Teach a task
 
-1. In the console, **Take control** and **Open teaching sandbox**.
-2. Open **Teach**, give the task a name/goal and select **Start recording**.
-3. Return to **Desktop** and complete the form in the guest browser.
-4. Return to **Teach** and **Save recording**. Review its recorded steps and
-   instructions, then release control.
-5. Ask the agent to read the saved workflow and perform it using values you
-   supply for the named parameters.
+1. In **Computer**, select **Take control** and **Open practice task**.
+2. Open **Skills** → **Teach a skill**, name the task and **Start recording**.
+3. The console returns to **Computer**. Complete the form on the live screen.
+4. Select **Review & save** → **Save recording**. Review the procedure and its
+   named input parameters in the skill library.
+5. **Export SKILL.md** and place it in the named skill folder shown in the
+   console. Release control, then ask your agent to use it with supplied values.
+   You can also reuse it directly through `workflow_get` or the MCP prompt.
 
 Teach captures main-frame navigation, clicks and changed text inputs. Typed
 values and terminal commands are omitted; secret-like input fields are skipped.
@@ -139,7 +158,9 @@ npm run test:integration -- /absolute/path/to/owned/computer/state
 
 Integration smoke changes only the selected owned computer, checks its labels
 first and leaves small proof files/workflows. It does not launch/manage Docker
-for you. Appearance and human control are reviewed manually. Read
+for you. Appearance and human control are reviewed manually. The console uses Sendtry's
+warm paper/salmon identity; [product and design decisions](docs/PRODUCT.md) define
+the tools → computer → taught-skill flow. Read
 [arquitecture.md](arquitecture.md) for modules, identity, permissions, execution
 and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 

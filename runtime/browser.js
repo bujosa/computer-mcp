@@ -60,7 +60,7 @@ export class Browser {
         args: [
           '--no-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-session-crashed-bubble',
+          '--hide-crash-restore-bubble',
           '--window-size=1280,800',
           '--window-position=0,0',
         ],

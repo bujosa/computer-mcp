@@ -10,6 +10,7 @@ import { randomUUID, createHmac } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { readConfig } from '../src/config.js';
+import { ownerConnection } from '../src/connection.js';
 import { RuntimeClient } from '../src/client.js';
 import { checkDocker, checkOwned } from '../src/docker.js';
 const state = process.argv[2];
@@ -56,7 +57,13 @@ async function human(pathname, body, cookie) {
   if (issuedTicket) {
     const ticketResponse = await fetch(api.base + '/api/owner/ticket', {
       method: 'POST',
-      headers: { authorization: `Bearer ${config.ownerToken}` },
+      headers: {
+        authorization: `Bearer ${config.ownerToken}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        connection: ownerConnection(path.resolve(state), config),
+      }),
     });
     assert.equal(ticketResponse.status, 200);
     body = await ticketResponse.json();
@@ -154,6 +161,56 @@ try {
   });
   await assert.rejects(wrongWorkspace.info(), { code: 'workspace_mismatch' });
   const owner = (await human('/api/ui/session', {})).cookie;
+  const connectionResponse = await fetch(api.base + '/api/ui/connection', {
+    headers: { cookie: owner },
+  });
+  assert.equal(connectionResponse.status, 200);
+  const connection = await connectionResponse.json();
+  assert.deepEqual(
+    connection.connection,
+    ownerConnection(path.resolve(state), config),
+  );
+  assert.ok(!JSON.stringify(connection).includes(config.token));
+  assert.ok(!JSON.stringify(connection).includes(config.ownerToken));
+  const reopened = await fetch(api.base + '/api/owner/ticket', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${config.ownerToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      connection: ownerConnection(path.resolve(state), config),
+    }),
+  });
+  assert.equal(reopened.status, 200);
+  const reopenTicket = await reopened.json();
+  await human('/api/ui/session', reopenTicket, owner);
+  const reopenReplay = await fetch(api.base + '/api/ui/session', {
+    method: 'POST',
+    headers: {
+      origin: api.base,
+      cookie: owner,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(reopenTicket),
+  });
+  assert.equal(
+    reopenReplay.status,
+    401,
+    'Reopening a valid session still consumes the new ticket',
+  );
+  await assert.rejects(api.request('/api/ui/connection'), {
+    code: 'human_only',
+  });
+  const badConnection = await fetch(api.base + '/api/owner/ticket', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${config.ownerToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ connection: { work: { command: 'invalid' } } }),
+  });
+  assert.equal(badConnection.status, 400);
   await socketCheck('/desktop/view', { cookie: owner, allowed: true });
   await socketCheck('/desktop/control', { cookie: owner });
   const a = await connect(),
@@ -170,6 +227,9 @@ try {
       .digest('hex'),
   });
   await assert.rejects(readAPI.call('control_acquire'), { code: 'read_only' });
+  await assert.rejects(readAPI.request('/api/ui/connection'), {
+    code: 'human_only',
+  });
   await assert.rejects(
     readAPI.request('/api/cancel', { body: { operationId: randomUUID() } }),
     { code: 'read_only' },
@@ -346,6 +406,19 @@ try {
       'Parameter values are intentionally omitted',
     ),
   );
+  const exported = await api.request(`/api/workflows/${workflow.id}/skill`);
+  assert.equal(exported.filename, 'SKILL.md');
+  assert.ok(exported.content.includes(config.computerId));
+  assert.ok(
+    !exported.content.includes('Parameter values are intentionally omitted'),
+  );
+  const exportDirectory = path.join(
+    '.computer-mcp',
+    'exported-skills',
+    exported.name,
+  );
+  await fs.mkdir(exportDirectory, { recursive: true });
+  await fs.writeFile(path.join(exportDirectory, 'SKILL.md'), exported.content);
   const readWorkflow = await tool(read, 'workflow_get', { id: workflow.id });
   assert.ok(readWorkflow.instructions.includes('input_'));
   const prompt = await read.getPrompt({
@@ -400,6 +473,8 @@ try {
           'legacy+modern stdio',
           'read-only credential enforcement',
           'API auth+origin+host',
+          'owner-only credential-free host configuration',
+          'taught Agent Skills export with identity+omitted parameters',
           'computer+workspace pinning',
           'lease exclusion+human takeover',
           'unprivileged terminal+timeouts+output cap',

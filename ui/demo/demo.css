@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  background: #f0f4eb;
-  color: #294336;
+  background: #f6f1ed;
+  color: #2a221e;
   font: 16px/1.6 system-ui;
 }
 main {
@@ -12,7 +12,7 @@ main {
 .eyebrow {
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: #527c5a;
+  color: #8e4334;
 }
 h1 {
   font-size: 38px;
@@ -20,7 +20,7 @@ h1 {
   line-height: 1.2;
 }
 p {
-  color: #607367;
+  color: #7d6f67;
 }
 label {
   display: block;
@@ -32,7 +32,7 @@ textarea {
   box-sizing: border-box;
   width: 100%;
   padding: 14px;
-  border: 1px solid #cedac8;
+  border: 1px solid #e6dbd3;
   border-radius: 8px;
   margin-top: 6px;
   font: inherit;
@@ -42,7 +42,7 @@ textarea {
   height: 110px;
 }
 button {
-  background: #2c6c4f;
+  background: #d06a54;
   color: #fff;
   padding: 13px 25px;
   border: 0;
@@ -54,7 +54,7 @@ button {
 article {
   margin-top: 30px;
   background: #fff;
-  border: 1px solid #cedac8;
+  border: 1px solid #e6dbd3;
   padding: 20px;
   border-radius: 10px;
 }
@@ -63,9 +63,22 @@ article h2 {
 }
 article span {
   font-size: 11px;
-  color: #78907d;
+  color: #7d6f67;
 }
 *:focus-visible {
-  outline: 3px solid #82a98b;
+  outline: 3px solid #e09a88;
   outline-offset: 3px;
+}
+
+button:hover {
+  background: #b85643;
+}
+@media (max-width: 640px) {
+  main {
+    margin: 20px auto;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 30px;
+  }
 }

@@ -51,7 +51,7 @@ export class Teach {
     requireThat(
       (await this.store.list()).length < 100,
       'workflow_limit',
-      'This computer already has 100 saved workflows. Export/archive them before recording more.',
+      'This computer already has 100 saved workflows. Use a new computer for additional recordings.',
       409,
     );
     requireThat(
