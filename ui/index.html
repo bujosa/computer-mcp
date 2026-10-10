@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Computer MCP</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/" aria-label="Computer MCP home"
+        ><span class="logo">▧</span> computer<span class="muted">/mcp</span></a
+      ><span class="pill" id="connection">Connecting…</span>
+    </header>
+    <main>
+      <div class="heading">
+        <div>
+          <p class="eyebrow">YOUR AGENT’S OWN COMPUTER</p>
+          <h1>A place to get things done.</h1>
+          <p class="subtitle">
+            One Linux desktop. Shared with you. Connected through MCP.
+          </p>
+        </div>
+        <div class="control-card">
+          <span id="owner">Checking control…</span>
+          <div class="actions">
+            <button id="take" class="primary">Take control</button
+            ><button id="release" disabled>Release</button>
+          </div>
+        </div>
+      </div>
+      <div id="notice" role="status" aria-live="polite"></div>
+      <nav aria-label="Computer views">
+        <button class="tab active" data-view="desktop" aria-current="page">
+          Desktop</button
+        ><button class="tab" data-view="files">Files</button
+        ><button class="tab" data-view="terminal">Terminal</button
+        ><button class="tab" data-view="teach">
+          Teach <span id="record-dot" hidden>●</span>
+        </button>
+      </nav>
+      <section id="desktop" class="view">
+        <div class="section-bar">
+          <div>
+            <strong>The same screen, for both of you.</strong>
+            <p id="desktop-mode">Live view · take control to interact</p>
+          </div>
+          <button id="demo">Open teaching sandbox</button>
+        </div>
+        <div class="screen-shell">
+          <div id="screen" aria-label="Live isolated Linux desktop"></div>
+          <div id="screen-status">Connecting to the desktop…</div>
+        </div>
+        <p class="caption">
+          This is the isolated guest. Your host screen and files are not
+          connected.
+        </p>
+      </section>
+      <section id="files" class="view" hidden>
+        <div class="section-bar">
+          <div>
+            <strong>Workspace files</strong>
+            <p>Relative paths · UTF-8 files up to 256 KiB</p>
+          </div>
+          <form id="browse-form">
+            <label class="sr-only" for="directory">Directory</label
+            ><input id="directory" value="." placeholder="Directory" /><button>
+              Browse
+            </button>
+          </form>
+        </div>
+        <div class="file-layout">
+          <div
+            id="entries"
+            class="file-list"
+            aria-label="Directory contents"
+          ></div>
+          <form id="file-form" class="editor">
+            <label for="file-path">File path</label
+            ><input id="file-path" placeholder="notes.txt" required /><label
+              for="file-text"
+              >Contents</label
+            ><textarea
+              id="file-text"
+              rows="13"
+              spellcheck="false"
+              placeholder="Read a file from the explorer, or write a new one."
+            ></textarea>
+            <div class="actions">
+              <button id="file-read" type="button">Read file</button
+              ><button class="primary" id="file-save">Save file</button>
+            </div>
+          </form>
+        </div>
+      </section>
+      <section id="terminal" class="view" hidden>
+        <div class="section-bar">
+          <div>
+            <strong>Guest terminal</strong>
+            <p>
+              Bash inside this computer · 30 second maximum · no host access
+            </p>
+          </div>
+        </div>
+        <form id="terminal-form">
+          <label for="command">Command</label>
+          <div class="command-line">
+            <span aria-hidden="true">$</span
+            ><input
+              id="command"
+              placeholder="printf 'Hello from my computer\n' > hello.txt"
+              autocomplete="off"
+              required
+            /><button class="primary" id="run">Run</button>
+          </div>
+          <div class="terminal-options">
+            <label for="cwd">Working directory</label
+            ><input id="cwd" value="." /><label for="timeout"
+              >Timeout (seconds)</label
+            ><input id="timeout" type="number" min="1" max="30" value="10" />
+          </div>
+        </form>
+        <pre id="terminal-output" tabindex="0" aria-label="Command output">
+Output will appear here.</pre
+        >
+      </section>
+      <section id="teach" class="view" hidden>
+        <div class="teach-grid">
+          <div>
+            <p class="eyebrow">SHOW IT ONCE</p>
+            <h2>Turn your steps into instructions.</h2>
+            <p class="subtitle">
+              Record what you do in the guest browser. Save the procedure so any
+              connected agent can read and reuse it.
+            </p>
+            <p class="caption">
+              Typed values and terminal commands are omitted and become
+              parameters. Only main-frame browser steps are captured. Review
+              URLs and selectors before reuse.
+            </p>
+            <form id="teach-form">
+              <label for="teach-name">Task name</label
+              ><input
+                id="teach-name"
+                placeholder="Create a project note"
+                maxlength="80"
+                required
+              /><label for="teach-goal">What should the agent accomplish?</label
+              ><textarea
+                id="teach-goal"
+                rows="3"
+                maxlength="2000"
+                placeholder="Describe the expected result, without secrets."
+              ></textarea
+              ><button id="teach-start" class="primary">Start recording</button>
+            </form>
+            <button id="teach-stop" class="primary" hidden>
+              Save recording
+            </button>
+            <p id="teach-status" role="status">Ready when you are.</p>
+            <ol id="steps"></ol>
+          </div>
+          <div class="saved">
+            <h3>Saved workflows</h3>
+            <div id="workflows"></div>
+            <pre id="workflow-text" tabindex="0" hidden></pre>
+          </div>
+        </div>
+      </section>
+      <footer>
+        <span id="identity">Loading identity…</span
+        ><span>Private preview · Docker Linux guest</span>
+      </footer>
+    </main>
+    <script src="/auth.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

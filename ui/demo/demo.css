@@ -1,0 +1,71 @@
+body {
+  margin: 0;
+  background: #f0f4eb;
+  color: #294336;
+  font: 16px/1.6 system-ui;
+}
+main {
+  max-width: 600px;
+  margin: 55px auto;
+  padding: 30px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #527c5a;
+}
+h1 {
+  font-size: 38px;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+p {
+  color: #607367;
+}
+label {
+  display: block;
+  margin-top: 20px;
+  font-size: 13px;
+}
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #cedac8;
+  border-radius: 8px;
+  margin-top: 6px;
+  font: inherit;
+  background: #fff;
+}
+textarea {
+  height: 110px;
+}
+button {
+  background: #2c6c4f;
+  color: #fff;
+  padding: 13px 25px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  margin-top: 20px;
+}
+article {
+  margin-top: 30px;
+  background: #fff;
+  border: 1px solid #cedac8;
+  padding: 20px;
+  border-radius: 10px;
+}
+article h2 {
+  margin: 0;
+}
+article span {
+  font-size: 11px;
+  color: #78907d;
+}
+*:focus-visible {
+  outline: 3px solid #82a98b;
+  outline-offset: 3px;
+}

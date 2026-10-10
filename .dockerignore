@@ -1,0 +1,7 @@
+.git
+node_modules
+.computer-mcp
+artifacts
+*.log
+.env
+ui/vendor
