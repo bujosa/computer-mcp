@@ -17,11 +17,17 @@ video example includes a reviewed proposed practice procedure; its new supplied
 values were executed and verified through real MCP. See [Teach](TEACH.md).
 
 All three owned review guests received the earlier security/lifecycle fixes.
-The running review-mvp additionally has the new Teach/video/analysis runtime;
+The running review-mvp additionally has the new Teach/video/analysis and Activity runtime;
 rebuild the other stopped guests before using these new capabilities. Their private work/owner credentials were rotated without changing their
 UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
 previous owner sessions are invalid. Configuration output still contains only
 the same state paths, never credentials.
+
+Open **Activity** to review retained sessions, control/tool time, outcomes and
+owner-only JSON exports. It contains local QA operations; no earlier activity is
+reconstructed. See [the audit contract](ACTIVITY.md) for attribution, privacy and
+retention limits. The latest owned review rebuild preserved its computer,
+workspace, saved skills and private history.
 
 | Registered computer | Port  | Network                | Handoff state            |
 | ------------------- | ----- | ---------------------- | ------------------------ |

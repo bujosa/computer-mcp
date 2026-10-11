@@ -86,12 +86,12 @@ database ceiling. Small transactions avoid rewriting a large JSON journal.
 Retention keeps up to 90 days, 20,000 events, 2,000 sessions and 20,000 control
 intervals. A removed session removes its associated history together. In-flight
 effects and live control are protected; at most 64 ordinary operations/connections
-plus four reserved takeover/cancellation/closure/Teach-stop/control-release
-operations are tracked concurrently.
+are tracked concurrently. Four additional slots allow takeover, cancellation,
+session closure, saving Teach and releasing control while the normal limit is full.
 One hundred session slots are reserved for owner observation; agent saturation
 cannot prevent a new owner console from opening. A full active session table
-refuses new sessions. Retention
-runs periodically and on owner reads; an idle stopped volume retains the previous
+refuses new sessions. Retention runs periodically and on owner reads; an idle
+stopped volume retains the previous
 snapshot until the next start. Export includes oldest retained timestamp and a
 count of pruned events so missing history is explicit. Download snapshots you
 want to keep longer.

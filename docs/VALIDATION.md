@@ -13,7 +13,8 @@ contracts with no failures/skips. The real focused runtime/MCP activity contract
 passed against the owned review computer, including modern and legacy client
 metadata, nonzero exit/timeout, takeover cancellation, copied read actor IDs,
 exact stdio session closure, owner-only export, pagination and payload exclusion.
-Private evidence is `artifacts/audit-local-final/`.
+Private evidence is `artifacts/audit-local-final/` and the final rebuilt-runtime
+rerun in `artifacts/audit-local-cleanup-final/`.
 
 Manual T3 review covered Activity at 1440 × 1050 and 390 × 844: range and exact
 session filters, outcome/exit-code display and JSON export. The downloaded JSON
@@ -31,9 +32,42 @@ attempts are not counted as passes. Independent audit also corrected read-close
 authority, retention attribution, SQL ambiguity, failure outcomes, cancellation
 on storage failure, and owner capacity under saturation. A final saturation
 review added Teach-stop/control-release to the bounded four-slot cleanup reserve;
-the contract verifies a fifth concurrent cleanup is rejected. Full updated E2E adds
-the activity contract and verifies the exact completed operation across a real
-guest restart; its independent results are recorded below when available.
+the contract verifies a fifth concurrent cleanup is rejected.
+
+Independent Mac mini ran exact product commit
+`6f9da58ccbada8660fb2c5bf4fe0df2c6693a15d`: fresh `npm ci`, formatting, lint,
+43-module/noVNC build, 43 contracts with no failures/skips, and production audit
+with zero findings. The full real CLI/Docker/MCP E2E passed **16 phases**, exit 0,
+in **124.924s**, including a **77.978s** initial image build/start. It verified
+modern/legacy client attribution, copied read actor authority, owner-only export,
+payload exclusion, exact stdio session closure and the exact completed activity
+operation across a real guest restart. Teach video/analysis/review, browser
+recovery, profile/file/skill persistence, two-PC/default isolation and egress also
+passed. Both new guests stopped with private volumes retained; default context
+and unrelated resources were preserved.
+
+Private evidence: `artifacts/remote-qa/6eee64fd-f00f-456f-b8d3-dc4a6a9bfed3/`.
+All 75 versioned source files were checked; snapshot hash:
+`8abc7a81f17c7b632937c8a8b4bab7521d51ead39f149c020ffc7e44286f7363`.
+Host: macOS 15.5 ARM64, Node 25.6.1; local Linux Docker 29.2.1 ARM64, with
+Node 22 inside the guest. Final validation/handoff documentation edits do not
+change this tested product code.
+
+The earlier new remote attempt on `33382b4` failed in the first file write because
+QA extraction under umask 077 removed source readability for guest UID1000.
+The bounded worker returned EACCES; PID/memory limits were not exhausted. The
+archive was re-extracted preserving versioned modes inside a private parent,
+and the final run used a new directory/project. No guest data permissions,
+runtime limits or environment guards were relaxed. Failed-attempt evidence:
+`artifacts/remote-qa/6b744ba6-408f-4c2b-9d64-b077c155c7ad/`.
+
+Hosted Ubuntu/macOS/Windows CI on `6f9da58` failed with zero steps; all three job
+annotations explicitly reported account payment/spending restrictions. GitGuardian
+passed. The matching run is
+<https://github.com/bujosa/computer-mcp/actions/runs/38106332364>.
+No billing setting was changed. Windows/Linux host or AMD64 execution is not
+claimed. The owned local review computer was rebuilt to this product code and
+left idle with its original computer/workspace identity and retained history.
 
 ## Teach media, analysis and review update
 
