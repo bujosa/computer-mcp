@@ -4,6 +4,131 @@ Private Sendtry Computer MVP reviewed on 10–11 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Product recovery, current Mac mini and independent operator acceptance
+
+Backend/product commit `6ab1c3a3317ffdf59920e2393137a1df7201fa2f` fixes
+destination truncation on failed file writes, preserves editing of reviewed
+video-only procedures after clip deletion, adds exact-operation terminal
+cancellation/status and blocks copying/exporting unsaved reviews. Operator v6
+adds truthful storage-full recovery. UI follow-ups `251321f` and `1fc3ad6`
+restore keyboard focus, label deleted clips, show review errors beside compact
+actions and keep Activity filters aligned with their displayed metrics.
+
+PASS local `npm run format:check`, `npm run lint`, `npm run build` (49 modules
+plus UI/noVNC/shared bundle), `npm test` (**64 contracts, no failures/skips**),
+`npm audit --omit=dev --audit-level=high` (**zero findings**), operator
+`quick_validate.py` and `git diff --check` at the backend commit. Affected
+contracts cover partial staging writes, sync/rename ENOSPC, unchanged destination,
+staging cleanup, concurrent destination changes, permissions and a reviewed
+zero-step procedure with no remaining draft/video. UI-only follow-ups passed
+scoped Prettier/ESLint and the 49-module build locally and remotely; the unchanged
+backend suite was not repeated for presentation changes.
+
+The independent operator forward run first exposed a real local capacity fault:
+the earlier runtime returned ENOSPC and left its new synthetic file empty. Its
+report is **BLOCKED, not PASS**, at `artifacts/operator-forward-20261011/`.
+Docker's guest disk was at 100%/zero available despite free host APFS space.
+No resources were pruned/deleted and no shared daemon was restarted. To check
+the actual fix without rebuilding that full engine, the new file module was
+streamed into the same owned guest under UID 1000 with a bounded isolated runner:
+physical ENOSPC returned `storage_full` for both a new file and an existing
+synthetic file; the new target stayed absent, existing bytes stayed exact and
+zero staging files remained. This is a **real filesystem/module fault check**,
+not validation of a newly rebuilt local HTTP/MCP image. Evidence:
+`artifacts/storage-integrity-20261011/physical-enospc.json`.
+
+Independent SSH Mac mini verified all 83 tracked files for exact backend commit
+6ab1c3a, source fingerprint
+`cb5fc6c6cdfb876095f0bf7f7c4199998c7d2b1bd7bd29549ea574da6fd2f5d3`.
+Fresh `npm ci`, formatting, lint, the 49-module build, 64 tests and production audit with zero findings passed.
+Host macOS 15.5 ARM64/Node 25.6.1; explicit local Unix `desktop-linux`, Docker 29.2.1
+Linux ARM64 and guest Node 22. The retained network pool was nearly exhausted:
+this round rebuilt only two independently owned, previously stopped QA guests
+with their existing identities/volumes/networks. **It is not a fresh 17/17 E2E
+run** and does not claim new-PC provisioning under that exhausted pool.
+
+PASS actual `scripts/integration.mjs` on both internet and isolated guests,
+`scripts/catalog-integration.mjs`, `scripts/teach-integration.mjs`,
+`scripts/audit-integration.mjs` and `scripts/desktop-integration.mjs`. They
+exercise real modern/legacy stdio, 16 tools, auth/scopes, two-PC identity/leases,
+contained files, bounded/cancellable terminal, Chromium/screenshots, X11 input
+and takeover cleanup, Teach/review/pinned reuse, private Activity/durations and
+payload omission. Guest WebM was 19,956 bytes with four decoded frames. An owned
+nonwritable staging directory retained its exact destination with zero staging
+files; that remote check is not physical ENOSPC. Both egress policies and exact
+latest browser/file/workflow results after stop/start passed.
+
+The initial private reuse runner failed an Activity persistence assertion because
+it searched only the first 50-event page of reused history. The failed report is
+preserved. The exact same operationId was found in the full owner export of 492
+events, and remaining scoped lifecycle checks passed without repeating contract
+mutations or weakening product assertions. Initial 48.869s plus continuation 6.553s
+are not a cold-install/scale benchmark. Reports/logs/synthetic media remain private
+at `artifacts/remote-qa/0b27aa42-bc4e-4577-980b-ae42f1158cfd/`.
+
+A genuine zero-step video fixture was then recorded with Chromium closed,
+decoded into three MCP PNG samples, proposed/reviewed, its own clip deleted and
+reviewed again without draft/video. Prior failed preparation attempts are
+retained rather than called successes. This verifies the protocol/editing path,
+not a model's video-understanding quality. The real owner UI saved further
+reviews and downloaded a valid 3,997-byte identity/revision-pinned skill.
+
+Manual T3 review covered 1440×1000 and 390×844 on the actual Mac mini guest. PASS
+terminal exit 0/nonzero 7, timeout, output limit, scoped cancel and a subsequent
+five-second check proving its delayed file write never happened. Keyboard Enter
+reaches cancellation and returns to Command; intentional focus on Output remains
+there after completion. PASS zero-step/deleted-video editing, unsaved use/copy/
+export rejection, saved review/export and local status/polite error caption fully
+visible beside mobile actions. Operator download exactly matches v6 (8,569 bytes);
+both downloaded skills pass `quick_validate.py`. Clipboard copy acknowledgement
+was checked, contents were not independently read. No permissions changed.
+
+The review also found a real Activity race: selecting a session during Refresh
+could show the new selection with previous all-session metrics. The scoped UI
+fix locks Activity controls during guarded requests. Repeating that sequence
+now yields 15 actions, one session, 391 ms tool time and 1 min 12 s control for the
+independent agent; All sessions 374→selected 15 and keyboard focus is preserved.
+Actual JSON export agrees: 15 events, one session, 72,871 ms control, no supplied
+task values/credential fields. Both compact views have document width 390, with
+visible focus and contained content. Private screenshots/downloads/notes:
+`artifacts/product-recovery-ui/`. Existing noVNC VideoFrame diagnostics appeared;
+no diagnostic-free console or automated UI appearance/E2E harness is claimed.
+
+Final Mac mini UI app SHA256
+`66d7f58999e8eb3d8e2b18f8e7d4e2ebeddbbd7e7e5fc18ae3f4e93b3d5d68b2`,
+index SHA256 `fa848aa100eed4f09b21754273659274fa3cb12b934bb80587f1f23aa3c58b6b`.
+Other 81 snapshot files remained byte-identical to 6ab1c3a; only UI was copied for
+the follow-ups (documentation was updated locally). Final snapshot fingerprint
+`d384ffe4015563d416925e4225a33363ff0abc1c8e06ad23c73097187ee8dbfe`,
+guest image `sha256:e05bc9f85dfcb97135bc0fb8c2394e9e046fdc20c9c74dd3432934a8aca5cd00`.
+Runtime/backend/scripts remained unchanged from the exercised 64-contract source.
+
+PASS independent interactive agent acceptance using actual operator v6 and the
+official SDK/stdio over SSH: both assigned IDs, 16 tools, a new exact-content
+file/readback, `pwd` exit 0 with no stopped/truncated result, new practice project/
+note verified after document reload, screenshot review and release confirmed by
+`lease: null`. It selected operations from observed results, not a replay of the
+test suites. No saved workflow was executed in this particular acceptance task;
+taught reuse is covered by the separate real Teach contracts. Report/transcript:
+`artifacts/operator-forward-remote-20261011/`. This is one bounded task/agent/
+transport, not certification of all harnesses/models.
+
+Final independent resource check passed: both remote QA guests and the owned
+isolated proxy stopped, both volumes retained, all 32 network identities and
+unrelated container identities/statuses preserved, saved ports loopback-only and
+the remote default context unchanged. The single-use owner helper socket was
+absent. The parent's own SSH tunnel was then closed. No state/credentials were
+copied for evidence; only allowlisted reports/logs/synthetic media and exports.
+See the final remote `final-resources.json` and `REMOTE-QA.md`.
+
+BLOCKED hosted Ubuntu/macOS/Windows CI for exact backend 6ab1c3a: all three jobs
+have zero steps, and annotations explicitly cite account payment/spending
+restrictions ([run 38128037615](https://github.com/bujosa/computer-mcp/actions/runs/38128037615)).
+GitGuardian passed; billing settings were not changed. Windows/Linux host
+lifecycle, AMD64, individual harness installation, model/scale evaluations and
+public licensing/packaging remain pending. The owned local review image is still
+the previous polish on the full Docker disk; see [local review](LOCAL-REVIEW.md).
+
 ## First connection and independent skill export polish
 
 Product commit `e034cf3d20623eb9599a8dd2cbe81d6828fba7ba` gives Connect agent
