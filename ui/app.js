@@ -87,7 +87,13 @@ function guarded(fn) {
   return async (event) => {
     event?.preventDefault();
     if (busy) return;
+    const activityFocus =
+      view === 'activity' &&
+      activityControls.includes(document.activeElement.id)
+        ? document.activeElement
+        : null;
     busy = true;
+    activityState();
     notice('');
     try {
       await fn(event);
@@ -95,6 +101,15 @@ function guarded(fn) {
       notice(error.message, true);
     } finally {
       busy = false;
+      activityState();
+      if (
+        activityFocus &&
+        view === 'activity' &&
+        document.activeElement === document.body &&
+        !activityFocus.hidden &&
+        !activityFocus.disabled
+      )
+        activityFocus.focus({ preventScroll: true });
       await refresh().catch(() => {});
     }
   };
@@ -162,6 +177,7 @@ function mutationState() {
   $('take').disabled = !info || own() || busy;
   $('release').disabled = !own() || busy || !!info?.teach.active;
   $('teach-start').disabled ||= !!info?.teach.active;
+  activityState();
 }
 async function refresh() {
   if (!actor || refreshing) return;
@@ -206,6 +222,16 @@ async function refresh() {
 }
 let activityCursor,
   activityRows = [];
+const activityControls = [
+  'activity-range',
+  'activity-session',
+  'activity-refresh',
+  'activity-export',
+  'activity-more',
+];
+function activityState() {
+  for (const id of activityControls) $(id).disabled = !info || busy;
+}
 const duration = (ms) => {
   if (ms === null || ms === undefined) return 'Unknown';
   if (ms < 1000) return `${Math.round(ms)} ms`;

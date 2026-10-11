@@ -110,4 +110,7 @@ The owner can filter and export metadata for later evaluation without exposing
 commands, file data or video. Identity and time are deliberately described as
 observed metadata, not verified people/models, billing or success certification.
 Local retention and owner-readable exports replace any hosted analytics service.
+Activity disables its filters and export/paging controls during an in-flight
+request so a changed selection cannot appear with the previous totals. Session
+selection applies to history, summary and the downloaded JSON together.
 See [Activity](ACTIVITY.md).
