@@ -310,7 +310,7 @@ test('session truncation is explicit and export includes every retained matching
   assert.equal(exported.sessionsTruncated, false);
 });
 
-test('saturated ordinary operations retain bounded owner takeover and cancellation capacity', async (t) => {
+test('saturated ordinary operations retain bounded takeover, cancellation and cleanup capacity', async (t) => {
   const f = await fixture(t, { pending: 1 }),
     a = agent(),
     human = { actor: `human:${randomUUID()}`, kind: 'human' };
@@ -322,6 +322,14 @@ test('saturated ordinary operations retain bounded owner takeover and cancellati
   f.audit.finish(takeover);
   const cancel = f.audit.start(a, 'operation.cancel');
   f.audit.finish(cancel);
+  const cleanup = ['teach.stop', 'tool.control_release', 'session.end'].map(
+    (action) => f.audit.start(human, action),
+  );
+  const lastSlot = f.audit.start(a, 'operation.cancel');
+  assert.throws(() => f.audit.start(human, 'teach.stop'), {
+    code: 'activity_limit',
+  });
+  for (const id of [...cleanup, lastSlot]) f.audit.finish(id);
   f.audit.finish(pending, { outcome: 'cancelled', code: 'lease_lost' });
   assert.equal(f.audit.read().summary.running, 0);
 });

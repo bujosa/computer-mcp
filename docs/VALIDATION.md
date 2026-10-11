@@ -20,15 +20,18 @@ session filters, outcome/exit-code display and JSON export. The downloaded JSON
 was parsed from the actual preview download and contained nine selected-session
 events and one session with the pinned computer identity. Desktop had no
 horizontal page overflow; compact controls and metrics stacked in the screenshot.
-Preview automation disconnected during subsequent compact scrolling, so no
-claim is made for that unavailable follow-up inspection. No generated UI test
-harness was added.
+After a transient preview disconnect, compact scrolling and the outcome timeline
+were reviewed; loading earlier actions grew the list from 50 to 99 rows and hid
+the exhausted-page button. The compact page remained 390px wide. No generated UI
+test harness was added.
 
 Earlier focused attempts exposed an unlabeled internal MCP cleanup request and
 an attempt overlapping an owned rebuild. Both were corrected/re-run; those
 attempts are not counted as passes. Independent audit also corrected read-close
 authority, retention attribution, SQL ambiguity, failure outcomes, cancellation
-on storage failure, and owner capacity under saturation. Full updated E2E adds
+on storage failure, and owner capacity under saturation. A final saturation
+review added Teach-stop/control-release to the bounded four-slot cleanup reserve;
+the contract verifies a fifth concurrent cleanup is rejected. Full updated E2E adds
 the activity contract and verifies the exact completed operation across a real
 guest restart; its independent results are recorded below when available.
 

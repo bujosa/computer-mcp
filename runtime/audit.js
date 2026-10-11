@@ -324,6 +324,8 @@ export class Audit {
         'control.takeover',
         'operation.cancel',
         'session.end',
+        'teach.stop',
+        'tool.control_release',
       ].includes(action);
       requireThat(
         this.db
