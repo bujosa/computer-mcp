@@ -13,6 +13,12 @@ literal JSON in owner memory and are excluded from workflow/Activity storage.
 `workflow_get.reviewed` explicitly blocks a pending proposal even when its body
 is hidden from read scope and a prior review remains. There are still 16 tools.
 
+Product commit `998fc7254651d7e3df2b11e4430a247ac102959f` passed local
+`npm run format:check`, `npm run lint`, `npm run build` (49 JavaScript modules
+plus noVNC/shared contract bundle), `npm test` (**57 contracts, no failures or
+skips**) and `npm audit --omit=dev --audit-level=high` (**zero findings**).
+The repository operator skill passed `quick_validate.py`.
+
 Local focused `test:teach-integration` passed against owned review-mvp: real video,
 analysis/proposal/review, plan/execute MCP prompts, read execution denial, hidden
 pending draft rejection, identity/revision-pinned request and actual file reuse
@@ -42,9 +48,40 @@ was 56/57: shared parameter descriptions initially rejected the supported legacy
 `command_2` name. Safe bounded names now retain compatibility; the original export
 test and the full 57-contract suite subsequently passed without removing checks.
 
-Exact committed-source Mac mini QA for this new handoff is pending. The earlier
-17-phase pass below applies only to its stated commit; final results will be
-recorded separately. Other host/guest support remains unchanged.
+Independent Mac mini ran exact product commit
+`998fc7254651d7e3df2b11e4430a247ac102959f`: fresh `npm ci`, formatting, lint,
+49-module/noVNC/shared contract build, **57 contracts with no failures/skips**
+and production dependency audit with **zero findings**. Full real
+`npm run test:e2e -- --context desktop-linux` passed **17/17 phases**, exit 0,
+in **53.029s**. This cached-image run is not a cold-install benchmark.
+
+It exercised the new owner-only pinned handoff, default plan/work execution
+prompt, read execution denial, hidden pending proposal rejection, fresh supplied
+file reuse through MCP and metadata-only handoff Activity. The real guest WebM
+was **19,438 bytes**, decoded to **four frames**. CLI/catalog/default and pinned
+stdio, two-PC isolation, native desktop input/takeover, scoped Activity, both
+egress modes, exact latest result after restart and browser recovery also passed.
+The runner and final independent resource inspection confirm both new guests
+and their proxy stopped with exit 0, private volumes retained and unrelated
+resources preserved. Guest ports bind only `127.0.0.1:17670`/`17671`; the default
+context remains unchanged and the explicit engine is local Unix `desktop-linux`.
+
+Private evidence is
+`artifacts/remote-qa/e020ae70-2840-410c-93d3-78cf361a1524/`, including
+`REMOTE-QA.md`, manifest, gate logs/results, final report, final resource inspection
+and desktop/Teach/Activity artifacts. All **83 versioned source files** and HEAD
+were checked; snapshot hash:
+`d1c5547b0b8695ad20a14ec564572e0ccc5f41013e670629e64c14ecdc42a702`.
+Host: macOS 15.5 ARM64, Node 25.6.1; Docker 29.2.1 Linux ARM64 on explicit local
+`desktop-linux`, with Node 22 in the guest. Final validation documentation changes
+do not change this tested product code or scripts.
+
+Hosted Ubuntu/macOS/Windows CI on this exact `998fc72` failed with **zero steps**;
+all three job annotations explicitly reported account payment/spending
+restrictions. Run:
+<https://github.com/bujosa/computer-mcp/actions/runs/38118090675>.
+No billing settings were changed. Windows/Linux hosts, AMD64 and native or VM
+guests remain untested; this Mac mini pass does not certify those paths.
 
 ## Bounded guest desktop input update
 
