@@ -1,197 +1,148 @@
 # Validation record
 
-Private MVP review on 10 October 2026. Results describe paths actually exercised,
-not support inferred from portable JavaScript or CI configuration.
+Private Sendtry Computer MVP reviewed on 10 October 2026. Final reports are from
+01:25–01:31 UTC on 11 October. Results describe exercised paths; portable code
+and a CI matrix do not establish platform support.
 
-## Environment and scope
+## Final environments and gates
 
-- Host: macOS ARM64, Node 24.1.0.
-- Guest: Debian Linux ARM64, Docker Desktop Linux engine 29.4.3, Chromium through
-  pinned Playwright 1.64.0, visible Xvfb/Openbox desktop.
-- Every Docker operation used explicit `--context desktop-linux`. The default
-  context remained `ser9`; no operation targeted that remote daemon.
-- Three new owned UUID projects/volumes were used, with loopback console ports
-  17670 (internet), 17671 (isolated) and 17672 (isolated catalog QA). No Piblo containers, profiles or volumes
-  were reused. Reference worktrees were read-only.
+| Environment                  | CLI host                        | Guest engine/runtime                                         | Real E2E result                             |
+| ---------------------------- | ------------------------------- | ------------------------------------------------------------ | ------------------------------------------- |
+| Implementation workstation   | macOS 26.6.1 ARM64, Node 24.1.0 | Docker Desktop Linux 29.4.3, Debian ARM64, Playwright 1.64.0 | 14 phases passed, 41.394 seconds with cache |
+| Independent Mac mini via SSH | macOS 15.5 ARM64, Node 25.6.1   | Docker Desktop Linux 29.2.1, Debian ARM64, Playwright 1.64.0 | 14 phases passed, 44.178 seconds with cache |
 
-## Checks
+Both machines passed `npm run format:check`, `npm run lint`, `npm run build`
+(32 JavaScript syntax checks and the real noVNC bundle), and `npm test`
+(21 contracts, zero failures/skips). Mac mini also ran fresh `npm ci` with zero
+reported vulnerabilities. Earlier local `npm ci` and `npm audit --omit=dev`
+passed with zero production findings. Both ran:
 
-| Command/path                                                   | Result                                                           |
-| -------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `npm ci`                                                       | Dependencies installed from the committed lockfile               |
-| `npm run format:check`                                         | Passed                                                           |
-| `npm run lint`                                                 | Passed                                                           |
-| `npm run build`                                                | Syntax checks and actual noVNC ESM bundle passed                 |
-| `npm test`                                                     | 19 backend/security/CLI contract tests passed on macOS           |
-| `npm audit --omit=dev`                                         | 0 known production dependency vulnerabilities reported           |
-| `setup`, `doctor`, `start`, `status`, `open`, `config`, `stop` | Local CLI paths exercised; macOS browser opener returned success |
-| `npm run test:integration -- <internet-owned-state>`           | Passed against the running guest                                 |
-| `npm run test:integration -- <offline-owned-state>`            | Passed through the offline console relay                         |
+```sh
+npm run test:e2e -- --context desktop-linux
+```
 
-The corrected owned offline `stop` → `start` passed. Authenticated reads verified
-the same workspace UUID, exact file contents, saved workflow and browser-profile
-files; the old lease was cleared. A read of the persisted guest browser's local
-storage also verified that the saved task value survived the restart.
+The Mac mini's first cold desktop build/start took 89.005 seconds. Warm timings
+include execution and restart, not first-install time. See [QA](QA.md) for
+prerequisites, ownership and reproducible commands.
 
-The real integration smoke checks both legacy and modern official SDK stdio
-connections, 13 tools, resource/prompt discovery, pinned computer/workspace
-identity, API auth/Host/Origin boundaries, separate read authority, and rejection
-of human-session creation with an agent credential. Owner tickets are consumed
-once; absent/replayed tickets are rejected. Malformed JSON returns 400.
+## Actual execution coverage
 
-It exercises an exclusive lease across clients, UID-1000 shell execution, private
-root control/environment isolation, deadlines, bounded output, cancellation,
-stdio-close release and human takeover that prevents a delayed command effect.
-It writes/reads guest files, rejects traversal/symlinks, acts on the visible
-browser, validates a real PNG screenshot, saves Teach events, reads them through
-MCP/prompt and follows parameterized steps to create a new note. Authenticated
-VNC view/control are checked through real RFB handshakes; appearance is reviewed
-separately.
+The runner creates a new private catalog and two fresh UUID computers, one with
+explicit internet access and one isolated/offline. It verifies:
 
-## Manual UI and network review
+- Strict CLI options, empty catalog, creation without implicit start, duplicate
+  rejection, start/doctor, registration, defaults and exact configurations.
+- Official SDK legacy/modern stdio, 13 tools, resources/prompts, read/work scopes,
+  computer/workspace pins, auth/Host/Origin, owner-only metadata and tickets.
+- Independent leases/files across PCs, defaults that do not retarget pinned MCP,
+  and idempotent start preserving boot/lease generation.
+- UID-1000 execution, same-UID credential isolation, output/deadline limits,
+  cancellation, HTTP disconnect, takeover and process-group cleanup checked
+  after delayed effects would have occurred.
+- Contained files, traversal/symlink rejection, visible browser actions, real PNG
+  capture and authenticated view/control RFB handshakes.
+- Teach, export, omitted values/commands, missing parameters, prompt retrieval
+  and actual taught procedure execution with supplied values.
+- Stop/start retaining computer/workspace IDs, exact files/workflow and the
+  **latest unique project and note** rendered by the persistent browser. Boot ID
+  changes and the old lease is absent. Closing Chromium then navigating under a
+  lease recovers it without restarting the computer.
+- Public HTTPS in internet mode and a blocked TCP probe in isolated mode. This
+  is a negative egress probe, not a universal firewall claim.
 
-Using the T3 collaborative browser, reviewed Desktop, Files, Terminal and Teach
-at 1280 CSS pixels and the responsive console at 390 × 844. Checked keyboard
-focus, no horizontal overflow, file save/read and a traversal rejection, terminal
-output/exit status, take/release state and a live 1280 × 800 noVNC screen. Native
-canvas clicks/keypresses completed the guest form; saving a manual teaching task
-produced five reusable steps with omitted input values. Saved workflows remained
-visible after runtime recreation. No generated UI appearance/E2E test harness
-was added.
+Both final reports show `unrelatedResourcesPreserved: true`: default context,
+unrelated container IDs and running states matched the starting snapshots.
+Only fresh owned guests were stopped; data volumes were retained. Locally all
+mutations used `desktop-linux`; default `ser9` and its remote daemon were untouched.
+Mac mini also kept its existing default context.
 
-The final protected UI also showed the unauthenticated owner-access state, then
-an authenticated live screen and human takeover. A disposable loopback helper
-consumed a CLI-owner ticket and installed the HttpOnly cookie for the isolated
-preview profile without printing credentials; it closed after that review.
-The actual macOS `open` command was exercised separately. The helper is not part
-of the product.
+## Evidence and source identity
 
-Internet mode reached public TCP `1.1.1.1:443` and loaded `https://example.com`
-(`Example Domain`) in the real guest browser. The isolated guest rejected that
-public TCP connection while its authenticated console/MCP remained reachable.
-This is a negative egress probe plus Docker internal-network configuration, not
-a claim of a portable firewall denying every host gateway/private endpoint.
+Gitignored private evidence remains in this implementation worktree:
 
-## Issues found and corrected during validation
+- Local: `artifacts/e2e-nipsaD/report.json`, source SHA-256
+  `cd74daf0867742ea1635b9f19217f2d8e9e633c6d3db98c22c2400feeac09109`.
+- Mac mini: `artifacts/remote-qa/538227d7-550b-42c7-bfe7-cf3303863418/report-final.json`,
+  source SHA-256 `167a90c36f715aeae523483033441fdc14de146936d53fa7460426f533c517a1`.
+  `REMOTE-QA.md`, source/patch manifests and the initial failed report are retained.
+- Remote reports remain under the new private directory
+  `/Users/bujosa/computer-mcp-private-qa/538227d7-550b-42c7-bfe7-cf3303863418/source/artifacts`.
 
-- The noVNC npm CommonJS build failed on top-level await. The official pinned
-  v1.6.0 ESM tag archive builds and runs; its license remains served locally.
-- A root-created browser profile prevented unprivileged Chromium startup.
-  Entrypoint ownership and a UID-1000 launch wrapper corrected that boundary.
-- Docker Desktop did not publish ports for an internal-only guest network.
-  Offline mode now uses a bounded, credential-free fixed TCP relay; the guest
-  remains on its internal network. Both modes passed the real MCP smoke.
-- A stopped Xvfb left display locks in the container filesystem. `/tmp` is now a
-  bounded tmpfs so restart cannot retain them; persistent data stays in the owned
-  volume.
-- Broad loopback UI bootstrap would have allowed a guest process to impersonate
-  a human. Separate owner credentials and single-use tickets now enforce that
-  protocol boundary, with per-computer cookies and guest-side rejection tests.
-- The initially selected `ws` patch had an audit finding; the pinned version was
-  updated to 8.22.0 and the production dependency audit returned zero findings.
+These runs tested snapshots based on `8726bc6`; that original commit does not
+contain the subsequent fixes. Remote-only QA commit `8adee7b` records the
+transferred snapshot, not an upstream product commit. Runtime/UI/test code
+matched across hosts; subsequent documentation edits account for differing
+source fingerprints. No `.git`, credentials, local state or customer data were
+transferred. Artifacts can contain demonstrated content; do not publish them.
 
-The Chromium restore-pages notification found after an unclean shutdown was
-corrected with its supported `--hide-crash-restore-bubble` startup flag. The
-recreated guest was reviewed visually without the notification; there is no
-automatic replay of those tabs. The flag was checked against Chromium's
-[primary startup implementation](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/ui/startup/startup_browser_creator.cc). Upstream noVNC can emit a VideoFrame
-initialization/cleanup diagnostic; authenticated streaming and native input
-worked during review. These are known polish items, not hidden passed tests.
+## Findings and corrections
 
-## Sendtry design and skills refinement
+Local and independent remote execution reproduced a persistence failure: the old
+note survived, but the latest note was lost on immediate stop. Pinned Playwright's
+default signal handler and server shutdown closed Chromium concurrently; a second
+graceful close killed it before profile flushing completed. The server now owns
+shutdown with Playwright signal handlers disabled. Exact unique note assertions
+remained enabled and passed on both hosts; profile existence alone was not accepted.
 
-The console now uses Sendtry's owner-provided mark, warm paper/salmon palette,
-five functional views and a guided connection/teaching flow. Read-only brand
-inspection imported only the mark/wordmark, with documented provenance and
-pending public asset/license terms.
+Additional corrected audit findings:
 
-Final static gates passed: `npm run format:check`, `npm run lint`,
-`npm run build` (28 JavaScript modules and noVNC bundle) and `npm test` (9
-backend/security tests). The two added contracts cover credential-free exact
-connection generation and completed/interrupted skill export, identity, omitted
-parameters and bounded multilingual names. The local skill-creator
-`quick_validate.py` passed for the bundled operator skill and an actual exported
-recording folder.
+- Desktop helpers inherited root work/owner credentials. Their environment now
+  clears before dropping UID; real same-UID `/proc` checks pass without logging
+  values. Three owned review guests were rebuilt and private credentials rotated
+  while retaining identity/data.
+- HTTP disconnect aborts its lease operation independently of cancellation
+  request ordering. Wrong-session/operation cancellation cannot stop that work.
+- Concurrent Teach closes share one save and cannot clear a later recording.
+  Recorder URLs are bounded; browser recovery requires a leased navigation.
+- Per-computer image tags avoid moving another checkout's shared image tag.
+  Active checkpoints display Recording/Saving with export disabled.
 
-The updated real integration smoke passed in both internet and isolated owned
-computers. It additionally verifies human-only host connection configuration,
-work/read-agent rejection, schema rejection for malformed owner metadata,
-single-use tickets when reopening an existing owner session, and a real Agent
-Skills export without the demonstrated input values. The original 13-tool MCP
-contract remains intact.
+A later local repeat failed when retained QA projects exhausted Docker's subnet
+pool; its report also recorded concurrent unrelated container identity changes.
+No application assertion was weakened. Read-only checks confirmed ownership and
+zero endpoints on five networks from this task's already stopped disposable runs;
+only those empty networks were removed. No container, image or volume was deleted.
+The next full fresh run passed, including the unchanged-environment check.
+Retained catalogs/networks/volumes consume resources; automatic deletion is pending.
 
-T3 manual review covered 1280/1440-pixel desktop and 390 × 844 compact layouts,
-real desktop streaming/input, copy configuration, JSON/TOML and work/read
-selection, actual configuration/operator/taught-skill downloads, skill search,
-parameter review, file save/read, terminal execution, visible keyboard focus and
-owner-access recovery. The compact document width was 390 (no horizontal page
-overflow). A manual recording from the redesigned flow saved five steps, and
-persisted across the owned guest recreation. A second owner session interrupted
-an active recording: the UI displayed Interrupted with export disabled and the
-backend rejected export with HTTP 409. Both QA leases were released.
+Earlier testing also corrected browser-profile permissions, offline publishing
+through a fixed credential-free relay, restart display locks through `/tmp` tmpfs,
+separate human authority, the noVNC ESM bundle and a dependency audit finding.
+Current real integration covers these paths.
 
-These were manual application reviews, not generated UI tests. The preview
-profile's temporary owner authorization helper used only loopback and closed
-after consuming its ticket; no credentials were printed. No global agent skill
-or MCP configuration was installed. Harness-specific skill discovery remains
-pending despite valid artifacts and standard MCP interoperability.
+## Manual product/design review
 
-## Pending validation and limits
+T3 collaborative browser review covered the six Sendtry views at 1280/1440 pixels
+and 390 × 844: live noVNC input, file save/read, terminal output, keyboard focus,
+take/release, JSON/TOML and work/read setup, configuration/operator/taught-skill
+downloads, search/parameters and computer/default commands. Narrow layouts had
+no horizontal page overflow; configuration text stays in its container.
 
-The CI matrix targets Node 22 on Ubuntu, macOS and Windows for install, format,
-lint, build and portable core tests. The POSIX command test and symlink-specific
-assertions are skipped on Windows; the actual Linux guest exercises them.
-GitHub marked the matrix checks as failed before any job steps started because
-of account payment/spending restrictions; no cross-OS CI pass is claimed. This
-external blocker is also reported on the PR. A green core job is not a Windows
-or Linux Docker lifecycle/desktop validation.
+Final manual recording created/read a note, showed Recording in library/detail,
+saved two reusable steps, became Ready to review and downloaded the skill.
+Earlier interrupted recording correctly disabled export (HTTP 409). The practice
+page displays its saved note after reload. The default review computer is idle
+without active Teach; other review guests are stopped. The actual macOS CLI
+browser opener succeeded in earlier review. Operator and exported skill artifacts
+also passed the local skill validator; harness discovery itself remains pending.
 
-Windows/Linux host lifecycle, AMD64 guest operation, Claude Code/Cursor/Codex UI
-registration, native host control, macOS/Windows isolated guests, VM/remote
-adapters, hostile-code isolation and public packaging/license review remain
-pending. The first image build downloads desktop/browser dependencies; this is
-not a zero-download native executable. See [SECURITY.md](../SECURITY.md) for
-sandbox, network, process-tree and disk-quota limits.
+A disposable loopback helper consumed an owner ticket for the separate preview,
+printed no credentials and closed afterwards. It is not product code. Restart
+401s were followed by successful reauthorization. Upstream noVNC emits a
+VideoFrame cleanup diagnostic in this browser; streaming/input worked. No
+appearance/navigation/UI E2E harness, global harness settings or skill installation
+was added. Brand asset provenance and pending public terms are in [product](PRODUCT.md).
 
-## Local computer management refinement
+## Pending validation and support
 
-The host-only catalog was exercised under the ignored
-`.computer-mcp/review-catalog`, without touching global defaults or another
-project's resources. Existing review computers were registered idempotently;
-`init --name catalog-sandbox --context desktop-linux` selected free port 17672
-and created a separate owned guest. `list`, `list --json`, `use`, unnamed default
-selection, explicit names/state, `config --client codex`, `status`, `doctor` and
-`start --open` were exercised. The actual macOS opener returned success.
+On head `8726bc6`, GitHub Ubuntu/macOS/Windows jobs failed before any steps because
+of account payment/spending restrictions; GitGuardian passed. CI was blocked,
+not passed. Billing/settings were unchanged. The Node 22 matrix does not establish
+Docker lifecycle support on those hosts.
 
-`npm run test:catalog-integration -- .computer-mcp/review-catalog review-mvp catalog-sandbox`
-passed against two real, idle guests. Changing the default did not retarget the
-previously generated official SDK stdio entry. Both guests independently held
-leases and stored different content under the same uniquely named file. A repeat
-`start` preserved the first guest's boot UUID and lease generation. Authenticated
-owner UI metadata returned the exact catalog/commands; agent access was rejected
-with `human_only`. The script released leases and restored the prior default.
-
-Both `npm run test:integration -- .computer-mcp/review-mvp` and
-`npm run test:integration -- .computer-mcp/review-catalog/computers/catalog-sandbox`
-passed on the refined branch, including the real MCP/security/browser/Teach paths
-above. Owned sandbox stop/start with the normal non-recreating path retained its
-workspace UUID, file contents and taught workflow; boot UUID changed and old
-leases were absent. Sandbox and offline-review are stopped with volumes retained;
-review-mvp remains available as the review catalog's default.
-
-New contract tests cover default persistence, pinned selection, occupied/reserved
-ports, duplicate/replaced identities, legacy state, corrupt catalogs, crash locks,
-concurrent creation, real CLI option/config output, read-only availability probes,
-authenticated startup and strict credential-free owner catalog metadata. Tests use
-private temporary catalogs; CI on other host platforms remains blocked as recorded
-above, so passing local contracts does not claim Windows/Linux lifecycle support.
-
-Manual T3 browser review covered the new Your computers view at 1280 × 800,
-1440 × 1050 and 390 × 844, registered/current/default states, copied status and
-set-default commands with the exact root, native clipboard paste without executing
-the pasted command, and keyboard focus preserved across runtime refreshes. The
-narrow document had no horizontal overflow. Other computers are labelled registered
-rather than assumed ready; the catalog is explicitly a snapshot loaded at open.
-The current card changed to occupied on human control and unavailable after an
-owned guest stop, then recovered through start/open with its identity preserved.
-No automated UI/appearance test harness was added.
+Windows/Linux host lifecycle, AMD64 guests, harness registration/skill discovery,
+native control, isolated macOS/Windows guests and VM/remote adapters remain
+pending. SSH was QA transport to Mac mini's local Docker, not an implemented
+remote-computer adapter. Public packaging, code/dependency licenses and Sendtry
+asset terms are future release decisions. See [security](../SECURITY.md) and
+[local handoff](LOCAL-REVIEW.md).

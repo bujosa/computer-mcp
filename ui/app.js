@@ -222,7 +222,7 @@ function renderLibrary() {
     const title = document.createElement('strong');
     title.textContent = item.name;
     const meta = document.createElement('span');
-    meta.textContent = `${item.stepCount} ${item.stepCount === 1 ? 'step' : 'steps'} · ${item.status === 'ready' ? 'Ready to review' : 'Interrupted'}`;
+    meta.textContent = `${item.stepCount} ${item.stepCount === 1 ? 'step' : 'steps'} · ${skillStatus(item.status)}`;
     button.append(title, meta);
     button.onclick = guarded(() => selectSkill(item.id));
     return button;
@@ -237,6 +237,16 @@ function renderLibrary() {
   }
   $('workflows').replaceChildren(...children);
 }
+function skillStatus(status) {
+  return (
+    {
+      ready: 'Ready to review',
+      recording: 'Recording',
+      saving: 'Saving',
+      interrupted: 'Interrupted',
+    }[status] || 'Needs review'
+  );
+}
 async function selectSkill(id) {
   selectedSkill = await call('workflow_get', { id });
   exportedSkill = null;
@@ -245,12 +255,14 @@ async function selectSkill(id) {
   $('skill-selected').hidden = false;
   $('skill-title').textContent = selectedSkill.name;
   $('skill-goal').textContent = selectedSkill.goal;
-  $('skill-state').textContent = ready ? 'Ready to review' : 'Interrupted';
+  $('skill-state').textContent = skillStatus(selectedSkill.status);
   $('workflow-text').textContent = selectedSkill.instructions;
   $('skill-download').disabled = !ready;
   $('skill-export-hint').textContent = ready
     ? 'Review the steps and parameters before use. Export includes the owning computer’s identity.'
-    : 'This recording was interrupted. Review it and teach the task again before exporting.';
+    : ['recording', 'saving'].includes(selectedSkill.status)
+      ? 'Save the current recording before exporting it.'
+      : 'This recording was interrupted. Review it and teach the task again before exporting.';
   renderLibrary();
 }
 async function browse() {

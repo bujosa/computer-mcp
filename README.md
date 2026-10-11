@@ -141,7 +141,7 @@ review before sharing. Partial recordings survive crashes as `interrupted`.
 
 | Server/CLI host                         | Guest provided by this MVP                                                   | Validation                                                                           |
 | --------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| macOS ARM64 + Docker Desktop            | Linux ARM64 desktop                                                          | Local lifecycle, MCP, browser, terminal, files, screenshots and Teach exercised      |
+| macOS ARM64 + Docker Desktop            | Linux ARM64 desktop                                                          | Full CLI/MCP lifecycle passed locally and independently on a Mac mini via SSH        |
 | Linux + local Docker Engine             | Linux desktop matching image architecture                                    | Guest runtime exercised; Linux host lifecycle pending                                |
 | Windows + Docker Desktop, Linux engine  | Linux desktop                                                                | Portable CLI/core contracts targeted; Windows lifecycle pending                      |
 | macOS/Windows/Linux native host control | Existing host desktop                                                        | Not implemented; requires explicit OS permissions and gives no agent-owned isolation |
@@ -176,10 +176,13 @@ npm run format:check
 npm run lint
 npm run build
 npm test
+npm run test:e2e -- --context desktop-linux
 npm run test:integration -- /absolute/path/to/owned/computer/state
 ```
 
-Integration smoke changes only the selected owned computer, checks its labels
+The [end-to-end runner](docs/QA.md) creates two fresh owned computers and stops
+them after checking both network modes, MCP execution and restart persistence.
+It retains private reports and volumes. Integration smoke changes only the selected owned computer, checks its labels
 first and leaves small proof files/workflows. It does not launch/manage Docker
 for you. Appearance and human control are reviewed manually. The console uses Sendtry's
 warm paper/salmon identity; [product and design decisions](docs/PRODUCT.md) define

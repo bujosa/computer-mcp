@@ -65,8 +65,9 @@ export class Lease {
     this.active?.controller.abort();
     this.current = null;
   }
-  async run(owner, fn, operationId) {
+  async run(owner, fn, operationId, signal) {
     const lease = this.assert(owner);
+    requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
     requireThat(
       !this.active,
       'operation_busy',
@@ -85,6 +86,8 @@ export class Lease {
       done,
     };
     this.active = active;
+    const abort = () => active.controller.abort();
+    signal?.addEventListener('abort', abort, { once: true });
     try {
       const result = await fn(active.controller.signal);
       requireThat(
@@ -96,6 +99,7 @@ export class Lease {
       );
       return result;
     } finally {
+      signal?.removeEventListener('abort', abort);
       if (this.active === active) this.active = null;
       finished();
     }

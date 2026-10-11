@@ -14,6 +14,12 @@ The saved review default is **review-mvp**, with its owner console on
 `http://127.0.0.1:17670`. `start --open` is the supported authorization flow;
 the bare URL does not authorize an owner. The guest stays running for review.
 
+All three owned review guests were rebuilt with the final security/lifecycle
+fixes. Their private work/owner credentials were rotated without changing their
+UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
+previous owner sessions are invalid. Configuration output still contains only
+the same state paths, never credentials.
+
 | Registered computer | Port  | Network                | Handoff state            |
 | ------------------- | ----- | ---------------------- | ------------------------ |
 | `review-mvp`        | 17670 | Explicit internet mode | Running; default         |

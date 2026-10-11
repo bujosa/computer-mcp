@@ -280,7 +280,7 @@ async function screenshot() {
     await fs.unlink(file).catch(() => {});
   }
 }
-async function call(req, name, args) {
+async function call(req, name, args, signal) {
   const tool = tools[name];
   requireThat(tool, 'unknown_tool', 'Unknown tool.', 404);
   const parsed = tool.schema.safeParse(args);
@@ -342,6 +342,7 @@ async function call(req, name, args) {
       throw new Fault('unknown_tool', 'Unknown tool.');
     },
     req.get('x-operation-id'),
+    signal,
   );
 }
 app.post('/api/cancel', (req, res) => {
@@ -368,9 +369,28 @@ app.get('/api/ui/connection', (req, res) => {
   );
   res.json({ connection: req.ownerConnection || null });
 });
-app.post('/api/call', async (req, res) =>
-  res.json({ result: await call(req, req.body?.name, req.body?.args) }),
-);
+app.post('/api/call', async (req, res) => {
+  // Aborting HTTP is authoritative even if the separate cancellation request
+  // arrives before this operation registers with the lease.
+  const controller = new AbortController();
+  const disconnected = () => {
+    if (!res.writableEnded) controller.abort();
+  };
+  res.once('close', disconnected);
+  if (res.destroyed) controller.abort();
+  try {
+    res.json({
+      result: await call(
+        req,
+        req.body?.name,
+        req.body?.args,
+        controller.signal,
+      ),
+    });
+  } finally {
+    res.off('close', disconnected);
+  }
+});
 app.post('/api/control/take', async (req, res) => {
   requireThat(
     req.kind === 'human',

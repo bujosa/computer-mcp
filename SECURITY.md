@@ -18,6 +18,12 @@ service or a substitute for a VM. No native host control adapter is installed.
   exact computer/workspace pins and one exclusive lease. Read-only MCP uses a
   distinct credential enforced by the API. The host config credential and
   browser profile are sensitive; protect backups and Windows ACLs accordingly.
+  Desktop helpers start with a cleared environment before dropping privileges;
+  agent commands cannot read work/owner credentials from same-UID process
+  environments. Private preview guests built before this fix require rebuilding
+  and rotation of their local work/owner credentials before reuse. All three
+  owned review computers were updated and rotated during this validation;
+  reconnect their MCP clients and run `open` for a new owner session.
 - **Files**: relative workspace paths, canonical containment, no symlinks/special
   files, no hardlinked writes and 256 KiB text limit. Short-lived unprivileged
   file workers prevent guest races from accessing root control secrets. This is
@@ -29,6 +35,8 @@ service or a substitute for a VM. No native host control adapter is installed.
   logs rotate. Daemonized children that escape a process group may survive until
   stop; per-command cgroups and disk volume quotas are pending. Do not run
   hostile persistent workloads here.
+  An HTTP disconnect aborts its active mutation independently of the separate,
+  session-scoped cancellation request. Cancellation does not undo prior effects.
 - **Networking**: separate Docker network, offline/internal by default. An unprivileged, credential-free TCP relay publishes the console in offline mode; it forwards only to the guest API and gives the guest no external route. Internet
   mode allows any guest egress, including reachable LAN/host services. Docker
   internal networking is not a portable egress firewall or complete denial of
@@ -51,6 +59,10 @@ service or a substitute for a VM. No native host control adapter is installed.
   labeled. There is no automatic retry of a mutation, irreversible deletion,
   migration or production deployment. Inspect after cancellation because prior
   effects can have occurred.
+  The server owns graceful browser shutdown and flushes the profile on normal
+  stop. A forced kill, host crash or exhausted Docker stop deadline can still
+  lose unflushed writes. A closed browser can be reopened only through a leased
+  navigation without a stale page ID; read tools do not relaunch it.
 
 For a report, use a private issue or direct private contact with the repository
 owner. Do not attach credential files, Docker environment dumps, screenshots of

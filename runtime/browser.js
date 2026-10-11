@@ -28,7 +28,7 @@ export class Browser {
     this.nextId = 1;
     this.selected = null;
   }
-  async init() {
+  async init(signal) {
     // This volume belongs to the sole owned container. Remove only stale
     // Chromium symlink locks before any agent/desktop process can use it.
     for (const name of [
@@ -55,6 +55,11 @@ export class Browser {
         executablePath: '/opt/computer-mcp/runtime/chromium-agent.sh',
         headless: false,
         timeout: 20000,
+        // The control server owns shutdown ordering and lease/checkpoint cleanup.
+        // Playwright's default process signal handlers can exit before it finishes.
+        handleSIGINT: false,
+        handleSIGTERM: false,
+        handleSIGHUP: false,
         viewport: null,
         chromiumSandbox: false,
         args: [
@@ -73,17 +78,37 @@ export class Browser {
         acceptDownloads: false,
       },
     );
-    await this.context.exposeBinding('__computerTeach', ({ page }, event) =>
-      this.onEvent?.(page, event),
-    );
-    await this.context.addInitScript({
-      path: '/opt/computer-mcp/runtime/recorder.js',
+    const context = this.context;
+    context.on('close', () => {
+      if (this.context !== context) return;
+      this.context = undefined;
+      this.pages.clear();
+      this.selected = null;
     });
-    this.context.on('page', (page) => this.track(page));
-    for (const page of this.context.pages()) this.track(page);
-    this.context.on('dialog', (dialog) => dialog.dismiss());
-    if (!this.pages.size) this.track(await this.context.newPage());
-    await this.page().goto('http://127.0.0.1:7070/demo');
+    const abort = () => {
+      void context.close().catch(() => {});
+    };
+    signal?.addEventListener('abort', abort, { once: true });
+    try {
+      if (signal?.aborted) abort();
+      requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
+      await context.exposeBinding('__computerTeach', ({ page }, event) =>
+        this.onEvent?.(page, event),
+      );
+      await context.addInitScript({
+        path: '/opt/computer-mcp/runtime/recorder.js',
+      });
+      context.on('page', (page) => this.track(page));
+      for (const page of context.pages()) this.track(page);
+      context.on('dialog', (dialog) => dialog.dismiss());
+      if (!this.pages.size) this.track(await context.newPage());
+      await this.page().goto('http://127.0.0.1:7070/demo');
+    } catch (error) {
+      await context.close().catch(() => {});
+      throw error;
+    } finally {
+      signal?.removeEventListener('abort', abort);
+    }
   }
   track(page) {
     const id = String(this.nextId++);
@@ -102,6 +127,12 @@ export class Browser {
     page.on('dialog', (dialog) => dialog.dismiss());
   }
   page(id = this.selected) {
+    requireThat(
+      this.context && this.pages.size,
+      'browser_closed',
+      'The browser was closed. Acquire control and navigate without a pageId to reopen it.',
+      409,
+    );
     const page = this.pages.get(id);
     requireThat(
       page && !page.isClosed(),
@@ -152,6 +183,19 @@ export class Browser {
     };
   }
   async action(input, signal) {
+    requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
+    if (!this.context || !this.pages.size) {
+      requireThat(
+        input.action === 'navigate' && !input.pageId,
+        'browser_closed',
+        'The browser was closed. Navigate without a pageId to reopen it.',
+        409,
+      );
+      if (!this.context) await this.init(signal);
+      else this.track(await this.context.newPage());
+      if (signal?.aborted) await this.context?.close();
+      requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
+    }
     const page = this.page(input.pageId);
     this.selected = [...this.pages].find(([, p]) => p === page)[0];
     requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
@@ -182,7 +226,8 @@ export class Browser {
       return { url: page.url(), title: await page.title() };
     } finally {
       signal?.removeEventListener('abort', abort);
-      if (!this.pages.size) this.track(await this.context.newPage());
+      if (this.context && !this.pages.size && !signal?.aborted)
+        this.track(await this.context.newPage());
     }
   }
 }

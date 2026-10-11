@@ -31,6 +31,31 @@ or grant native screen/accessibility permissions. The CLI is a trusted owner
 process with Docker-daemon authority; agents launched with an unrelated host
 shell retain whatever authority that harness already gave them.
 
+Desktop helpers clear their entire inherited environment before dropping to UID
+1000; only PATH/HOME/DISPLAY/LANG are supplied. Work/owner credentials remain in
+the root control process. This also protects against same-UID `/proc` reads.
+Built image tags are per computer UUID, so another checkout's build cannot move
+the image tag used by an existing computer. Updating a running guest requires
+an explicit `start --rebuild`; persistent identity and volume remain unchanged.
+
+An HTTP response disconnect aborts the mutation's lease operation directly.
+The separate operation-ID cancellation request remains session-scoped, but its
+arrival order is not the only cleanup mechanism. Teach closes coalesce per
+recording; a stale close cannot clear a later recording. Untrusted recorder URLs
+are bounded before persistence. A closed browser is reopened by a leased
+navigation without a stale page ID; reads alone do not relaunch it.
+
+The control server owns graceful Chromium shutdown. Playwright's automatic
+process signal handlers are disabled so they cannot race the server's profile
+flush and force-kill a second close. Stop/restart tests assert the exact latest
+saved browser note, not merely the existence of profile files. Forced termination
+or a host crash can still lose browser writes that have not been flushed.
+
+`scripts/e2e.mjs` owns a fresh host QA catalog, runs both network modes through
+the real CLI/guest/MCP boundaries and retains a private execution report. It
+stops only its own guests after success/failure. It is separate from the manual
+UI review described in [QA](docs/QA.md).
+
 The design separates computer capabilities (MCP tools) from procedural knowledge
 (skills). The owner's console configures the existing bridge and exports existing
 Teach data; it does not create a second agent runtime or a Piblo backend.

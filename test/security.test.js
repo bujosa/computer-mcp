@@ -106,6 +106,38 @@ test('only one mutation can run even in the same session', async () => {
   resolve('ok');
   assert.equal(await running, 'ok');
 });
+test('disconnected requests cannot start or retain an active mutation', async () => {
+  const lease = new Lease();
+  lease.claim('a', 'agent');
+  const disconnected = new AbortController();
+  disconnected.abort();
+  let executed = false;
+  await assert.rejects(
+    lease.run(
+      'a',
+      () => {
+        executed = true;
+      },
+      randomUUID(),
+      disconnected.signal,
+    ),
+    { code: 'cancelled' },
+  );
+  assert.equal(executed, false);
+  const connection = new AbortController();
+  const running = lease.run(
+    'a',
+    (signal) =>
+      new Promise((resolve) =>
+        signal.addEventListener('abort', resolve, { once: true }),
+      ),
+    randomUUID(),
+    connection.signal,
+  );
+  connection.abort();
+  await assert.rejects(running, { code: 'lease_lost' });
+  assert.equal(lease.active, null);
+});
 test(
   'terminal bounds output, deadlines, cancellation and command environment',
   { skip: process.platform === 'win32' },
@@ -171,6 +203,7 @@ test('store pins computer/workspace and persists teach without values or query c
   assert.ok(!JSON.stringify(restored).includes('not-a-real-credential'));
   assert.equal((await store.list()).length, 1);
   assert.equal(publicURL('file:///etc/passwd'), null);
+  assert.equal(publicURL('https://example.org/' + 'x'.repeat(4096)), null);
   await assert.rejects(store.get('../../elsewhere'), {
     code: 'invalid_workflow',
   });
@@ -187,6 +220,35 @@ test('store pins computer/workspace and persists teach without values or query c
   await checkpoint;
   assert.equal(capped.status, 'interrupted');
   assert.equal((await store.get(capped.id)).status, 'interrupted');
+});
+test('concurrent Teach stops share a save and cannot clear a later recording', async () => {
+  const pending = [];
+  const store = {
+    list: async () => [],
+    save: (workflow) =>
+      workflow.status === 'recording'
+        ? Promise.resolve()
+        : new Promise((resolve) => pending.push(resolve)),
+  };
+  const teach = new Teach(store, randomUUID());
+  await teach.start('human:a', { name: 'First', goal: '' });
+  const first = teach.stop('human:a');
+  const concurrent = teach.stop('human:a');
+  assert.equal(
+    pending.length,
+    1,
+    'One save per recording, including the checkpoint race.',
+  );
+  pending.shift()();
+  const saved = await first;
+  await teach.start('human:a', { name: 'Next', goal: '' });
+  assert.deepEqual(await concurrent, saved);
+  assert.equal(teach.status().name, 'Next');
+  await teach.append({
+    type: 'navigate',
+    url: 'https://example.org/' + 'x'.repeat(4096),
+  });
+  assert.equal(teach.status().stepCount, 0);
 });
 test('schema rejects unknown arguments, oversized payloads and unsafe browser URLs', () => {
   assert.equal(
@@ -231,6 +293,11 @@ test('CLI state never overwrites an existing computer; compose is local, owned a
   const spec = compose(config),
     service = spec.services.computer;
   assert.equal(service.ports, undefined);
+  assert.equal(service.image, `cmcp-${config.computerId}:desktop-local`);
+  assert.equal(
+    spec.services.console.image,
+    `cmcp-${config.computerId}:relay-local`,
+  );
   assert.deepEqual(spec.services.console.ports, ['127.0.0.1:18001:7070']);
   assert.deepEqual(service.networks, ['owned']);
   assert.equal(spec.services.console.volumes, undefined);

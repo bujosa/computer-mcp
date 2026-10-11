@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { requireThat } from './errors.js';
 
 export function publicURL(raw) {
+  if (typeof raw !== 'string' || raw.length > 4096) return null;
   try {
     const url = new URL(raw);
     if (
@@ -118,15 +119,25 @@ export class Teach {
       'Only the teaching owner can save this recording.',
       409,
     );
-    this.active.status = 'saving';
+    const recording = this.active;
+    if (this.stopping?.recording === recording) return this.stopping.promise;
+    recording.status = 'saving';
     const workflow = {
-      ...this.active,
-      status: interrupted || this.active.limitReached ? 'interrupted' : 'ready',
+      ...recording,
+      status: interrupted || recording.limitReached ? 'interrupted' : 'ready',
       finishedAt: new Date().toISOString(),
     };
     workflow.instructions = instructions(workflow);
-    await this.store.save(workflow);
-    this.active = null;
-    return workflow;
+    const promise = (async () => {
+      try {
+        await this.store.save(workflow);
+        if (this.active === recording) this.active = null;
+        return workflow;
+      } finally {
+        if (this.stopping?.recording === recording) this.stopping = null;
+      }
+    })();
+    this.stopping = { recording, promise };
+    return promise;
   }
 }

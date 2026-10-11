@@ -94,7 +94,7 @@ export function compose(config) {
           dockerfile: 'runtime/Dockerfile',
           target: 'desktop',
         },
-        image: 'computer-mcp:0.1.0-local',
+        image: `${project}:desktop-local`,
         container_name: project,
         hostname: project,
         labels: {
@@ -167,7 +167,7 @@ export function compose(config) {
         dockerfile: 'runtime/Dockerfile',
         target: 'relay',
       },
-      image: 'computer-mcp:0.1.0-relay',
+      image: `${project}:relay-local`,
       container_name: `${project}-console`,
       labels: { 'computer-mcp.owner': config.computerId },
       depends_on: ['computer'],

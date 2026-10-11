@@ -20,6 +20,11 @@ await checkDocker(config);
 assert.equal(await checkOwned(config), true);
 const api = new RuntimeClient(config);
 const identity = await api.info();
+assert.equal(identity.lease, null, 'Use an idle, owned QA computer.');
+const proof = `integration-${randomUUID()}`;
+const artifactDirectory = path.resolve(
+  process.argv[3] || path.join('artifacts', proof),
+);
 const cli = fileURLToPath(new URL('../src/cli.js', import.meta.url));
 const clients = [];
 async function connect({ modern = false, access = 'work' } = {}) {
@@ -51,6 +56,18 @@ async function rejected(client, name, args = {}) {
   const result = await client.callTool({ name, arguments: args });
   assert.ok(result.isError, `Expected rejection: ${name}`);
   return result;
+}
+async function started(marker) {
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    try {
+      await api.call('files_read', { path: marker });
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+  assert.fail('Command did not reach its start marker.');
 }
 async function human(pathname, body, cookie) {
   const issuedTicket = pathname === '/api/ui/session' && !cookie;
@@ -268,6 +285,26 @@ try {
   assert.equal(terminal.exitCode, 0);
   assert.ok(terminal.stdout.startsWith('1000\n'));
   assert.ok(terminal.stdout.includes('/data/workspace'));
+  // Never print environment values. Desktop helpers must not inherit root
+  // control credentials, which are readable through same-UID /proc peers.
+  const environment = await tool(a, 'terminal_run', {
+    command: `python3 - <<'PY'
+import os, glob
+leaked = False
+for filename in glob.glob('/proc/[0-9]*/environ'):
+    try:
+        if os.stat(filename).st_uid != os.getuid():
+            continue
+        with open(filename, 'rb') as stream:
+            names = {entry.split(b'=', 1)[0] for entry in stream.read().split(b'\\0')}
+        leaked |= bool(names & {b'COMPUTER_TOKEN', b'OWNER_TOKEN'})
+    except (PermissionError, FileNotFoundError, ProcessLookupError):
+        pass
+print('control_environment_private=' + str(not leaked))
+raise SystemExit(1 if leaked else 0)
+PY`,
+  });
+  assert.equal(environment.exitCode, 0, environment.stdout);
   await tool(a, 'terminal_run', { command: 'ln -sf /etc/passwd blocked-link' });
   await rejected(a, 'files_read', { path: 'blocked-link' });
   const timeout = await tool(a, 'terminal_run', {
@@ -302,28 +339,28 @@ try {
   assert.equal(screenshot.content[0].type, 'image');
   const png = Buffer.from(screenshot.content[0].data, 'base64');
   assert.equal(png.subarray(1, 4).toString(), 'PNG');
-  await fs.mkdir('artifacts', { recursive: true });
-  await fs.writeFile('artifacts/guest-desktop.png', png);
+  await fs.mkdir(artifactDirectory, { recursive: true, mode: 0o700 });
+  await fs.writeFile(path.join(artifactDirectory, 'guest-desktop.png'), png);
   const cancelled = new AbortController();
   const cancelRequest = a.callTool(
     {
       name: 'terminal_run',
       arguments: {
-        command: 'sleep 10; touch cancelled-must-not-run.txt',
+        command: `touch ${proof}-cancel-start; sleep 2; touch ${proof}-cancel-finished`,
         timeoutMs: 15000,
       },
     },
     { signal: cancelled.signal },
   );
   const expectedCancellation = assert.rejects(cancelRequest);
-  await new Promise((r) => setTimeout(r, 200));
+  await started(`${proof}-cancel-start`);
   cancelled.abort();
   await expectedCancellation;
   await new Promise((r) => setTimeout(r, 200));
   assert.equal(
     (
       await tool(a, 'terminal_run', {
-        command: 'test ! -f cancelled-must-not-run.txt',
+        command: `sleep 3; test ! -f ${proof}-cancel-finished`,
       })
     ).exitCode,
     0,
@@ -331,11 +368,11 @@ try {
   const pending = a.callTool({
     name: 'terminal_run',
     arguments: {
-      command: 'sleep 20; touch takeover-must-not-run.txt',
+      command: `touch ${proof}-takeover-start; sleep 2; touch ${proof}-takeover-finished`,
       timeoutMs: 30000,
     },
   });
-  await new Promise((r) => setTimeout(r, 200));
+  await started(`${proof}-takeover-start`);
   await human('/api/control/take', {}, owner);
   assert.ok((await pending).isError);
   await socketCheck('/desktop/control', { cookie: owner, allowed: true });
@@ -343,10 +380,63 @@ try {
   await human('/api/call', { name: 'control_release', args: {} }, owner);
   await tool(b, 'control_acquire');
   const after = await tool(b, 'terminal_run', {
-    command: 'test ! -f takeover-must-not-run.txt',
+    command: `sleep 3; test ! -f ${proof}-takeover-finished`,
   });
   assert.equal(after.exitCode, 0);
+  // Redirected descendants cannot outlive a completed shell in the same group.
+  await tool(b, 'terminal_run', {
+    command: `(sleep 1; touch ${proof}-background-finished) >/dev/null 2>&1 &`,
+  });
+  assert.equal(
+    (
+      await tool(b, 'terminal_run', {
+        command: `sleep 2; test ! -f ${proof}-background-finished`,
+      })
+    ).exitCode,
+    0,
+  );
   await tool(b, 'control_release');
+  // HTTP disconnect alone must cancel execution; no separate /api/cancel is
+  // sent here. Another session and a wrong operation ID cannot cancel it.
+  const requester = new RuntimeClient(config);
+  await requester.call('control_acquire');
+  try {
+    const operationId = randomUUID();
+    const disconnect = new AbortController();
+    const request = requester.request('/api/call', {
+      body: {
+        name: 'terminal_run',
+        args: {
+          command: `touch ${proof}-http-start; sleep 2; touch ${proof}-http-finished`,
+          timeoutMs: 10000,
+        },
+      },
+      operationId,
+      signal: disconnect.signal,
+    });
+    const disconnected = assert.rejects(request);
+    await started(`${proof}-http-start`);
+    await api.request('/api/cancel', { body: { operationId } });
+    await requester.request('/api/cancel', {
+      body: { operationId: randomUUID() },
+    });
+    await assert.rejects(
+      requester.call('files_write', {
+        path: `${proof}-wrong-cancel`,
+        text: 'no',
+      }),
+      { code: 'operation_busy' },
+    );
+    disconnect.abort();
+    await disconnected;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const ended = await requester.call('terminal_run', {
+      command: `sleep 3; test ! -f ${proof}-http-finished`,
+    });
+    assert.equal(ended.exitCode, 0);
+  } finally {
+    await requester.call('control_release');
+  }
   // Persisted Teach is exercised through the real control API; manual VNC input is reviewed separately.
   await human('/api/control/take', {}, owner);
   await human(
@@ -412,11 +502,7 @@ try {
   assert.ok(
     !exported.content.includes('Parameter values are intentionally omitted'),
   );
-  const exportDirectory = path.join(
-    '.computer-mcp',
-    'exported-skills',
-    exported.name,
-  );
+  const exportDirectory = path.join(artifactDirectory, 'skills', exported.name);
   await fs.mkdir(exportDirectory, { recursive: true });
   await fs.writeFile(path.join(exportDirectory, 'SKILL.md'), exported.content);
   const readWorkflow = await tool(read, 'workflow_get', { id: workflow.id });
@@ -443,12 +529,14 @@ try {
         selector: step.selector,
         text:
           step.selector === '#project'
-            ? 'Reused teaching task'
-            : 'Explicit parameter supplied by the MCP client',
+            ? `Reused teaching task ${proof}`
+            : `Explicit parameter supplied by the MCP client ${proof}`,
       });
   }
   assert.ok(
-    (await tool(b, 'browser_snapshot')).text.includes('Reused teaching task'),
+    (await tool(b, 'browser_snapshot')).text.includes(
+      `Reused teaching task ${proof}`,
+    ),
   );
   await tool(b, 'control_release');
   await tool(a, 'control_acquire');
@@ -469,6 +557,7 @@ try {
         workspaceId: identity.workspaceId,
         tools: catalog.tools.length,
         workflowId: workflow.id,
+        browserProof: proof,
         checks: [
           'legacy+modern stdio',
           'read-only credential enforcement',
@@ -478,6 +567,9 @@ try {
           'computer+workspace pinning',
           'lease exclusion+human takeover',
           'unprivileged terminal+timeouts+output cap',
+          'same-UID desktop credential isolation',
+          'delayed cancellation/takeover effects+background group cleanup',
+          'HTTP disconnect cleanup+session/operation-scoped cancellation',
           'contained files+symlink rejection',
           'real browser actions',
           'guest PNG screenshot',
