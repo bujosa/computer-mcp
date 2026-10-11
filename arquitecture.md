@@ -79,6 +79,31 @@ read endpoint `/api/workflows/:id/skill` uses normal authenticated workflow
 observation authority. The static operator skill is public local UI content
 without computer credentials. Neither export installs a skill nor grants control.
 
+`src/skill-use.js` owns the shared, effect-free skill handoff contract and
+parameter descriptions. The owner-only `POST /api/workflows/:id/use` accepts
+only `expectedRevision` and `intent`; it requires a completed current owner
+review, no pending draft and the computer owning the runtime volume. It returns
+the trusted computer/workspace identity, saved revision, parameter descriptions
+and a plan/execute request. It writes no workflow or supplied input data. Activity
+records the fixed `skill.handoff` action with its workflow UUID only.
+
+The console receives that module as a local esbuild bundle. It formats bounded
+values as literal JSON in owner memory, checks the revision again immediately
+before copying, and clears prepared values on close/navigation/authorization loss.
+An in-flight preparation cannot repopulate a closed or changed panel. Copy/send
+hands these values to the user's clipboard/harness; no automatic agent invocation
+exists. The agent is instructed to recheck both identities and the exact current
+review before effects; this is a procedural guard, while credential scopes,
+workspace pins and leases remain the enforced execution boundaries.
+
+The existing `taught-workflow` MCP prompt uses the same contract, defaults to a
+plan and rejects execute for read credentials. `workflow_get` now includes an
+explicit `reviewed` boolean, false for incomplete workflows or pending drafts,
+even when read scope hides the draft body. Thus a previous review cannot silently
+approve a newly proposed procedure. This is additive metadata; no state migration
+or new MCP tool is required. Older guests need rebuild before the updated bridge
+can safely use this prompt.
+
 ## Protocol and identities
 
 MCP uses official `@modelcontextprotocol/server` v2 and its `serveStdio` factory.

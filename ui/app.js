@@ -1,4 +1,5 @@
 import RFB from '/vendor/rfb.js';
+import { formatSkillUse } from '/vendor/skill-use.js';
 const $ = (id) => document.getElementById(id);
 const pages = {
   desktop: [
@@ -45,6 +46,8 @@ const pages = {
   ],
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
+let skillUse;
+let skillUseGeneration = 0;
 let view = 'desktop',
   locked = false,
   busy = false,
@@ -63,6 +66,7 @@ async function request(path, body, options = {}) {
   });
   const data = await response.json();
   if (!response.ok) {
+    if (response.status === 401) clearSkillUse();
     const error = new Error(data.error || 'Request failed.');
     error.status = response.status;
     throw error;
@@ -122,6 +126,7 @@ function stream() {
   });
 }
 async function showView(next) {
+  if (next !== 'teach') clearSkillUse();
   if (next !== 'teach') $('skill-video-player').pause();
   view = next;
   for (const el of document.querySelectorAll('.view'))
@@ -254,6 +259,7 @@ const actionNames = {
   'skill.analysis.allow': 'Allowed agent video analysis',
   'skill.analysis.revoke': 'Revoked agent video analysis',
   'skill.draft.discard': 'Discarded a skill draft',
+  'skill.handoff': 'Prepared a skill request',
   'teach.video.view': 'Viewed a demonstration video',
   'teach.video.delete': 'Deleted a demonstration video',
   'desktop.control': 'Opened the desktop with control',
@@ -379,6 +385,16 @@ async function recording() {
   );
   renderLibrary();
   const latest = library.find((item) => item.id === selectedSkill?.id);
+  if (latest && latest.revision !== selectedSkill.revision) {
+    $('skill-use-open').disabled = true;
+    if (skillUse) {
+      clearSkillUse();
+      notice(
+        'This skill changed. Refresh and review it before preparing a new request.',
+        true,
+      );
+    }
+  }
   $('skill-refresh').textContent =
     latest && latest.revision !== selectedSkill.revision
       ? 'Review updated proposal'
@@ -428,6 +444,7 @@ function skillStatus(status, reviewed = false) {
 async function selectSkill(id) {
   selectedSkill = await call('workflow_get', { id });
   exportedSkill = null;
+  clearSkillUse();
   const ready = selectedSkill.status === 'ready';
   const reviewed = ready && !!selectedSkill.review && !selectedSkill.draft;
   $('skill-empty').hidden = true;
@@ -440,6 +457,7 @@ async function selectSkill(id) {
     'Save the recording to generate its instructions.';
   $('skill-download').disabled = !reviewed;
   $('skill-copy').disabled = !reviewed;
+  $('skill-use-open').disabled = !reviewed;
   $('skill-step-count').textContent =
     `${selectedSkill.steps.length} captured ${selectedSkill.steps.length === 1 ? 'step' : 'steps'}`;
   $('skill-capture-kind').textContent =
@@ -465,13 +483,111 @@ async function selectSkill(id) {
   renderVideo();
   renderAnalysis();
   $('skill-export-hint').textContent = reviewed
-    ? 'Ready to export. Supply the named parameters when asking your agent to use this skill.'
+    ? 'Ready to use with your agent, or export for its skills directory.'
     : ready
       ? 'Review the steps and define how to verify success before exporting.'
       : ['recording', 'saving'].includes(selectedSkill.status)
         ? 'Save the current recording before exporting it.'
         : 'This recording was interrupted. Review it and teach the task again before exporting.';
   renderLibrary();
+}
+function clearSkillUse() {
+  skillUseGeneration++;
+  skillUse = null;
+  $('skill-use-panel').hidden = true;
+  $('skill-use-inputs').replaceChildren();
+  $('skill-use-request').textContent = '';
+  $('skill-use-copy').disabled = true;
+  $('skill-use-intent').value = 'plan';
+}
+function requireSavedReview() {
+  if (
+    $('skill-procedure').value.trim() !== selectedSkill.procedure.trim() ||
+    $('skill-expected-result').value.trim() !==
+      selectedSkill.review.expectedResult.trim() ||
+    $('skill-notes').value.trim() !== (selectedSkill.review.notes || '').trim()
+  )
+    throw new Error('Save your review changes before preparing a request.');
+}
+const useInputs = () =>
+  Object.fromEntries(
+    [...$('skill-use-inputs').querySelectorAll('textarea')].map((field) => [
+      field.dataset.parameter,
+      field.value,
+    ]),
+  );
+function previewSkillUse() {
+  try {
+    $('skill-use-request').textContent = formatSkillUse(skillUse, useInputs());
+    const missing = skillUse.parameters.filter(
+      (parameter) => !useInputs()[parameter.name],
+    ).length;
+    $('skill-use-status').textContent = missing
+      ? `${missing} captured ${missing === 1 ? 'input is' : 'inputs are'} blank. Your agent will ask for missing values.`
+      : 'Captured inputs supplied. Your agent still checks prerequisites and the expected result.';
+    $('skill-use-copy').disabled = false;
+  } catch (error) {
+    $('skill-use-request').textContent = '';
+    $('skill-use-status').textContent = error.message;
+    $('skill-use-copy').disabled = true;
+  }
+}
+async function prepareSkillRequest() {
+  requireSavedReview();
+  const input = {
+    expectedRevision: selectedSkill.revision,
+    intent: $('skill-use-intent').value,
+  };
+  const fields = [
+    $('skill-use-intent'),
+    ...$('skill-use-inputs').querySelectorAll('textarea'),
+    ...$('skill-review-form').querySelectorAll('textarea'),
+  ];
+  for (const field of fields) field.disabled = true;
+  $('skill-use-copy').disabled = true;
+  $('skill-use-status').textContent = 'Checking the saved review…';
+  try {
+    return await request(`/api/workflows/${selectedSkill.id}/use`, input);
+  } finally {
+    for (const field of fields) field.disabled = false;
+    if (skillUse) previewSkillUse();
+  }
+}
+async function openSkillUse() {
+  const generation = skillUseGeneration;
+  const prepared = await prepareSkillRequest();
+  if (generation !== skillUseGeneration || view !== 'teach') return;
+  skillUse = prepared;
+  $('skill-use-panel').hidden = false;
+  $('skill-use-reference').textContent =
+    `Computer ${skillUse.computerId.slice(0, 8)} · Workspace ${skillUse.workspaceId.slice(0, 8)} · Saved revision ${skillUse.revision.slice(0, 8)}`;
+  $('skill-use-inputs').replaceChildren(
+    ...skillUse.parameters.map((parameter, index) => {
+      const group = document.createElement('div');
+      const label = document.createElement('label');
+      label.htmlFor = `skill-input-${index}`;
+      label.textContent = parameter.name;
+      const description = document.createElement('p');
+      description.className = 'caption';
+      description.textContent = parameter.description;
+      const field = document.createElement('textarea');
+      field.id = label.htmlFor;
+      field.dataset.parameter = parameter.name;
+      field.rows = 2;
+      field.maxLength = skillUse.inputLimits.perValue;
+      field.placeholder =
+        'Supply a task value, or leave blank for your agent to ask.';
+      field.autocomplete = 'off';
+      field.setAttribute('aria-describedby', `skill-input-help-${index}`);
+      description.id = `skill-input-help-${index}`;
+      field.oninput = previewSkillUse;
+      group.append(label, description, field);
+      return group;
+    }),
+  );
+  $('skill-use-no-inputs').hidden = skillUse.parameters.length > 0;
+  previewSkillUse();
+  $('skill-use-intent').focus();
 }
 function renderAnalysis() {
   const enabled = !!selectedSkill.analysis?.enabled;
@@ -864,6 +980,48 @@ $('skill-download').onclick = guarded(async () => {
   );
 });
 $('skill-copy').onclick = guarded(() => copy(selectedSkill.instructions));
+$('skill-use-open').onclick = guarded(openSkillUse);
+$('skill-use-close').onclick = clearSkillUse;
+$('skill-use-intent').onchange = guarded(async () => {
+  const generation = skillUseGeneration;
+  try {
+    const prepared = await prepareSkillRequest();
+    if (generation !== skillUseGeneration || view !== 'teach') return;
+    skillUse = prepared;
+    previewSkillUse();
+  } catch (error) {
+    clearSkillUse();
+    throw error;
+  }
+});
+$('skill-use-copy').onclick = guarded(async () => {
+  const generation = skillUseGeneration;
+  const inputs = useInputs();
+  try {
+    // Check the persisted review again immediately before copying.
+    const prepared = await prepareSkillRequest();
+    if (generation !== skillUseGeneration || view !== 'teach') return;
+    requireSavedReview();
+    if (
+      $('skill-use-intent').value !== prepared.intent ||
+      JSON.stringify(useInputs()) !== JSON.stringify(inputs)
+    )
+      throw new Error(
+        'Inputs or request type changed while preparing. Copy again to use the current values.',
+      );
+    skillUse = prepared;
+    const text = formatSkillUse(skillUse, inputs);
+    $('skill-use-request').textContent = text;
+    await copy(text);
+    notice(
+      'Request copied. Send it to the agent connected to this computer. Execution has not started.',
+    );
+  } catch (error) {
+    if (error.status === 409) clearSkillUse();
+    throw error;
+  }
+});
+window.addEventListener('pagehide', clearSkillUse);
 $('client-format').onchange = renderConfig;
 $('client-access').onchange = renderConfig;
 $('computers-list-copy').onclick = guarded(() =>

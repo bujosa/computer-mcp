@@ -1353,7 +1353,8 @@ code {
   padding-top: 4px;
 }
 .review-panel,
-.video-panel {
+.video-panel,
+.use-panel {
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -1369,6 +1370,39 @@ code {
 }
 .review-panel button {
   margin-top: 16px;
+}
+.use-panel .section-bar {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.use-panel p {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.use-panel label {
+  margin-top: 16px;
+}
+.use-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+.use-inputs textarea {
+  min-height: 70px;
+  background: white;
+}
+.use-inputs .caption {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+.use-panel .instruction-preview {
+  margin-bottom: 16px;
+}
+@media (max-width: 650px) {
+  .use-inputs {
+    grid-template-columns: 1fr;
+  }
 }
 .video-panel video {
   display: block;

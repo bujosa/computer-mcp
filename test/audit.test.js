@@ -283,6 +283,17 @@ test('metadata and HTTP audit use fixed actions; all errors override preliminary
     activityAction({ path: '/call', body: { name: 'control_renew' } }),
     null,
   );
+  assert.equal(
+    activityAction({
+      path: '/workflows/uuid/use',
+      body: { expectedRevision: 'not logged', intent: 'plan' },
+    }),
+    'skill.handoff',
+  );
+  assert.equal(
+    activityAction({ path: '/workflows/uuid/use/private-input' }),
+    null,
+  );
   const errorReq = { auditOutcome: { outcome: 'success', exitCode: 0 } };
   activityFault(errorReq, new Error('private detail'));
   assert.deepEqual(errorReq.auditOutcome, {

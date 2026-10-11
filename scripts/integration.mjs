@@ -533,6 +533,61 @@ PY`,
     arguments: { id: workflow.id },
   });
   assert.ok(prompt.messages[0].content.text.includes('MCP contract task'));
+  assert.ok(
+    prompt.messages[0].content.text.includes('Do not perform its effects'),
+  );
+  assert.ok(prompt.messages[0].content.text.includes(config.workspaceId));
+  assert.equal(readWorkflow.reviewed, true);
+  await assert.rejects(
+    read.getPrompt({
+      name: 'taught-workflow',
+      arguments: { id: workflow.id, intent: 'execute' },
+    }),
+  );
+  const { value: handoff } = await human(
+    `/api/workflows/${workflow.id}/use`,
+    { expectedRevision: workflow.revision, intent: 'execute' },
+    owner,
+  );
+  assert.equal(handoff.workspaceId, config.workspaceId);
+  assert.equal(handoff.revision, workflow.revision);
+  assert.ok(handoff.parameters.some((p) => p.name.startsWith('input_')));
+  await assert.rejects(
+    api.request(`/api/workflows/${workflow.id}/use`, {
+      body: { expectedRevision: workflow.revision },
+    }),
+    { code: 'human_only' },
+  );
+  const staleHandoff = await fetch(
+    api.base + `/api/workflows/${workflow.id}/use`,
+    {
+      method: 'POST',
+      headers: {
+        cookie: owner,
+        origin: api.base,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ expectedRevision: randomUUID() }),
+    },
+  );
+  assert.equal(staleHandoff.status, 409);
+  assert.equal((await staleHandoff.json()).code, 'workflow_changed');
+  const inputHandoff = await fetch(
+    api.base + `/api/workflows/${workflow.id}/use`,
+    {
+      method: 'POST',
+      headers: {
+        cookie: owner,
+        origin: api.base,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        expectedRevision: workflow.revision,
+        inputs: { input_1: 'not persisted' },
+      }),
+    },
+  );
+  assert.equal(inputHandoff.status, 400);
   await human('/api/call', { name: 'control_release', args: {} }, owner);
   await tool(b, 'control_acquire');
   const taught = await tool(b, 'workflow_get', { id: workflow.id });

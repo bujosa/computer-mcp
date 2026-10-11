@@ -54,6 +54,10 @@ future adapter decisions. Do not use these metrics as billable or verified work.
 The owner sees authenticated tool attempts, completed/failed/cancelled/interrupted
 outcomes, runtime start/stop, takeover, explicit session closure, desktop
 connection intervals and Teach/skill review, consent, export and deletion events.
+**Prepared a skill request** records successful or rejected owner handoff
+preparation against the workflow UUID. It does not establish that the request was
+copied/sent, identify its eventual agent, or certify a skill execution. Supplied
+task inputs never reach this preparation endpoint or journal.
 Terminal nonzero exits and time/output limits remain failed even when the HTTP
 tool call completed normally. A known cancellation differs from an interruption
 whose effects need inspection. A completed action does not prove a larger task

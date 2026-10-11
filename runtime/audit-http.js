@@ -49,13 +49,14 @@ export function activityAction(req) {
   if (req.path.startsWith('/activity') && req.kind !== 'human')
     return 'activity.denied';
   const match = req.path.match(
-    /^\/workflows\/[^/]+(?:\/(skill|review|analysis|draft\/discard|video))?$/,
+    /^\/workflows\/[^/]+(?:\/(skill|use|review|analysis|draft\/discard|video))?$/,
   );
   if (!match) return null;
   const suffix = match[1];
   return (
     {
       skill: 'skill.export',
+      use: 'skill.handoff',
       review: 'skill.review',
       analysis:
         req.body?.enabled === true

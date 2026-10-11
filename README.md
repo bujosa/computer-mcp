@@ -109,6 +109,10 @@ resource, `taught-workflow` and `analyze-demonstration` prompts.
 ## Give the agent skills
 
 MCP supplies tools; a skill supplies a reviewed procedure using those tools.
+In **Skills**, **Use with agent** prepares a plan or execution request pinned to
+the saved review and owning computer/workspace. Supply task parameters, inspect
+the request and send it to your connected agent. Inputs remain in the open form
+until copy and clear on close/navigation; preparation does not start execution.
 **Connect agent** provides pinned JSON/TOML configuration and the
 [Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md). Downloads do not
 install settings or change your existing host computer.

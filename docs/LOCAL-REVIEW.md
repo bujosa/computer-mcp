@@ -37,6 +37,12 @@ was also used with new values to save a practice note. Input delivery is verifie
 separately from task success; scaled screens/frames need fresh native coordinates
 and focus checks. See [the desktop contract](DESKTOP.md).
 
+The running review-mvp also includes **Use with agent**. Open a reviewed skill
+and prepare its pinned plan/task request with fresh supplied parameters. Copy
+requires the current saved review; new drafts and unsaved edits block use. Inputs
+clear when you close or leave Skills. Actual file reuse was verified through
+MCP, and the console was reviewed at desktop and 390px layouts. See [Teach](TEACH.md).
+
 | Registered computer | Port  | Network                | Handoff state            |
 | ------------------- | ----- | ---------------------- | ------------------------ |
 | `review-mvp`        | 17670 | Explicit internet mode | Running; default         |

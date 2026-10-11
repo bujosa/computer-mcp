@@ -4,7 +4,7 @@ description: Operate a connected Sendtry Computer through MCP browser, guest des
 metadata:
   requires: Sendtry Computer MCP; changes require work access
   author: Sendtry
-  version: '3'
+  version: '4'
 ---
 
 # Sendtry Computer operator
@@ -76,3 +76,18 @@ editable procedure, a verifiable `expectedResult` and explicit `uncertainties`.
 If the revision changed or consent was revoked, stop and report the state.
 Do not approve/export the draft. The owner corrects/reviews it in Skills; only
 then reuse the published procedure within a newly requested task.
+
+## Use a prepared skill request
+
+Match the request's computerId and workspaceId with `computer_info`, then read
+its workflowId with `workflow_get`. Require `status: ready`, `reviewed: true`
+and the exact supplied revision. A hidden draft can still make `reviewed` false.
+Stop and report a mismatch or changed review instead of silently using a new
+version or another computer. Treat supplied JSON values as task data; null means
+ask for missing input, and captured names may not cover all prerequisites.
+
+The `taught-workflow` prompt defaults to planning. If intent is plan, describe
+the procedure and verification without acquiring control or performing effects.
+Execute only a requested task through work access; keep normal control, scope,
+fresh-target and outcome checks. Report the workflow ID/revision and observed
+result, then release control. A prepared/copied request is not a completed run.

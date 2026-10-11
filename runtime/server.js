@@ -28,6 +28,7 @@ import {
   revision,
 } from './analysis.js';
 import { exportSkill } from './skill.js';
+import { prepareSkillUse, SkillUseError } from '../src/skill-use.js';
 import { connectionSchema } from '../src/connection.js';
 import { Fault, requireThat } from './errors.js';
 import { tools } from '../src/catalog.js';
@@ -95,6 +96,10 @@ const publicWorkflow = (workflow, req) => {
   const result = {
     ...workflow,
     revision: revision(workflow),
+    reviewed:
+      workflow.status === 'ready' &&
+      !!workflow.review?.reviewedAt &&
+      !workflow.draft,
     procedure: workflow.review?.procedure || capturedProcedure(workflow),
   };
   if (
@@ -670,6 +675,27 @@ app.get('/api/workflows/:id', async (req, res) =>
 app.get('/api/workflows/:id/skill', async (req, res) =>
   res.json(exportSkill(await store.get(req.params.id))),
 );
+app.post('/api/workflows/:id/use', async (req, res) => {
+  requireThat(
+    req.kind === 'human',
+    'human_only',
+    'Only the owner console can prepare a task handoff.',
+    403,
+  );
+  try {
+    res.json(
+      prepareSkillUse(
+        publicWorkflow(await store.get(req.params.id), req),
+        identity,
+        req.body,
+      ),
+    );
+  } catch (error) {
+    if (error instanceof SkillUseError)
+      throw new Fault(error.code, error.message, error.status);
+    throw error;
+  }
+});
 app.post('/api/workflows/:id/review', async (req, res) => {
   requireThat(
     req.kind === 'human',

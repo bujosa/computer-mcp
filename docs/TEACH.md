@@ -23,10 +23,44 @@
    procedure and success criterion, then **Confirm review**. A stale revision
    fails; refresh and review the current proposal. **Discard proposal** preserves
    prior owner-approved edits. Video-free trace review works directly too.
-8. Export `SKILL.md` to the displayed folder name in your harness's supported
-   skills directory. Ask the agent to use it with your supplied parameters. It
-   verifies the owning computer, acquires control for mutations, executes within
-   your requested scope and checks the reviewed expected result.
+8. Choose **Use with agent** to prepare a request tied to the saved review,
+   computer and workspace. Supply task inputs or leave them blank for the agent
+   to ask. **Prepare a plan first** is the default; **Do the reviewed task**
+   requests execution through the existing work connection. Inspect/copy the
+   request and send it to your chosen agent. You can also export `SKILL.md` into
+   your harness's supported skills directory.
+
+## Use a reviewed skill
+
+The request tells the agent to check `computer_info` against both IDs and fetch
+`workflow_get`. It must require `status: ready`, `reviewed: true` and the exact
+saved revision. A changed skill, pending proposal or wrong computer needs a fresh
+review/request. The owner endpoint checks again before copy; a change detected
+while Skills is open clears the prepared request. Unsaved edits must be saved
+before preparing it. The server returns instructions, not an execution runner.
+
+Input names/descriptions come from captured steps, including command cwd, file
+content and guest window focus. Other values may still be missing from the
+reviewed procedure. Blank fields mean ask for a value, not an instruction to
+write an empty value. Inputs are limited to 2,048 characters each and 16,384 in
+total; larger inputs need a separate authorized handoff. Values are literal JSON
+data in the copied request. They stay in the open owner form, are never sent to
+the preparation endpoint or persisted in Teach/Activity, and clear on close,
+leaving Skills, refreshing the skill, authorization loss or page unload. The
+clipboard and any harness you send the request to receive the copied values;
+keep credentials and secrets out.
+
+The MCP prompt `taught-workflow` accepts `id`, optional `expectedRevision` and
+`intent` (`plan` or `execute`). Existing ID-only use remains valid and defaults
+to planning. Read access can plan, but requesting execute is rejected. A hidden
+pending draft is represented by `reviewed: false`, including when a prior owner
+review still exists. Rebuild older guests/bridges before using this contract.
+
+For execution, the agent acquires control for mutations, stays within the user's
+requested task, verifies the saved expected result with actual evidence and
+releases control on completion/failure. Preparing/copying is recorded as
+**Prepared a skill request**; it does not prove that a task ran or succeeded.
+There is no automatic replay, model invocation or new permission grant.
 
 The MCP prompt `analyze-demonstration` supplies the analysis request. The tools
 return regular MCP text/PNG images rather than an invented WebM content block.
@@ -50,3 +84,6 @@ proposals must mark uncertain targets/keys and verify fresh native coordinates a
 focus before reuse. There is no automatic blind replay. See [desktop](DESKTOP.md).
 Interrupted recordings cannot export until a new completed demonstration; an
 interrupted clip may be incomplete. Rebuild selected guests after updating source.
+
+Primary prompt contracts: [official MCP TypeScript SDK v2](https://ts.sdk.modelcontextprotocol.io/v2/servers/prompts)
+and [MCP user-controlled prompts](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/server/prompts.mdx).

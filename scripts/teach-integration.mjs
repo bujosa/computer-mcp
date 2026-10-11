@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID, createHmac } from 'node:crypto';
 import { readConfig } from '../src/config.js';
 import { RuntimeClient } from '../src/client.js';
+import { formatSkillUse } from '../src/skill-use.js';
 import {
   checkDocker,
   checkOwned,
@@ -58,6 +59,7 @@ const invoke = async (name, args = {}) =>
   (await owner('/api/call', { name, args })).result;
 let saved;
 let mcp;
+let readMCP;
 const readAPI = new RuntimeClient({
   ...config,
   token: createHmac('sha256', config.token)
@@ -284,6 +286,132 @@ try {
   await fs.writeFile(path.join(directory, 'SKILL.md'), skill.content, {
     mode: 0o600,
   });
+  readMCP = new Client({ name: 'skill-use-read-contract', version: '0.1.0' });
+  await readMCP.connect(
+    new StdioClientTransport({
+      command: process.execPath,
+      args: [
+        fileURLToPath(new URL('../src/cli.js', import.meta.url)),
+        'mcp',
+        '--state',
+        path.resolve(process.argv[2]),
+        '--access',
+        'read',
+      ],
+      stderr: 'pipe',
+    }),
+  );
+  const plan = await readMCP.getPrompt({
+    name: 'taught-workflow',
+    arguments: { id: saved.id, expectedRevision: saved.revision },
+  });
+  assert.ok(
+    plan.messages[0].content.text.includes('Do not perform its effects'),
+  );
+  await assert.rejects(
+    readMCP.getPrompt({
+      name: 'taught-workflow',
+      arguments: { id: saved.id, intent: 'execute' },
+    }),
+  );
+  // A newer draft blocks use even when read scope hides its body and retains
+  // the previous owner review. reviewed=false carries that boundary explicitly.
+  saved = await owner(`/api/workflows/${saved.id}/analysis`, {
+    expectedRevision: saved.revision,
+    enabled: true,
+  });
+  const pending = await mcp.callTool({
+    name: 'workflow_propose',
+    arguments: {
+      id: saved.id,
+      expectedRevision: saved.revision,
+      procedure: 'A replacement draft for review.',
+      expectedResult: 'Needs review before use.',
+      uncertainties: '',
+    },
+  });
+  assert.ok(!pending.isError);
+  saved = JSON.parse(pending.content[0].text);
+  const hidden = await readAPI.call('workflow_get', { id: saved.id });
+  assert.equal(hidden.draft, undefined);
+  assert.ok(
+    hidden.review,
+    'Prior review exists but does not approve the new draft.',
+  );
+  assert.equal(hidden.reviewed, false);
+  await assert.rejects(
+    readMCP.getPrompt({ name: 'taught-workflow', arguments: { id: saved.id } }),
+  );
+  await assert.rejects(
+    mcp.getPrompt({ name: 'taught-workflow', arguments: { id: saved.id } }),
+  );
+  saved = await owner(`/api/workflows/${saved.id}/draft/discard`, {
+    expectedRevision: saved.revision,
+    draftId: saved.draft.id,
+  });
+  saved = await owner(`/api/workflows/${saved.id}/analysis`, {
+    expectedRevision: saved.revision,
+    enabled: false,
+  });
+  const handoff = await owner(`/api/workflows/${saved.id}/use`, {
+    expectedRevision: saved.revision,
+    intent: 'execute',
+  });
+  assert.equal(handoff.computerId, initial.computerId);
+  assert.equal(handoff.workspaceId, initial.workspaceId);
+  assert.equal(handoff.revision, saved.revision);
+  const actualRequest = formatSkillUse(handoff, {
+    input_2: `reused-value-${proof}`,
+  });
+  await fs.writeFile(path.join(directory, 'agent-request.txt'), actualRequest, {
+    mode: 0o600,
+  });
+  const usePrompt = await mcp.getPrompt({
+    name: 'taught-workflow',
+    arguments: {
+      id: saved.id,
+      expectedRevision: saved.revision,
+      intent: 'execute',
+    },
+  });
+  assert.ok(
+    usePrompt.messages[0].content.text.includes(
+      'Verify the saved expectedResult',
+    ),
+  );
+  await invoke('control_release');
+  const effect = async (name, args = {}) => {
+    const response = await mcp.callTool({ name, arguments: args });
+    assert.ok(!response.isError, `Skill reuse ${name} failed.`);
+    return JSON.parse(response.content[0].text);
+  };
+  await effect('control_acquire');
+  try {
+    const current = await effect('workflow_get', { id: saved.id });
+    assert.equal(current.revision, handoff.revision);
+    assert.equal(current.reviewed, true);
+    await effect('files_write', {
+      path: `${nested}/note.txt`,
+      text: `reused-value-${proof}`,
+    });
+    assert.equal(
+      (await effect('files_read', { path: `${nested}/note.txt` })).text,
+      `reused-value-${proof}`,
+    );
+  } finally {
+    await effect('control_release');
+  }
+  await owner('/api/control/take', {});
+  const activity = await owner('/api/activity?limit=100');
+  assert.ok(
+    activity.events.some(
+      (event) =>
+        event.action === 'skill.handoff' &&
+        event.workflowId === saved.id &&
+        event.outcome === 'success',
+    ),
+  );
+  assert.ok(!JSON.stringify(activity).includes(`reused-value-${proof}`));
   const reviewedInstructions = saved.instructions;
   await owner(
     `/api/workflows/${saved.id}/video`,
@@ -349,6 +477,10 @@ try {
         'MCP analysis frames/prompt/proposal',
         'consent revoke/stale draft/read-scope privacy',
         'reviewed skill',
+        'pinned plan/execute handoff and read execution denial',
+        'hidden pending proposal blocks skill use',
+        'fresh supplied file reuse verified through MCP',
+        'handoff audit without supplied inputs',
         'explicit video deletion preserves steps',
         'encoder cleanup',
         'Teach without Chromium',
@@ -357,6 +489,7 @@ try {
   );
 } finally {
   await mcp?.close().catch(() => {});
+  await readMCP?.close().catch(() => {});
   if ((await api.info()).teach.active)
     await owner('/api/teach/stop', {}).catch(() => {});
   await invoke('control_release').catch(() => {});

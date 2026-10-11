@@ -535,7 +535,10 @@ Ready. Your command output will appear here.</pre
                   </p>
                 </form>
                 <div class="actions">
-                  <button id="skill-download" class="primary">
+                  <button id="skill-use-open" class="primary">
+                    Use with agent
+                  </button>
+                  <button id="skill-download">
                     <svg class="icon"><use href="#i-download" /></svg>Export
                     SKILL.md</button
                   ><button id="skill-copy">Copy instructions</button>
@@ -543,6 +546,56 @@ Ready. Your command output will appear here.</pre
                 <p id="skill-export-hint" class="caption">
                   Review the steps and parameters before use.
                 </p>
+                <section
+                  id="skill-use-panel"
+                  class="use-panel"
+                  hidden
+                  aria-labelledby="skill-use-title"
+                >
+                  <div class="section-bar">
+                    <div>
+                      <h3 id="skill-use-title">Use what you taught.</h3>
+                      <p>
+                        Prepare a request for the agent already connected to
+                        this computer.
+                      </p>
+                    </div>
+                    <button id="skill-use-close">Close</button>
+                  </div>
+                  <p id="skill-use-reference" class="caption"></p>
+                  <label for="skill-use-intent">Ask your agent to</label>
+                  <select id="skill-use-intent">
+                    <option value="plan">Prepare a plan first</option>
+                    <option value="execute">Do the reviewed task</option>
+                  </select>
+                  <div id="skill-use-inputs" class="use-inputs"></div>
+                  <p id="skill-use-no-inputs" class="caption" hidden>
+                    No input names were captured. Your agent will check for
+                    other required values.
+                  </p>
+                  <p class="caption">
+                    Values stay in this open form until you copy the request.
+                    Closing, refreshing the skill or leaving Skills clears them.
+                    Keep credentials and secrets out; send the copied request
+                    only to your chosen agent.
+                  </p>
+                  <p id="skill-use-status" class="caption" role="status"></p>
+                  <details class="instruction-preview">
+                    <summary>Preview request</summary>
+                    <pre id="skill-use-request" tabindex="0"></pre>
+                  </details>
+                  <div class="actions">
+                    <button id="skill-use-copy" class="primary" disabled>
+                      Copy agent request
+                    </button>
+                  </div>
+                  <p class="caption">
+                    Copying does not run the task. The agent checks this saved
+                    revision and computer, uses its existing permissions and
+                    verifies the result. You can observe or take control in
+                    Computer.
+                  </p>
+                </section>
                 <details class="instruction-preview">
                   <summary>Preview agent instructions</summary>
                   <pre id="workflow-text" tabindex="0"></pre>

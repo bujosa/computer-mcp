@@ -9,11 +9,11 @@ RUN npm ci --omit=dev && npx playwright install --with-deps chromium \
 COPY runtime ./runtime
 COPY ui ./ui
 COPY scripts/build-ui.mjs ./scripts/build-ui.mjs
+COPY src/catalog.js src/connection.js src/audit-contract.js src/desktop-contract.js src/skill-use.js ./src/
 RUN node scripts/build-ui.mjs
 RUN chmod +x runtime/entrypoint.sh runtime/chromium-agent.sh
 EXPOSE 7070
 ENTRYPOINT ["/opt/computer-mcp/runtime/entrypoint.sh"]
-COPY src/catalog.js src/connection.js src/audit-contract.js src/desktop-contract.js ./src/
 
 FROM node:22.21.1-bookworm-slim AS relay
 WORKDIR /opt/computer-mcp

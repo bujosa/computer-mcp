@@ -4,6 +4,48 @@ Private Sendtry Computer MVP reviewed on 10 October 2026 (11 October UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Reviewed skill handoff update
+
+**Use with agent** prepares an owner request pinned to the current completed
+review, computer and workspace. Plan is the default; execute requires work MCP.
+The preparation API accepts revision/intent only. Supplied values are bounded,
+literal JSON in owner memory and are excluded from workflow/Activity storage.
+`workflow_get.reviewed` explicitly blocks a pending proposal even when its body
+is hidden from read scope and a prior review remains. There are still 16 tools.
+
+Local focused `test:teach-integration` passed against owned review-mvp: real video,
+analysis/proposal/review, plan/execute MCP prompts, read execution denial, hidden
+pending draft rejection, identity/revision-pinned request and actual file reuse
+with a fresh value, followed by file-read verification and control release.
+Activity contained a successful workflow-linked `skill.handoff` without that
+value. Evidence is private under `artifacts/skill-use-local/`.
+`test:integration` also passed its real modern/legacy stdio/API/browser/files/
+terminal/lease contract, including owner-only use preparation, stale revision and
+rejecting extra input payloads. Artifacts: `artifacts/skill-use-mcp-local/`.
+
+Manual T3 review covered the real form at 1440×1050 and 390×844, stacked fields,
+no horizontal page overflow, default plan, execute request, missing-input text,
+keyboard label/focus, unsaved-review errors and closing during a deliberately
+delayed preparation. Fields were locked during the wait; after completion the
+closed panel stayed closed, with cleared inputs/preview and restored controls.
+Copy reported success and the actual request preview included supplied synthetic
+values; direct clipboard read was denied by the browser, so clipboard content
+was not independently read. No permission was changed. The preview disconnected
+while opening Activity at the end; the new Activity label was not visually
+reviewed in that session. Backend audit metadata was exercised independently.
+No UI appearance/E2E harness was generated.
+
+Independent read-only audit found an intent/input race during an in-flight copy;
+temporary control locking and snapshot/intent/review/generation checks resolved
+it. The reviewer reported no remaining concrete blockers. The first local suite
+was 56/57: shared parameter descriptions initially rejected the supported legacy
+`command_2` name. Safe bounded names now retain compatibility; the original export
+test and the full 57-contract suite subsequently passed without removing checks.
+
+Exact committed-source Mac mini QA for this new handoff is pending. The earlier
+17-phase pass below applies only to its stated commit; final results will be
+recorded separately. Other host/guest support remains unchanged.
+
 ## Bounded guest desktop input update
 
 The MCP catalog now has 16 tools. `desktop_action` delivers bounded Linux guest

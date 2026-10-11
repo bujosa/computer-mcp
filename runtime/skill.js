@@ -1,4 +1,5 @@
 import { requireThat } from './errors.js';
+import { skillParameters } from '../src/skill-use.js';
 
 export function exportSkill(workflow) {
   requireThat(
@@ -26,12 +27,8 @@ export function exportSkill(workflow) {
       .slice(0, 45)
       .replace(/-$/g, '') || 'task';
   const name = `sendtry-${slug}-${workflow.id.slice(0, 8)}`;
-  const parameters = workflow.steps
-    .filter((step) => step.parameter)
-    .map(
-      (step) =>
-        `- \`${step.parameter}\`: ${step.type === 'terminal' ? `an authorized guest command in \`${step.cwd || 'CONFIRM_WORKING_DIRECTORY'}\`` : step.type === 'file_write' ? `the text content for \`${step.path}\`` : step.type === 'desktop' ? (step.desktop.action === 'key' ? 'a supported desktop key/chord for the verified focused window' : 'single-line text for the verified focused desktop window') : `the value for \`${step.selector}\``}`,
-    )
+  const parameters = skillParameters(workflow)
+    .map((parameter) => `- \`${parameter.name}\`: ${parameter.description}`)
     .join('\n');
   const description = `Perform the taught task ${workflow.name.trim().replace(/[<>]/g, '')} using Sendtry Computer MCP. Use when the user requests this recorded procedure on its owning computer.`;
   return {
