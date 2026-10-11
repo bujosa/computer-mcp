@@ -4,6 +4,90 @@ Private Sendtry Computer MVP reviewed on 10 October 2026 (11 October UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Bounded guest desktop input update
+
+The MCP catalog now has 16 tools. `desktop_action` delivers bounded Linux guest
+click/move/wheel/text/key input with fixed executables/display/UID, literal stdin,
+five-second deadlines and a separate one-second held-key/button cleanup. Python
+`-I -S` excludes guest user-site hooks. Takeover waits for cleanup before granting
+the new lease; RFB control messages recheck its generation. Teach suppresses
+equivalent Chromium events and delayed blur duplicates while retaining later
+owner edits. Navigation/close retain executed steps; genuine correlation cleanup
+failure saves an interrupted demonstration, blocking export.
+
+Local `npm run format:check`, `npm run lint`, `npm run build` (47 JavaScript
+modules plus noVNC), `npm test` (53 contracts, no failures/skips), and production
+dependency audit (zero findings) passed. The repository operator skill passed
+`quick_validate.py`. Product implementation is `cfc72c8`; `c39b170` changes only
+the portable Python security fixture and `be15590` the latest-result E2E
+assertion. Independent read-only review found no remaining blockers after fixes.
+
+Real local `test:desktop-integration` passed on rebuilt review-mvp image
+`sha256:78dc31f6bcdf5ba6319848b2e6fa8ed54e4184e3036c7477f97727072325ce20`.
+The xev diagnostic window received native key/type/click/wheel events and observed
+release of an ordinary held key/button. Actual takeover cancelled a long input;
+copied read-session authority was rejected. Teach stayed active over native and
+Chromium input, omitted supplied values, suppressed duplicate fill/blur, retained
+a later owner edit, navigation and closing. Fresh supplied input then saved an
+actual Chromium practice result. Evidence is private at
+`artifacts/desktop-local-navigation-final/`.
+
+Manual T3 review covered the new guest step details/supplied parameters, Activity
+action labels and session outcomes, and live Computer view at 1440×1050 and
+390×844 without horizontal page overflow. Owner take/release and the live control
+channel were reviewed. No generated UI appearance/E2E harness was added.
+
+The first real input attempt hit a timeout when installed xdotool used
+`mousemove --sync` at the already-current position. The action now relies on
+ordered X11 commands without that wait; the corrected native contract passed.
+The first new Mac mini gate on `cfc72c8` passed installation, formatting, lint,
+build and dependency audit, but only 52/53 contracts: Homebrew had already loaded
+its global `sitecustomize`, masking the test fixture. The fixture now uses
+`usercustomize` and still requires positive loading without isolation and no
+loading with the actual cleanup flags. No runtime permissions/limits changed.
+That failed gate and diagnostic are retained privately in
+`artifacts/remote-qa/5566fd87-726a-4f25-a126-86554d118822/`.
+
+Independent Mac mini `c39b170` passed all gates and 13 E2E phases, including the
+new native input phase, but failed the next restart assertion: the practice app
+retains one latest note, and desktop reuse replaced the earlier DOM note that
+the harness still expected. A real restart diagnostic recovered the exact
+newest native project/note and confirmed storage had persisted. `be15590` updates
+the harness to require that latest saved project and note; no persistence guard
+was removed. Failed report/diagnostic are private in
+`artifacts/remote-qa/812f2d34-edb1-401e-b00a-a48fe1dabde5/`.
+
+Independent Mac mini ran exact commit
+`be15590add098f2e43e55f0a7823c119d261951d`: fresh `npm ci`, formatting, lint,
+47-module/noVNC build, **53 contracts with no failures/skips**, and production
+dependency audit with **zero findings**. Full real
+`npm run test:e2e -- --context desktop-linux` passed **17/17 phases**, exit 0,
+in **52.011s**. This cached-image run is not a cold-install benchmark.
+
+It exercised the complete CLI/catalog/default/stdio flow, native X11 input and
+takeover, Teach video/analysis/review, Activity, both egress modes, exact latest
+practice result after restart, offline persistence and reopening Chromium.
+Actual WebM decoded to four frames. Both new guests and their proxy stopped;
+private volumes remained. The runner and final independent resource inspection
+confirmed the default context and unrelated resources were preserved, with only
+loopback guest ports.
+
+Private evidence is
+`artifacts/remote-qa/d9ffcea4-38f5-4192-89ed-677e2cf33bcd/`, including
+`REMOTE-QA.md`, manifest, gate logs, final report, resource inspection and
+desktop/Teach/Activity artifacts. All **81 versioned source files** and HEAD were
+checked; snapshot hash:
+`e8e46c3593a9663135d770c71829ba36d36f4ac569e800c4aad76d917d9bf490`.
+Host: macOS 15.5 ARM64, Node 25.6.1; Docker 29.2.1 Linux ARM64 on explicit local
+`desktop-linux`, with Node 22 in the guest. Final handoff documentation changes
+do not change this tested product code or scripts.
+
+Hosted Ubuntu/macOS/Windows CI on this exact `be15590` failed with **zero steps**;
+all three annotations explicitly reported account payment/spending restrictions.
+Run: <https://github.com/bujosa/computer-mcp/actions/runs/38116189382>.
+No billing settings were changed. Windows/Linux hosts, AMD64 and native or VM
+guests remain untested; the passing Mac mini E2E does not certify those paths.
+
 ## Local activity update
 
 Activity now persists scoped observation sessions, allowlisted actions and

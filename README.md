@@ -7,8 +7,8 @@ A computer to work in. Skills to work with.
 Give any MCP agent its own computer, and share its screen when you want to help.
 
 This private MVP runs a dedicated **Linux desktop in Docker**, with Chromium,
-a bounded command runner, a workspace file explorer, desktop screenshots and
-**Teach**: record browser steps, review reusable instructions and export
+a bounded command runner, a workspace file explorer, screenshots, bounded guest
+mouse/keyboard input and **Teach**: record a demonstration, review reusable instructions and export
 a portable `SKILL.md`. A small Node CLI
 starts the computer; your harness launches a separate MCP bridge over stdio.
 There is no model subscription, chatbot, gateway, cloud provisioning or Piblo

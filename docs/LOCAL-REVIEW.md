@@ -17,7 +17,8 @@ video example includes a reviewed proposed practice procedure; its new supplied
 values were executed and verified through real MCP. See [Teach](TEACH.md).
 
 All three owned review guests received the earlier security/lifecycle fixes.
-The running review-mvp additionally has the new Teach/video/analysis and Activity runtime;
+The running review-mvp additionally has the new Teach/video/analysis, Activity
+and bounded guest desktop-input runtime;
 rebuild the other stopped guests before using these new capabilities. Their private work/owner credentials were rotated without changing their
 UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
 previous owner sessions are invalid. Configuration output still contains only
@@ -28,6 +29,13 @@ owner-only JSON exports. It contains local QA operations; no earlier activity is
 reconstructed. See [the audit contract](ACTIVITY.md) for attribution, privacy and
 retention limits. The latest owned review rebuild preserved its computer,
 workspace, saved skills and private history.
+
+The latest **Native desktop input contract** skill retains native click positions
+and supplied text/key parameters. Its demonstration covers a native Linux window
+and Chromium, including navigation/close and a later owner edit. Desktop input
+was also used with new values to save a practice note. Input delivery is verified
+separately from task success; scaled screens/frames need fresh native coordinates
+and focus checks. See [the desktop contract](DESKTOP.md).
 
 | Registered computer | Port  | Network                | Handoff state            |
 | ------------------- | ----- | ---------------------- | ------------------------ |
