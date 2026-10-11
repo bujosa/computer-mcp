@@ -468,9 +468,13 @@ async function selectSkill(id) {
   $('skill-step-count').textContent =
     `${selectedSkill.steps.length} captured ${selectedSkill.steps.length === 1 ? 'step' : 'steps'}`;
   $('skill-capture-kind').textContent =
-    selectedSkill.video && selectedSkill.video.status !== 'deleted'
-      ? 'Steps + guest video'
-      : 'Steps only';
+    selectedSkill.video?.status === 'deleted'
+      ? 'Guest video deleted'
+      : selectedSkill.video
+        ? selectedSkill.steps.length
+          ? 'Steps + guest video'
+          : 'Guest video'
+        : 'Steps only';
   $('skill-review-form').hidden =
     !ready ||
     (!selectedSkill.steps.length &&
@@ -516,10 +520,12 @@ function requireSavedReview() {
     $('skill-expected-result').value.trim() !==
       selectedSkill.review.expectedResult.trim() ||
     $('skill-notes').value.trim() !== (selectedSkill.review.notes || '').trim()
-  )
-    throw new Error(
-      'Save your review changes before using, copying or exporting this skill.',
-    );
+  ) {
+    const message =
+      'Save your review changes before using, copying or exporting this skill.';
+    $('skill-export-hint').textContent = message;
+    throw new Error(message);
+  }
 }
 const useInputs = () =>
   Object.fromEntries(
@@ -976,6 +982,7 @@ $('file-form').onsubmit = guarded(async () => {
   await browse();
 });
 $('terminal-form').onsubmit = guarded(async () => {
+  const moveFocus = $('terminal-form').contains(document.activeElement);
   const running = {
     operationId: crypto.randomUUID(),
     controller: new AbortController(),
@@ -989,6 +996,7 @@ $('terminal-form').onsubmit = guarded(async () => {
   $('terminal-cancel').disabled = false;
   const fields = ['command', 'cwd', 'timeout'].map($);
   for (const field of fields) field.disabled = true;
+  if (moveFocus) $('terminal-cancel').focus({ preventScroll: true });
   try {
     const result = await call(
       'terminal_run',
@@ -1022,9 +1030,14 @@ $('terminal-form').onsubmit = guarded(async () => {
     $('terminal-output').textContent = message;
     throw new Error(message, { cause: error });
   } finally {
+    const restoreFocus =
+      view === 'terminal' &&
+      (document.activeElement === $('terminal-cancel') ||
+        (running.cancelRequested && document.activeElement === document.body));
     terminalRun = undefined;
     $('terminal-cancel').hidden = true;
     for (const field of fields) field.disabled = false;
+    if (restoreFocus) $('command').focus({ preventScroll: true });
   }
 });
 $('terminal-cancel').onclick = async () => {

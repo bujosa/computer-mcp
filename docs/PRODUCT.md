@@ -71,6 +71,11 @@ configuration and instructions wrap, and keyboard focus remains visible. Polling
 preserves skill search and focused list items when data is unchanged. Connection,
 authorization, recording and interrupted states derive from the runtime. Owner
 access failures explain the CLI recovery without exposing the existing host PC.
+Running a terminal command makes cancellation reachable by keyboard and returns
+focus to the command after completion/cancellation, unless the owner moved focus
+elsewhere. Unsaved review errors also appear beside skill actions on compact
+screens. A deleted video is labelled explicitly; its approved procedure remains
+editable even without structured steps.
 Action buttons use a darker Sendtry salmon for legible light text; decorative
 marks and selected surfaces retain the original brand palette. Advanced tool
 names sit behind an accessible disclosure so first connection remains focused.
