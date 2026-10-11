@@ -10,21 +10,22 @@ remote adapters are design seams, not advertised implementations.
 
 ## Modules and dependency direction
 
-| Module                                                       | Responsibility                                                                                                                        |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/cli.js`, `config.js`, `computers.js`, `docker.js`       | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
-| `src/mcp.js`, `client.js`                                    | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
-| `src/catalog.js`                                             | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
-| `runtime/server.js`                                          | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
-| `runtime/lease.js`                                           | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
-| `runtime/audit.js`, `audit-http.js`, `src/audit-contract.js` | Root-only SQLite session/action/control history, allowlisted metadata, bounded retention, owner reads/exports and declared MCP labels |
-| `runtime/relay.js`                                           | Offline-mode TCP relay from loopback publishing to the internal guest; fixed destination, no credentials, API, files or guest egress  |
-| `runtime/desktop.js`                                         | Authorized binary RFB WebSocket bridge with backpressure, bounded frames and control revocation                                       |
-| `runtime/browser.js`, `recorder.js`                          | Persistent visible Chromium, bounded actions, browser inspection and untrusted recorder input                                         |
-| `runtime/process.js`                                         | Unprivileged command process groups, reduced environment, output/deadline limits                                                      |
-| `runtime/files.js`, `file-service.js`, `file-worker.js`      | Workspace paths and limits; perform filesystem operations in a short-lived UID-1000 child                                             |
-| `runtime/store.js`, `teach.js`                               | Atomic versioned identity/workflow persistence, event sanitization and reusable Markdown                                              |
-| `ui/`                                                        | Human desktop, file explorer/editor, bounded terminal and teaching controls; no model features                                        |
+| Module                                                                  | Responsibility                                                                                                                        |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/cli.js`, `config.js`, `computers.js`, `docker.js`                  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
+| `src/mcp.js`, `client.js`                                               | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
+| `src/catalog.js`                                                        | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
+| `runtime/server.js`                                                     | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
+| `runtime/lease.js`                                                      | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
+| `runtime/audit.js`, `audit-http.js`, `src/audit-contract.js`            | Root-only SQLite session/action/control history, allowlisted metadata, bounded retention, owner reads/exports and declared MCP labels |
+| `runtime/relay.js`                                                      | Offline-mode TCP relay from loopback publishing to the internal guest; fixed destination, no credentials, API, files or guest egress  |
+| `runtime/desktop.js`                                                    | Authorized binary RFB WebSocket bridge with backpressure, bounded frames and control revocation                                       |
+| `runtime/desktop-input.js`, `reset-input.py`, `src/desktop-contract.js` | Bounded Linux guest input, native geometry/key contracts, unprivileged fixed processes and held-input cleanup                         |
+| `runtime/browser.js`, `recorder.js`                                     | Persistent visible Chromium, bounded actions, browser inspection and untrusted recorder input                                         |
+| `runtime/process.js`                                                    | Unprivileged command process groups, reduced environment, output/deadline limits                                                      |
+| `runtime/files.js`, `file-service.js`, `file-worker.js`                 | Workspace paths and limits; perform filesystem operations in a short-lived UID-1000 child                                             |
+| `runtime/store.js`, `teach.js`                                          | Atomic versioned identity/workflow persistence, event sanitization and reusable Markdown                                              |
+| `ui/`                                                                   | Human desktop, file explorer/editor, bounded terminal and teaching controls; no model features                                        |
 
 Host lifecycle is not exposed as an MCP tool. An agent using these tools cannot
 ask the bridge to start another computer, change Docker context, bind a host path
@@ -266,6 +267,21 @@ and creates a fresh tab if none remain. Effects committed before cancellation
 are not rolled back, and cancellation is not exactly-once execution. Requests
 are never automatically retried after ambiguous mutation failure.
 
+`desktop_action` uses a fixed UID-1000 xdotool process on guest display `:1`,
+with validated native 1280×800 coordinates, bounded clicks/wheel repeats and
+single-line text via stdin. Key/chord names are allowlisted; no shell, user window
+ID, held input or host display is selectable. It has a five-second deadline and
+4 KiB discarded output ceiling. Lease cancellation kills that child. A separate
+one-second UID-1000 Python/Xlib/XTEST helper releases all pressed keycodes and
+buttons before the operation relinquishes serialization. Cleanup failure sets
+ready=false, revokes control and disconnects desktop clients; restarting that
+owned computer is recovery. Input already delivered is not undone. Tool success
+means input delivery, not application/task success. See [desktop](docs/DESKTOP.md).
+The helper runs with Python `-I -S`, excluding guest user-site hooks. Takeover
+reserves the control transition, revokes the old lease/RFB channel, waits for the
+active operation and cleanup, then grants the new generation. Competing claims
+are rejected during the transition; RFB messages recheck the live generation.
+
 Commands can daemonize outside their process group; full process-tree/cgroup
 per-command containment is pending. The entire computer still has CPU, RAM and
 PID limits. Disk is not volume-quota limited. Restart kills container processes,
@@ -336,9 +352,17 @@ rules, expected result and corrections. Review is not proof of successful replay
 Existing recordings remain version-1 JSON with additive media/review/revision
 fields. Old ready procedures now need owner review before export; legacy file
 markers gain parameters and missing terminal cwd is explicitly unknown. No
-SQLite/FTS, scheduler, event bus, skill import/archive or automatic blind replay
-is implemented. Future generic desktop actions/VM/remote adapters must honor
+workflow SQLite/FTS, scheduler, event bus, skill import/archive or automatic blind
+replay is implemented; SQLite Activity is a separate metadata boundary. Owner
+API desktop markers retain geometry and supplied text/key parameters; arbitrary
+human noVNC input remains video evidence rather than a generic keylogger. Future
+drag/clipboard/VM/remote adapters must honor
 the same identity, permission and lease boundaries.
+Owner API desktop input suppresses its equivalent Chromium recording events.
+A per-field source marker also excludes delayed blur/change duplicates and is
+reset by later owner input. Closing/navigating preserves the delivered desktop
+step; a genuine correlation cleanup failure saves Teach as interrupted before
+export can become available.
 
 ## Compatibility, rollout and future seams
 

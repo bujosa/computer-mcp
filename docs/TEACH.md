@@ -44,8 +44,9 @@ preserves the workflow/skill; pending generated text is not automatically erased
 Owner review publishes the approved procedure to connected agents.
 
 A recording does not train a model or create new execution abilities. The MVP
-executes Chromium/browser, terminal and contained-file operations. Video can show
-other desktop windows, but generic mouse/keyboard desktop replay is pending;
-those actions must remain explicit uncertainties or be adapted to supported tools.
+executes Chromium/browser, terminal, contained files and bounded Linux guest
+mouse/keyboard input through `desktop_action`. Video can show other guest windows;
+proposals must mark uncertain targets/keys and verify fresh native coordinates and
+focus before reuse. There is no automatic blind replay. See [desktop](DESKTOP.md).
 Interrupted recordings cannot export until a new completed demonstration; an
 interrupted clip may be incomplete. Rebuild selected guests after updating source.

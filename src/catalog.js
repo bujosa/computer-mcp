@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { desktopActionSchema } from './desktop-contract.js';
 const path = z.string().max(1024);
 const pageId = z.string().max(10).optional();
 const empty = z.object({}).strict();
@@ -71,6 +72,11 @@ export const tools = {
       'Capture the entire isolated Linux desktop as PNG, never the host screen. May contain visible sensitive data.',
     schema: empty,
     read: true,
+  },
+  desktop_action: {
+    description:
+      'Move/click/scroll or send single-line text and a supported key chord to the focused window of the isolated Linux desktop. Requires exclusive control. Use native 1280×800 screenshot coordinates, inspect focus first and verify after each action. Input delivery is not task success; no host screen, shell, arbitrary windows or held keys are exposed.',
+    schema: desktopActionSchema,
   },
   terminal_run: {
     description:

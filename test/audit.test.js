@@ -419,11 +419,9 @@ test('audit persistence failure prevents new control but cannot prevent revocati
       ),
   );
   fail = true;
-  assert.throws(() => lease.claim('b', 'human', { takeover: true }), {
+  await assert.rejects(lease.take('b'), {
     code: 'audit_unavailable',
   });
-  assert.equal(lease.current.owner, 'a');
-  assert.throws(() => lease.revoke(), { code: 'audit_unavailable' });
   assert.equal(lease.current, null);
   assert.equal(aborted, true);
   await assert.rejects(running, { code: 'lease_lost' });

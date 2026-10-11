@@ -267,6 +267,22 @@ test('Recorder event contract captures the last trusted text input without value
   assert.deepEqual(JSON.parse(JSON.stringify(events)), [
     { type: 'fill', selector: '#field', url: 'https://example.org/' },
   ]);
+  const desktopField = new Input('text');
+  window.__computerDesktopInput = true;
+  listeners.input({ type: 'input', isTrusted: true, target: desktopField });
+  window.__computerDesktopInput = false;
+  listeners.change({ type: 'change', isTrusted: true, target: desktopField });
+  assert.equal(
+    events.length,
+    1,
+    'Delayed native change must not duplicate desktop type.',
+  );
+  listeners.input({ type: 'input', isTrusted: true, target: desktopField });
+  assert.equal(
+    events.length,
+    2,
+    'A subsequent human input restores browser recording.',
+  );
 });
 
 test('Analysis decoder uses a separate UID and cancels only its bounded child on frame overflow', async (t) => {

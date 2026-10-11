@@ -1,6 +1,8 @@
 import express from 'express';
 import http from 'node:http';
 import { Desktop } from './desktop.js';
+import { DesktopInput } from './desktop-input.js';
+import { desktopInputLimits, desktopSize } from '../src/desktop-contract.js';
 import fs from 'node:fs/promises';
 import {
   timingSafeEqual,
@@ -51,6 +53,7 @@ delete process.env.OWNER_TOKEN;
 const store = new Store('/data/control');
 const identity = await store.init(computerId);
 const files = new FileService('/data/workspace');
+const desktopInput = new DesktopInput();
 const bootId = randomUUID();
 const audit = await new Audit('/data/control/activity', {
   ...identity,
@@ -109,6 +112,16 @@ const browser = new Browser('/data/home', (_page, event) => {
     void teach.append(event);
 });
 let ready = false;
+desktopInput.onFailure = () => {
+  ready = false;
+  try {
+    lease.revoke('desktop_unavailable');
+  } catch {
+    /* still aborts */
+  }
+  desktop.disconnect({ code: 1011, reason: 'Guest input cleanup failed' });
+  for (const controller of analyses.values()) controller.abort();
+};
 const app = express();
 app.disable('x-powered-by');
 app.use((req, res, next) => {
@@ -297,8 +310,9 @@ function info() {
       teachingVideo: videoLimits,
       analysisFrames: frameLimits,
       activity: auditLimits,
+      desktopInput: desktopInputLimits,
     },
-    desktop: { width: 1280, height: 800 },
+    desktop: desktopSize,
     policy:
       'Local trusted owner console. Terminal has unprivileged guest access. Internet-mode networking also permits access to reachable LAN/host services. Container is not a VM or hostile-code sandbox.',
   };
@@ -437,6 +451,29 @@ async function call(req, name, args, signal) {
   return lease.run(
     req.actor,
     async (signal) => {
+      if (name === 'desktop_action') {
+        let incomplete = false;
+        const perform = async () => {
+          const result = await desktopInput.perform(input, signal);
+          if (req.kind === 'human' && !signal.aborted)
+            await teach.append({ type: 'desktop', input });
+          return result;
+        };
+        try {
+          const result =
+            req.kind === 'human' && teach.active
+              ? await browser.withDesktopRecording(perform, () => {
+                  incomplete = true;
+                })
+              : await perform();
+          return incomplete ? { ...result, teachingInterrupted: true } : result;
+        } finally {
+          if (incomplete && teach.active?.owner === req.actor) {
+            teach.active.limitReached = true;
+            await teach.stop(req.actor, { interrupted: true });
+          }
+        }
+      }
       if (name === 'browser_action') return browser.action(input, signal);
       if (name === 'files_write') {
         const result = await files.write(input.path, input.text);
@@ -587,10 +624,8 @@ app.post('/api/control/take', async (req, res) => {
   );
   if (teach.active && teach.active.owner !== req.actor)
     await teach.stop(teach.active.owner, { interrupted: true });
-  const pending = lease.active?.done;
-  const result = lease.claim(req.actor, 'human', { takeover: true });
+  const result = await lease.take(req.actor, syncSockets);
   syncSockets();
-  if (pending) await pending;
   res.json(result);
 });
 app.post('/api/teach/start', async (req, res) => {
@@ -796,7 +831,19 @@ server.on('upgrade', (req, socket, head) => {
     (control && lease.status()?.owner !== actor)
   )
     return socket.destroy();
-  desktop.upgrade(req, socket, head, { actor, control });
+  const generation = control ? lease.status()?.generation : null;
+  desktop.upgrade(req, socket, head, {
+    actor,
+    control,
+    authorize: () => {
+      try {
+        const current = lease.status();
+        return current?.owner === actor && current.generation === generation;
+      } catch {
+        return false;
+      }
+    },
+  });
 });
 server.listen(7070, '0.0.0.0', async () => {
   try {

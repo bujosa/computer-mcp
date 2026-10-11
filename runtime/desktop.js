@@ -12,7 +12,7 @@ export class Desktop {
     });
     this.clients = new Map();
   }
-  upgrade(req, socket, head, { actor, control }) {
+  upgrade(req, socket, head, { actor, control, authorize = () => true }) {
     if (this.clients.size >= 8) {
       socket.write(
         'HTTP/1.1 429 Too Many Requests\r\nConnection: close\r\n\r\n',
@@ -32,7 +32,6 @@ export class Desktop {
         host: '127.0.0.1',
         port: control ? 5901 : 5900,
       });
-      this.clients.set(ws, control ? actor : null);
       const close = () => {
         if (finish) {
           finish();
@@ -42,6 +41,7 @@ export class Desktop {
         this.clients.delete(ws);
         if (ws.readyState === WebSocket.OPEN) ws.close(1000);
       };
+      this.clients.set(ws, { actor: control ? actor : null, close });
       tcp.on('data', (data) => {
         if (ws.readyState !== WebSocket.OPEN) return close();
         // Pause TCP while the WebSocket send drains: no unbounded frame queue.
@@ -52,6 +52,7 @@ export class Desktop {
         });
       });
       ws.on('message', (data, isBinary) => {
+        if (control && !authorize()) return close();
         if (!isBinary) return ws.close(1003, 'Binary RFB frames required');
         if (!tcp.write(data)) ws.pause();
       });
@@ -63,8 +64,8 @@ export class Desktop {
     });
   }
   sync(owner) {
-    for (const [ws, actor] of this.clients)
-      if (actor && actor !== owner) ws.close(1000, 'Control released');
+    for (const { actor, close } of this.clients.values())
+      if (actor && actor !== owner) close();
   }
   disconnect({ code = 1001, reason = 'Computer stopping' } = {}) {
     for (const ws of this.clients.keys()) ws.close(code, reason);

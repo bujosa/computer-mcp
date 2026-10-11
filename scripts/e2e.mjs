@@ -184,7 +184,7 @@ try {
         pc.api = new RuntimeClient(pc.config);
         pc.identity = await pc.api.info();
         assert.equal(result.result, 'passed');
-        assert.equal(result.tools, 15);
+        assert.equal(result.tools, 16);
       },
     );
   }
@@ -222,6 +222,19 @@ try {
       assert.equal(result.result, 'passed');
       report.activity = result;
       owned[0].activityProof = result.retainedOperationId;
+    },
+  );
+  await phase(
+    'native guest desktop input, takeover, Teach privacy and reuse',
+    async () => {
+      const result = JSON.parse(
+        await node('scripts/desktop-integration.mjs', [
+          owned[0].state,
+          path.join(directory, 'desktop'),
+        ]),
+      );
+      assert.equal(result.result, 'passed');
+      report.desktopInput = result;
     },
   );
   await phase(

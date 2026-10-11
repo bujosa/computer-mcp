@@ -29,7 +29,13 @@ export function activityAction(req) {
     if (!Object.hasOwn(tools, name)) return 'tool.unknown';
     if (['computer_info', 'control_renew'].includes(name)) return null;
     const action = req.body?.args?.action;
-    return `tool.${name}${name === 'browser_action' && ['navigate', 'click', 'fill', 'press', 'scroll'].includes(action) ? `.${action}` : ''}`;
+    const actions =
+      name === 'browser_action'
+        ? ['navigate', 'click', 'fill', 'press', 'scroll']
+        : name === 'desktop_action'
+          ? ['move', 'click', 'scroll', 'type', 'key']
+          : [];
+    return `tool.${name}${actions.includes(action) ? `.${action}` : ''}`;
   }
   const routes = {
     '/control/take': 'control.takeover',

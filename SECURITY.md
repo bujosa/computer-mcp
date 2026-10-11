@@ -49,6 +49,13 @@ service or a substitute for a VM. No native host control adapter is installed.
   narrow root capabilities for uid switching, killing children and initial
   volume permissions. Containers share a kernel; choose a VM for a stronger
   isolation boundary.
+  Guest mouse/keyboard input requires work access and the lease, with fixed
+  1280×800 bounds, strict key names, single-line stdin text and unprivileged
+  fixed executables. Input deadlines/cancellation are followed by bounded held-key
+  cleanup. Cleanup failure revokes control and blocks new API work until a guest
+  restart. Delivered input can have partial or external effects; inspect before
+  retrying. No host display, raw command/window selection or clipboard bridge
+  is introduced.
 - **Teach/data**: the action trace omits typed values, file contents and commands;
   password/secret-like fills are skipped and URL query/fragment are removed.
   Terminal working directories, outcomes, selectors, paths and goals remain

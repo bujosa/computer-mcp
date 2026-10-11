@@ -76,8 +76,11 @@ connected work agents. The connected vision harness reasons over images/trace
 and submits a draft; the owner edits the procedure, expected result and notes
 before publishing reviewed skill instructions. Drafts can be discarded without
 losing prior approved edits. No model/chat gateway or automatic training is
-included. Sampled frames may miss actions; universal desktop input/replay,
-skill imports and archives remain future work. See [Teach](TEACH.md).
+included. Sampled frames may miss actions. Bounded guest `desktop_action` input
+supports native windows; targets/focus need fresh screenshot verification, and
+input delivery is not task success. Drag, clipboard, automatic blind replay,
+skill imports and archives remain future work. See [Teach](TEACH.md) and
+[desktop tools](DESKTOP.md).
 
 Activity connects operational evidence to the same computer: declared client,
 authenticated access, observation session, tool outcomes and control intervals.

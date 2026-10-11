@@ -16,6 +16,7 @@
     return parts.join(' > ');
   }
   function send(event) {
+    if (window.__computerDesktopInput) return;
     window.__computerTeach?.(event).catch(() => {});
   }
   document.addEventListener(
@@ -29,6 +30,7 @@
     },
     true,
   );
+  const desktopFields = new WeakMap();
   const captureInput = (event) => {
     const el = event.target;
     if (
@@ -36,6 +38,11 @@
       !(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)
     )
       return;
+    // A later blur/change must not become a second executable fill after an
+    // API desktop type. A subsequent human input restores browser recording.
+    if (event.type !== 'change')
+      desktopFields.set(el, Boolean(window.__computerDesktopInput));
+    if (desktopFields.get(el)) return;
     if (
       el instanceof HTMLInputElement &&
       !['text', 'search', 'email', 'url', 'tel', 'number'].includes(el.type)

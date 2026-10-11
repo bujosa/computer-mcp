@@ -43,6 +43,9 @@ The runner exercises real CLI commands and official SDK stdio MCP clients:
 - Owner-only activity, scoped read/work identity, modern/legacy MCP labels,
   terminal failures/timeouts, takeover cancellation, payload exclusion and the
   exact retained operation after a real guest restart.
+- Native X11 click/key/type/wheel input on the existing xev diagnostic window,
+  read/lease denial, takeover cancellation, omitted text/key Teach parameters,
+  owner-reviewed export and native typing with actual saved Chromium app state.
 - Positive public HTTPS access in internet mode and blocked outbound connection
   in isolated mode. Internet-mode failure can also indicate unavailable DNS/TLS
   or the external fixture; it remains a reported failure for investigation.

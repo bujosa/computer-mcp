@@ -230,6 +230,12 @@ const actionNames = {
   'tool.browser_action.press': 'Pressed a browser key',
   'tool.browser_action.scroll': 'Scrolled the browser',
   'tool.desktop_screenshot': 'Captured a screenshot',
+  'tool.desktop_action': 'Used the guest desktop',
+  'tool.desktop_action.move': 'Moved the guest pointer',
+  'tool.desktop_action.click': 'Clicked on the guest desktop',
+  'tool.desktop_action.scroll': 'Scrolled on the guest desktop',
+  'tool.desktop_action.type': 'Typed in a guest window',
+  'tool.desktop_action.key': 'Sent a guest key shortcut',
   'tool.terminal_run': 'Ran a terminal command',
   'tool.files_list': 'Browsed workspace files',
   'tool.files_read': 'Read a workspace file',
@@ -502,12 +508,15 @@ function renderTimeline(steps) {
           fill: 'Enter a supplied value',
           terminal: 'Run a supplied command',
           file_write: 'Write supplied file content',
+          desktop: 'Interact with a guest window',
         }[step.type] || 'Review this step';
       const detail = document.createElement('p');
       detail.textContent =
-        step.type === 'terminal'
-          ? `Working directory: ${step.cwd || 'Confirm working directory'}${step.outcome ? ` · demonstration exit ${step.outcome.exitCode ?? 'unknown'}${step.outcome.stopped ? ` · ${step.outcome.stopped}` : ''}` : ''}`
-          : [step.selector, step.url, step.path].filter(Boolean).join(' · ');
+        step.type === 'desktop'
+          ? `${step.desktop?.action || 'Review input'}${step.desktop?.x !== undefined ? ` · native screen (${step.desktop.x}, ${step.desktop.y})` : ' · verify window focus'}${step.desktop?.button ? ` · ${step.desktop.button} · ${step.desktop.clicks} click(s)` : ''}${step.desktop?.direction ? ` · ${step.desktop.direction} · ${step.desktop.steps} step(s)` : ''}`
+          : step.type === 'terminal'
+            ? `Working directory: ${step.cwd || 'Confirm working directory'}${step.outcome ? ` · demonstration exit ${step.outcome.exitCode ?? 'unknown'}${step.outcome.stopped ? ` · ${step.outcome.stopped}` : ''}` : ''}`
+            : [step.selector, step.url, step.path].filter(Boolean).join(' · ');
       content.append(title, detail);
       if (step.parameter) {
         const parameter = document.createElement('code');

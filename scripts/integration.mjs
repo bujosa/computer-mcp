@@ -237,6 +237,8 @@ try {
   assert.ok(catalog.tools.some((t) => t.name === 'terminal_run'));
   const readCatalog = await read.listTools();
   assert.ok(!readCatalog.tools.some((t) => t.name === 'terminal_run'));
+  assert.ok(catalog.tools.some((t) => t.name === 'desktop_action'));
+  assert.ok(!readCatalog.tools.some((t) => t.name === 'desktop_action'));
   const readAPI = new RuntimeClient({
     ...config,
     token: createHmac('sha256', config.token)

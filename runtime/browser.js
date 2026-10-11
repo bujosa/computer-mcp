@@ -92,9 +92,9 @@ export class Browser {
     try {
       if (signal?.aborted) abort();
       requireThat(!signal?.aborted, 'cancelled', 'Operation cancelled.');
-      await context.exposeBinding('__computerTeach', ({ page }, event) =>
-        this.onEvent?.(page, event),
-      );
+      await context.exposeBinding('__computerTeach', ({ page }, event) => {
+        if (!this.desktopRecording) return this.onEvent?.(page, event);
+      });
       await context.addInitScript({
         path: '/opt/computer-mcp/runtime/recorder.js',
       });
@@ -121,10 +121,75 @@ export class Browser {
       if (this.selected === id) this.selected = this.pages.keys().next().value;
     });
     page.on('framenavigated', (frame) => {
-      if (frame === page.mainFrame())
+      if (frame === page.mainFrame() && !this.desktopRecording)
         this.onEvent?.(page, { type: 'navigate', url: frame.url() });
     });
     page.on('dialog', (dialog) => dialog.dismiss());
+  }
+  async withDesktopRecording(perform, onIncomplete = () => {}) {
+    const mark = async (value) => {
+      let timer;
+      try {
+        await Promise.race([
+          Promise.all(
+            [...this.pages.values()]
+              .filter((p) => !p.isClosed())
+              .map(async (page) => {
+                const apply = () =>
+                  page.evaluate(async (muted) => {
+                    if (!muted)
+                      await new Promise((resolve) => setTimeout(resolve, 0));
+                    window.__computerDesktopInput = muted;
+                  }, value);
+                try {
+                  await apply();
+                } catch (error) {
+                  if (page.isClosed()) return;
+                  // Navigation destroys the old document and its marker.
+                  // Clear the replacement context once; all attempts share
+                  // the same bounded deadline. Other failures are incomplete.
+                  if (
+                    !value &&
+                    /Execution context was destroyed/.test(error.message || '')
+                  )
+                    await apply();
+                  else throw error;
+                }
+              }),
+          ),
+          new Promise((_, reject) => {
+            timer = setTimeout(
+              () => reject(new Error('recorder unavailable')),
+              1000,
+            );
+          }),
+        ]);
+      } catch {
+        requireThat(
+          false,
+          'recording_unavailable',
+          'Could not correlate browser recording. Save Teach before continuing desktop input.',
+          409,
+        );
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    this.desktopRecording = true;
+    try {
+      await mark(true);
+      return await perform();
+    } finally {
+      try {
+        await mark(false);
+      } catch {
+        // Input may already have been sent. Preserve its outcome and recorded
+        // step; the caller must save Teach as interrupted before allowing export.
+        onIncomplete();
+      } finally {
+        this.desktopRecording = false;
+      }
+    }
   }
   page(id = this.selected) {
     requireThat(

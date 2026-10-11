@@ -101,7 +101,7 @@ Ask your agent to:
 > release control when finished.
 
 Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
-`browser_snapshot`, `browser_action`, `desktop_screenshot`, `terminal_run`,
+`browser_snapshot`, `browser_action`, `desktop_screenshot`, `desktop_action`, `terminal_run`,
 `files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`,
 `workflow_analyze`, `workflow_propose`. MCP also exposes a pinned identity
 resource, `taught-workflow` and `analyze-demonstration` prompts.
@@ -137,8 +137,10 @@ are hidden from read-only connections.
 
 This is analysis of sampled evidence, not model training or proof that every
 frame/action was understood. Ordinary trace review works without video or a
-vision model. Arbitrary desktop application input/replay remains a future
-capability; browser, terminal and files are the executable tools in this MVP.
+vision model. The agent can operate guest windows with bounded mouse/keyboard
+`desktop_action` input and fresh screenshots. Coordinate replay needs review;
+there is no automatic desktop action inference or blind replay.
+See [the desktop tools](docs/DESKTOP.md).
 See [the Teach guide](docs/TEACH.md) and [setup](docs/SETUP.md).
 
 ## Review usage and activity

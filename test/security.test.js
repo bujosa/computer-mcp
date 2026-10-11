@@ -80,8 +80,9 @@ test('leases reject a second agent, expire, cannot be resurrected and abort on h
         }),
       ),
   );
-  lease.claim('human:a', 'human', { takeover: true });
+  const taking = lease.take('human:a');
   await assert.rejects(operation, { code: 'lease_lost' });
+  await taking;
   assert.notEqual(lease.status().generation, first.generation);
   now = 101;
   assert.equal(lease.status(), null);

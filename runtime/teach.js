@@ -1,5 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { requireThat } from './errors.js';
+import { desktopTrace } from '../src/desktop-contract.js';
+
+export function desktopProcedure(step) {
+  const input = step.desktop;
+  if (!input) return 'Review the desktop step against a fresh guest screenshot';
+  const tool = `desktop_action action \`${input.action}\``;
+  if (['type', 'key'].includes(input.action))
+    return `Inspect the focused guest window, then use ${tool} with supplied parameter \`${step.parameter}\`; inspect the result`;
+  return `Inspect a fresh native 1280×800 guest screenshot, then use ${tool} at x=${input.x}, y=${input.y}${input.button ? `, button=${input.button}, clicks=${input.clicks}` : ''}${input.direction ? `, direction=${input.direction}, steps=${input.steps}` : ''}; recheck the target and result`;
+}
 
 export function publicURL(raw) {
   if (typeof raw !== 'string' || raw.length > 4096) return null;
@@ -33,7 +43,9 @@ export function capturedProcedure(workflow) {
                   ? `Run parameter \`${s.parameter}\` with terminal_run cwd \`${s.cwd || 'CONFIRM_WORKING_DIRECTORY'}\`${s.outcome && (s.outcome.exitCode !== 0 || s.outcome.stopped) ? ` (demonstration exited ${s.outcome.exitCode ?? 'without an exit code'}${s.outcome.stopped ? `, ${s.outcome.stopped}` : ''}; review this failed step before reuse)` : ''}`
                   : s.type === 'file_write'
                     ? `Write parameter \`${s.parameter}\` to \`${s.path}\` with files_write; its parent directory must exist`
-                    : `Review ${s.type}`
+                    : s.type === 'desktop'
+                      ? desktopProcedure(s)
+                      : `Review ${s.type}`
         }`,
     )
     .join('\n');
@@ -213,7 +225,16 @@ export class Teach {
       return;
     }
     const { type, selector, url, path, cwd, outcome } = event || {};
-    if (!['navigate', 'click', 'fill', 'terminal', 'file_write'].includes(type))
+    if (
+      ![
+        'navigate',
+        'click',
+        'fill',
+        'terminal',
+        'file_write',
+        'desktop',
+      ].includes(type)
+    )
       return;
     const step = {
       type,
@@ -231,6 +252,12 @@ export class Teach {
     }
     if (['fill', 'terminal', 'file_write'].includes(type))
       step.parameter = `input_${this.active.steps.length + 1}`;
+    if (type === 'desktop') {
+      step.desktop = desktopTrace(event.input);
+      if (!step.desktop) return;
+      if (['type', 'key'].includes(step.desktop.action))
+        step.parameter = `input_${this.active.steps.length + 1}`;
+    }
     if (type === 'file_write') {
       if (typeof path !== 'string' || !path || path.length > 1024) return;
       step.path = path;

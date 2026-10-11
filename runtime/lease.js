@@ -13,6 +13,7 @@ export class Lease {
     this.onChange = onChange;
     this.current = null;
     this.active = null;
+    this.taking = false;
   }
   status() {
     if (this.current && this.current.expiresAt <= this.now())
@@ -28,6 +29,18 @@ export class Lease {
   }
   claim(owner, kind, { takeover = false } = {}) {
     this.status();
+    requireThat(
+      !this.taking,
+      'operation_busy',
+      'Control is still changing.',
+      409,
+    );
+    requireThat(
+      !this.active || (this.current?.owner === owner && !takeover),
+      'operation_busy',
+      'Previous input is still finishing. Wait before acquiring control.',
+      409,
+    );
     requireThat(
       !this.current ||
         this.current.owner === owner ||
@@ -50,6 +63,30 @@ export class Lease {
     this.active?.controller.abort();
     this.current = current;
     return this.status();
+  }
+  async take(owner, onRevoke = () => {}) {
+    requireThat(
+      !this.taking,
+      'operation_busy',
+      'Control is still changing.',
+      409,
+    );
+    this.taking = true;
+    try {
+      const pending = this.active?.done;
+      try {
+        this.revoke('takeover');
+      } finally {
+        onRevoke();
+      }
+      if (pending) await pending;
+      // No await between unlocking and grant. Acquires during cleanup fail;
+      // the new actor never gets an RFB authority before the old input drains.
+      this.taking = false;
+      return this.claim(owner, 'human', { takeover: true });
+    } finally {
+      this.taking = false;
+    }
   }
   assert(owner) {
     this.status();
