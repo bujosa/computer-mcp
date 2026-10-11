@@ -34,6 +34,10 @@ The runner exercises real CLI commands and official SDK stdio MCP clients:
   output/deadline limits, cancellation, HTTP disconnect and human takeover.
 - Visible guest browser actions, a real PNG, Teach recording/export, resource
   and prompt discovery, missing parameters and subsequent procedure execution.
+- Real optional WebM capture, ffprobe decode, range/download, private media/UID
+  access, final input without blur, cwd/outcomes/content parameters, consent,
+  MCP PNG/proposal/prompt delivery, stale drafts/read-scope privacy, owner review,
+  explicit clip deletion and Teach after Chromium closes.
 - Stop/start with the same computer/workspace/files/workflow and saved browser
   note, a new boot UUID, no old lease, and browser recovery after closing it.
 - Positive public HTTPS access in internet mode and blocked outbound connection
@@ -58,11 +62,26 @@ runner is recorded separately in the validation evidence.
 Artifacts are gitignored and may include demonstrated content or local private
 state. Do not commit or publicly share the artifact directory.
 
+## Focused Teach integration
+
+For an idle, explicitly owned QA computer whose browser is on `/demo`:
+
+```sh
+npm run test:teach-integration -- /absolute/private/qa/state /private/artifacts
+```
+
+The backend/MCP script creates new private teaching fixtures, checks actual media
+and approval/privacy contracts, and deletes only its own new clip. It closes and
+reopens that QA guest's Chromium as a regression check. It issues an owner cookie
+in memory without printing it; do not target a personal/shared active computer.
+Its fixed test proposal checks the protocol, not a model's interpretation quality.
+Manual vision review is separate. Generated media/frames/skills remain private.
+
 ## Manual product review
 
 Use an idle computer owned by the review, `start --open`, and the local owner
 console. Review desktop streaming/input, Files save/read, Terminal execution,
-Teach start/stop and parameter review, skill/config downloads, work/read setup,
+Teach start/stop, optional video play/download, consent/revoke, proposal correction/discard, review gate and skill/config downloads, work/read setup,
 computer/default commands, keyboard focus and compact layouts. Save a practice
 note and reload to verify the displayed saved result. Release control afterwards.
 UI appearance and interaction are reviewed manually; there is no generated UI

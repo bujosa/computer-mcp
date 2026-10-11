@@ -29,7 +29,7 @@ The console has six working views:
 | Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill |
 
 The flow is **create computer → connect agent → work together → teach a task →
-review → reuse**. MCP tools are capabilities. Skills are procedural instructions.
+optional agent video analysis → review → reuse**. MCP tools are capabilities. Skills are procedural instructions.
 A taught skill depends on those capabilities and its owning computer; exporting
 it does not create a new permission, install anything, or blindly replay actions.
 
@@ -69,6 +69,11 @@ separate adapters and explicit permissions. See [support](../README.md#platform-
 [security](../SECURITY.md) and [validation](VALIDATION.md).
 
 Teaching records bounded main-frame browser events plus file/terminal markers.
-It is not universal desktop capture or video. Users can review instructions,
-export a completed skill and reuse it through a harness. Skill editing/import,
-archives and automatic replay are future work, not empty controls in the console.
+An optional guest-only, silent WebM video records the visible Linux desktop.
+The owner can play/download/delete it and consent to sampled-frame analysis by
+connected work agents. The connected vision harness reasons over images/trace
+and submits a draft; the owner edits the procedure, expected result and notes
+before publishing reviewed skill instructions. Drafts can be discarded without
+losing prior approved edits. No model/chat gateway or automatic training is
+included. Sampled frames may miss actions; universal desktop input/replay,
+skill imports and archives remain future work. See [Teach](TEACH.md).

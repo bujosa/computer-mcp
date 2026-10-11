@@ -488,7 +488,7 @@ PY`,
     },
     owner,
   );
-  const { value: workflow } = await human('/api/teach/stop', {}, owner);
+  let { value: workflow } = await human('/api/teach/stop', {}, owner);
   assert.equal(workflow.status, 'ready');
   assert.ok(workflow.steps.some((s) => s.type === 'fill'));
   assert.ok(
@@ -496,6 +496,25 @@ PY`,
       'Parameter values are intentionally omitted',
     ),
   );
+  await assert.rejects(api.request(`/api/workflows/${workflow.id}/skill`), {
+    code: 'skill_needs_review',
+  });
+  await assert.rejects(
+    api.request(`/api/workflows/${workflow.id}/review`, {
+      body: { expectedResult: 'Not authorized' },
+    }),
+    { code: 'human_only' },
+  );
+  ({ value: workflow } = await human(
+    `/api/workflows/${workflow.id}/review`,
+    {
+      expectedRevision: workflow.revision,
+      expectedResult:
+        'The saved project note displays the supplied project name and next step.',
+      notes: 'Supply both form values explicitly.',
+    },
+    owner,
+  ));
   const exported = await api.request(`/api/workflows/${workflow.id}/skill`);
   assert.equal(exported.filename, 'SKILL.md');
   assert.ok(exported.content.includes(config.computerId));

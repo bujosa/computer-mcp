@@ -217,40 +217,72 @@ invalidates leases/UI sessions and retains the browser profile/workspace. The
 browser opens the local sandbox on startup; saved tabs are not restored as an
 execution queue.
 
-## Data and Teach flow
+## Data, Teach, media and agent analysis
 
-The one volume contains `/data/workspace` (agent files), `/data/home/browser`
-(agent browser state) and `/data/control` (identity and workflow JSON). Config
-credentials stay on the host and are supplied only to the root control process;
-agent children receive a clean environment. Screenshots are bounded ephemeral
-PNG captures returned through MCP, not a continuous stored recording.
+The owned volume contains `/data/workspace`, `/data/home/browser` and
+root-private `/data/control` (identity, workflow JSON and `videos/<UUID>.webm`).
+Host credentials are supplied only to the root controller; child processes
+receive a clean environment. Live screenshots are ephemeral PNG responses.
 
-Teach requires a human lease. It stores a version-1 recording with task ID,
-computer ID, owner, name, goal, timestamps, status and up to 200 sanitized steps.
-The main-frame recorder records trusted input events plus navigation metadata,
-never executing input supplied by a page. Typed values are always replaced by
-named parameters; password/secret-like inputs are skipped. URLs lose query and
-fragment, and URLs with credentials are rejected. Paths may still contain
-sensitive data. Console terminal commands are parameter markers and file writes
-are path markers; arbitrary desktop application actions and iframe steps are
-not captured.
+`teach.js` owns a human-leased recording with computer/task/owner identity,
+timestamps and up to 200 sanitized steps. `recorder.js` captures trusted
+main-frame text-input/click events and browser navigation, without values;
+checkbox/radio changes are not mislabeled as fill. URLs lose query/fragment
+and credentials. API file writes capture contained paths/content parameters;
+terminal markers retain relative cwd and exit/stopped outcome, not commands or
+output. Arbitrary desktop/iframe steps are not automatically converted to tools.
 
-The recording checkpoints every second, with serialized atomic JSON replacement
-(temporary write, rename) under a root-only directory. Save transitions it to
-`ready` and generates Markdown instructions. Lease loss or the ten-minute
-recording/step limit saves it as `interrupted`; startup recovers checkpointed partial
-recordings the same way. Up to the last checkpoint can be lost in a crash; this
-is not a transactional video recorder. Workflow count is capped at 100. There is
-no SQLite/FTS, background scheduler, event bus or cross-service delivery contract.
+`store.js` serializes snapshot saves and read-transform-write updates using
+atomic JSON replacement. Recording checkpoints every second. Save freezes
+steps before awaiting media finalization and coalesces concurrent stops.
+Lease loss, ten minutes or 200 steps saves an interrupted recording; restart
+recovers recording/saving checkpoints. Startup video intent persists before
+encoder launch. Cancelled startup becomes unavailable/failed, with cleanup
+available; a recovered partial video may be incomplete. Last-checkpoint loss
+and forced-kill muxer/profile loss remain possible. Workflow count is 100.
 
-The harness reads `workflow_get` or the `taught-workflow` prompt, supplies missing
-parameters and uses normal tools to follow the instructions. It must review
-selectors/URLs and the user’s authorized effects. Recorded DOM/text remains
-untrusted data; neither Teach nor a workflow grants new permissions. Automatic
-blind replay, generic desktop recording/video and skill archive/import management
-are pending. The skill library can search, review and download a completed
-procedure as `SKILL.md`; exported instructions remain scoped to the originating
-computer unless the owner reviews an adaptation.
+`video.js` owns one silent guest Xvfb capture. An unprivileged UID1000 ffmpeg
+encoder writes stdout to the root controller's private file, with fixed display,
+resolution/codec and no user-supplied path/filter/command. Limits are five
+minutes, 20 MiB per clip, 200 MiB total storage; quota reserves a whole clip.
+Stop targets only that child, gracefully then SIGKILL after two seconds.
+Metadata includes computer/workspace/boot/recording identity, frames, bytes,
+times and reason. Raw video play/range/download/delete are owner-cookie HTTP
+operations; work/read credentials cannot fetch the WebM. Delete retains steps.
+
+`analysis.js` owns per-workflow consent, revisions, agent drafts and discard
+rules. `frames.js` decodes completed media into at most three 640×400 PNGs per
+call, 512 KiB each and an eight-second deadline per child. UID1001 receives
+media through stdin so UID1000 guest processes cannot inspect historical
+video in a same-UID decoder. There is one extraction per computer, cancellation
+on disconnect/revoke/delete/shutdown, and a final consent+revision check before
+return. Numeric timestamps are bounded to the encoded frame estimate; samples
+can miss actions. No durable frame cache or model client is added.
+
+The flow is: human starts optional video → demonstrates → saves → reviews
+visible content → grants analysis → connected vision agent calls
+`workflow_analyze` → agent calls `workflow_propose` with source revision →
+owner edits the exact draft and expected result → confirms review → exports.
+`src/mcp.js` returns normal MCP text/image blocks and an
+`analyze-demonstration` prompt. The **agent's existing harness/model** performs
+the reasoning. The UI grants access and copies a request; it cannot invoke a
+model that has not connected. No cloud/gateway/billing or automatic training
+exists. Frames and page text are untrusted evidence, not authorization.
+
+Proposals never execute tools or approve themselves. Store checks optimistic
+revisions inside its queue; approval also identifies the exact draft. A pending
+draft blocks SKILL export and `taught-workflow` use. Previously approved edits
+survive and can be restored by discarding it. Read credentials and work readers
+after consent revoke do not see pending derived text. Owner-reviewed instructions
+are published to read/work agents, with names/parameters, computer pin, lease
+rules, expected result and corrections. Review is not proof of successful replay.
+
+Existing recordings remain version-1 JSON with additive media/review/revision
+fields. Old ready procedures now need owner review before export; legacy file
+markers gain parameters and missing terminal cwd is explicitly unknown. No
+SQLite/FTS, scheduler, event bus, skill import/archive or automatic blind replay
+is implemented. Future generic desktop actions/VM/remote adapters must honor
+the same identity, permission and lease boundaries.
 
 ## Compatibility, rollout and future seams
 

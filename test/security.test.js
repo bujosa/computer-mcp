@@ -359,6 +359,11 @@ test('skill export retains identity and missing parameters and refuses interrupt
     name: 'Écrire une note',
     goal: 'Save the requested project note.',
     status: 'ready',
+    review: {
+      expectedResult: 'Read the saved project note.',
+      reviewedAt: new Date().toISOString(),
+      notes: '',
+    },
     instructions: '1. fill #project with {{input_1}}',
     steps: [
       { type: 'fill', selector: '#project', parameter: 'input_1' },

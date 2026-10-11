@@ -1,6 +1,6 @@
 FROM node:22.21.1-bookworm-slim AS desktop
 ENV DEBIAN_FRONTEND=noninteractive DISPLAY=:1 PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
-RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils x11vnc openbox xdotool scrot util-linux fonts-dejavu-core ca-certificates python3 \
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils x11vnc openbox xdotool scrot util-linux fonts-dejavu-core ca-certificates python3 ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/computer-mcp
 COPY package.json package-lock.json ./

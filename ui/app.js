@@ -49,9 +49,9 @@ function notice(text, error = false) {
   $('notice').textContent = text;
   $('notice').classList.toggle('error', error);
 }
-async function request(path, body) {
+async function request(path, body, options = {}) {
   const response = await fetch(path, {
-    method: body === undefined ? 'GET' : 'POST',
+    method: options.method || (body === undefined ? 'GET' : 'POST'),
     headers: { 'content-type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -116,6 +116,7 @@ function stream() {
   });
 }
 async function showView(next) {
+  if (next !== 'teach') $('skill-video-player').pause();
   view = next;
   for (const el of document.querySelectorAll('.view'))
     el.hidden = el.id !== view;
@@ -206,6 +207,11 @@ async function recording() {
     b.createdAt.localeCompare(a.createdAt),
   );
   renderLibrary();
+  const latest = library.find((item) => item.id === selectedSkill?.id);
+  $('skill-refresh').textContent =
+    latest && latest.revision !== selectedSkill.revision
+      ? 'Review updated proposal'
+      : 'Check for proposal';
 }
 function renderLibrary() {
   const search = $('skill-search').value.trim().toLowerCase();
@@ -222,7 +228,7 @@ function renderLibrary() {
     const title = document.createElement('strong');
     title.textContent = item.name;
     const meta = document.createElement('span');
-    meta.textContent = `${item.stepCount} ${item.stepCount === 1 ? 'step' : 'steps'} · ${skillStatus(item.status)}`;
+    meta.textContent = `${item.stepCount} ${item.stepCount === 1 ? 'step' : 'steps'} · ${item.proposed ? 'Agent proposal' : skillStatus(item.status, item.reviewed)}`;
     button.append(title, meta);
     button.onclick = guarded(() => selectSkill(item.id));
     return button;
@@ -237,7 +243,8 @@ function renderLibrary() {
   }
   $('workflows').replaceChildren(...children);
 }
-function skillStatus(status) {
+function skillStatus(status, reviewed = false) {
+  if (status === 'ready' && reviewed) return 'Ready to use';
   return (
     {
       ready: 'Ready to review',
@@ -251,19 +258,131 @@ async function selectSkill(id) {
   selectedSkill = await call('workflow_get', { id });
   exportedSkill = null;
   const ready = selectedSkill.status === 'ready';
+  const reviewed = ready && !!selectedSkill.review && !selectedSkill.draft;
   $('skill-empty').hidden = true;
   $('skill-selected').hidden = false;
   $('skill-title').textContent = selectedSkill.name;
   $('skill-goal').textContent = selectedSkill.goal;
-  $('skill-state').textContent = skillStatus(selectedSkill.status);
-  $('workflow-text').textContent = selectedSkill.instructions;
-  $('skill-download').disabled = !ready;
-  $('skill-export-hint').textContent = ready
-    ? 'Review the steps and parameters before use. Export includes the owning computer’s identity.'
-    : ['recording', 'saving'].includes(selectedSkill.status)
-      ? 'Save the current recording before exporting it.'
-      : 'This recording was interrupted. Review it and teach the task again before exporting.';
+  $('skill-state').textContent = skillStatus(selectedSkill.status, reviewed);
+  $('workflow-text').textContent =
+    selectedSkill.instructions ||
+    'Save the recording to generate its instructions.';
+  $('skill-download').disabled = !reviewed;
+  $('skill-copy').disabled = !reviewed;
+  $('skill-step-count').textContent =
+    `${selectedSkill.steps.length} captured ${selectedSkill.steps.length === 1 ? 'step' : 'steps'}`;
+  $('skill-capture-kind').textContent =
+    selectedSkill.video && selectedSkill.video.status !== 'deleted'
+      ? 'Steps + guest video'
+      : 'Steps only';
+  $('skill-review-form').hidden =
+    !ready || (!selectedSkill.steps.length && !selectedSkill.draft);
+  $('skill-procedure').value =
+    selectedSkill.draft?.procedure || selectedSkill.procedure || '';
+  $('skill-expected-result').value =
+    selectedSkill.draft?.expectedResult ||
+    selectedSkill.review?.expectedResult ||
+    '';
+  $('skill-notes').value = selectedSkill.review?.notes || '';
+  $('skill-review-state').textContent = reviewed
+    ? 'Reviewed by you'
+    : 'Needs review';
+  $('skill-review-save').textContent = reviewed
+    ? 'Save review changes'
+    : 'Confirm review';
+  renderTimeline(selectedSkill.steps);
+  renderVideo();
+  renderAnalysis();
+  $('skill-export-hint').textContent = reviewed
+    ? 'Ready to export. Supply the named parameters when asking your agent to use this skill.'
+    : ready
+      ? 'Review the steps and define how to verify success before exporting.'
+      : ['recording', 'saving'].includes(selectedSkill.status)
+        ? 'Save the current recording before exporting it.'
+        : 'This recording was interrupted. Review it and teach the task again before exporting.';
   renderLibrary();
+}
+function renderAnalysis() {
+  const enabled = !!selectedSkill.analysis?.enabled;
+  const available =
+    selectedSkill.status === 'ready' &&
+    ['ready', 'interrupted'].includes(selectedSkill.video?.status);
+  $('skill-analysis-panel').hidden = !available && !selectedSkill.draft;
+  $('skill-analysis-toggle').hidden = !available;
+  $('skill-analysis-toggle').textContent = enabled
+    ? 'Revoke frame access'
+    : 'Allow agent analysis';
+  $('skill-analysis-copy').hidden = !enabled;
+  $('skill-analysis-status').textContent = enabled
+    ? 'Frame access enabled. Ask your connected agent to analyze this demonstration.'
+    : 'Frames stay private until you choose to share them.';
+  $('skill-proposal').hidden = !selectedSkill.draft;
+  $('skill-proposal-uncertainties').textContent =
+    selectedSkill.draft?.uncertainties ||
+    'No uncertainties were supplied. Check for missing steps and parameters.';
+}
+function renderTimeline(steps) {
+  $('skill-timeline').replaceChildren(
+    ...steps.map((step, index) => {
+      const item = document.createElement('li');
+      const number = document.createElement('span');
+      number.className = 'step-number';
+      number.textContent = String(index + 1);
+      const content = document.createElement('div');
+      const title = document.createElement('strong');
+      title.textContent =
+        {
+          navigate: 'Open a page',
+          click: 'Click a control',
+          fill: 'Enter a supplied value',
+          terminal: 'Run a supplied command',
+          file_write: 'Write supplied file content',
+        }[step.type] || 'Review this step';
+      const detail = document.createElement('p');
+      detail.textContent =
+        step.type === 'terminal'
+          ? `Working directory: ${step.cwd || 'Confirm working directory'}${step.outcome ? ` · demonstration exit ${step.outcome.exitCode ?? 'unknown'}${step.outcome.stopped ? ` · ${step.outcome.stopped}` : ''}` : ''}`
+          : [step.selector, step.url, step.path].filter(Boolean).join(' · ');
+      content.append(title, detail);
+      if (step.parameter) {
+        const parameter = document.createElement('code');
+        parameter.textContent = `Supply ${step.parameter}`;
+        content.append(parameter);
+      }
+      const time = document.createElement('span');
+      time.className = 'step-time';
+      const seconds = Math.floor((step.offsetMs || 0) / 1000);
+      time.textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+      item.append(number, content, time);
+      return item;
+    }),
+  );
+}
+function renderVideo() {
+  const metadata = selectedSkill.video;
+  const available =
+    metadata && ['ready', 'interrupted'].includes(metadata.status);
+  $('skill-video-panel').hidden = !metadata || metadata.status === 'deleted';
+  const player = $('skill-video-player');
+  player.pause();
+  player.removeAttribute('src');
+  player.load();
+  player.hidden = !available;
+  $('skill-video-download').hidden = !available;
+  $('skill-video-remove').hidden =
+    !metadata || ['starting', 'recording'].includes(metadata.status);
+  $('skill-video-remove-confirm').hidden = true;
+  if (!metadata) return;
+  $('skill-video-status').textContent = available
+    ? `Guest desktop · no audio${metadata.status === 'interrupted' ? ' · interrupted capture' : metadata.reason === 'duration_limit' ? ' · capture limit reached' : ''}`
+    : ['starting', 'recording'].includes(metadata.status)
+      ? 'Recording the guest desktop…'
+      : 'Video could not be finalized. Review the captured steps.';
+  if (available) {
+    const url = `/api/workflows/${selectedSkill.id}/video`;
+    player.src = url;
+    $('skill-video-download').href = `${url}?download=1`;
+  }
 }
 async function browse() {
   const data = await call('files_list', { path: $('directory').value });
@@ -471,10 +590,13 @@ $('teach-form').onsubmit = guarded(async () => {
   await request('/api/teach/start', {
     name: $('teach-name').value,
     goal: $('teach-goal').value,
+    video: $('teach-video').checked,
   });
   await showView('desktop');
   notice(
-    'Recording started. Show the task, then choose Review & save. Typed values are omitted.',
+    $('teach-video').checked
+      ? 'Recording steps and guest video. Keep visible secrets out of this demonstration.'
+      : 'Recording steps. Show the task, then choose Review & save. Input values are omitted.',
   );
 });
 $('teach-stop').onclick = guarded(async () => {
@@ -483,8 +605,64 @@ $('teach-stop').onclick = guarded(async () => {
   await selectSkill(saved.id);
   $('teach-builder').hidden = true;
   notice(
-    'Skill saved. Review the instructions and input parameters, then export it for your agent.',
+    'Demonstration saved. Review the steps and define how to verify success, then export your skill.',
   );
+});
+$('skill-review-form').onsubmit = guarded(async () => {
+  await request(`/api/workflows/${selectedSkill.id}/review`, {
+    procedure: $('skill-procedure').value,
+    expectedRevision: selectedSkill.revision,
+    ...(selectedSkill.draft ? { draftId: selectedSkill.draft.id } : {}),
+    expectedResult: $('skill-expected-result').value,
+    notes: $('skill-notes').value,
+  });
+  await selectSkill(selectedSkill.id);
+  notice(
+    'Review saved. Your skill is ready to export and use with supplied parameters.',
+  );
+});
+$('skill-proposal-discard').onclick = guarded(async () => {
+  await request(`/api/workflows/${selectedSkill.id}/draft/discard`, {
+    expectedRevision: selectedSkill.revision,
+    draftId: selectedSkill.draft.id,
+  });
+  await selectSkill(selectedSkill.id);
+  notice('Proposal discarded. Your previous reviewed procedure is preserved.');
+});
+$('skill-refresh').onclick = guarded(() => selectSkill(selectedSkill.id));
+$('skill-analysis-toggle').onclick = guarded(async () => {
+  await request(`/api/workflows/${selectedSkill.id}/analysis`, {
+    enabled: !selectedSkill.analysis?.enabled,
+    expectedRevision: selectedSkill.revision,
+  });
+  await selectSkill(selectedSkill.id);
+  notice(
+    selectedSkill.analysis?.enabled
+      ? 'Frame access enabled. Copy the analysis request and send it to your connected agent.'
+      : 'Frame access revoked. Material already received by an agent cannot be recalled.',
+  );
+});
+$('skill-analysis-copy').onclick = guarded(() =>
+  copy(
+    `Analyze demonstration ${selectedSkill.id} using this computer’s MCP server. Call workflow_analyze, inspect frames and the action trace without executing effects, then call workflow_propose with the returned sourceRevision. Parameterize inputs and commands, explain uncertainties and unsupported actions, and define how to verify success. Leave the draft for me to correct and review in Skills.`,
+  ),
+);
+$('skill-video-remove').onclick = () => {
+  $('skill-video-remove-confirm').hidden = false;
+  notice(
+    'Deleting the video preserves the captured steps and skill. Confirm to permanently remove this video.',
+  );
+};
+$('skill-video-remove-confirm').onclick = guarded(async () => {
+  await request(
+    `/api/workflows/${selectedSkill.id}/video`,
+    { expectedRevision: selectedSkill.revision },
+    {
+      method: 'DELETE',
+    },
+  );
+  await selectSkill(selectedSkill.id);
+  notice('Video deleted. The taught steps and skill are preserved.');
 });
 $('skill-download').onclick = guarded(async () => {
   exportedSkill = await request(`/api/workflows/${selectedSkill.id}/skill`);

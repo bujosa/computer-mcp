@@ -63,6 +63,17 @@ export class Store {
   async get(id) {
     return JSON.parse(await fs.readFile(this.workflowPath(id), 'utf8'));
   }
+  async update(id, transform) {
+    const write = this.pending
+      .catch(() => {})
+      .then(async () => {
+        const next = await transform(await this.get(id));
+        await atomicJSON(this.workflowPath(id), next);
+        return next;
+      });
+    this.pending = write;
+    return write;
+  }
   async list() {
     const names = await fs.readdir(path.join(this.root, 'workflows'));
     const workflows = await Promise.all(
@@ -77,6 +88,11 @@ export class Store {
       createdAt: w.createdAt,
       stepCount: w.steps.length,
       status: w.status,
+      reviewed: !!w.review && !w.draft,
+      proposed: !!w.draft,
+      analysisEnabled: !!w.analysis?.enabled,
+      revision: w.revision || w.id,
+      video: w.video ? { status: w.video.status } : undefined,
     }));
   }
 }

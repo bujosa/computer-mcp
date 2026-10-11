@@ -49,11 +49,33 @@ service or a substitute for a VM. No native host control adapter is installed.
   narrow root capabilities for uid switching, killing children and initial
   volume permissions. Containers share a kernel; choose a VM for a stronger
   isolation boundary.
-- **Teach/data**: typed values and commands are omitted; secret-like input fields
-  are skipped and query/fragment are removed from URLs. Paths, task goals,
-  browser text and screenshots can still contain sensitive data. Event data and
-  workflow instructions are untrusted and must not override the harness’s
-  authorization policy. Teaching does not automatically execute a saved task.
+- **Teach/data**: the action trace omits typed values, file contents and commands;
+  password/secret-like fills are skipped and URL query/fragment are removed.
+  Terminal working directories, outcomes, selectors, paths and goals remain
+  recorded and can be sensitive. Trace/procedures/page content are untrusted.
+  Teach does not automatically execute a saved task.
+- **Video/analysis**: recording is explicit opt-in, silent Xvfb capture of the
+  owned Linux guest, never the host screen. Raw WebM is root-private (0600 in
+  0700 storage), owner-session-only over HTTP, with a five-minute deadline,
+  20 MiB clip cap and 200 MiB aggregate quota. The encoder runs UID1000 with a
+  clean environment; root writes its bounded output. Video can show secrets
+  skipped by the trace, including terminal input/output and arbitrary windows.
+  Review before sharing. Owner consent is per saved workflow; work agents may
+  then receive up to three 640×400 PNG samples per call (512 KiB each, eight
+  seconds per decoder). A separate UID1001 decoder receives the private media
+  through stdin, not a root filename/credential. Only one extraction runs per
+  computer. Revoke/delete cancels extraction and revision/consent are rechecked
+  before images return. Existing recipients cannot be made to forget content.
+  Your harness and configured model provider can receive visible frame data;
+  this server adds no inference service, uploads, training or secret redaction.
+- **Draft/review**: agent proposals are bounded text, never executable approval.
+  Stale revisions fail within serialized storage updates. Raw video remains
+  owner-only; read credentials and work readers after revoke do not receive
+  pending video-derived drafts. The owner reviews the exact current draft,
+  edits/parameterizes it and defines success before export. Review publishes
+  the approved text to connected read/work agents. New proposals preserve prior
+  owner edits but disable export until reviewed or discarded. Video deletion
+  is explicit and retains instructions. No automatic mutation retry occurs.
 - **Recovery**: a restart invalidates leases and UI sessions; it preserves the
   profile, files, identities and workflow checkpoints. Interrupted work is
   labeled. There is no automatic retry of a mutation, irreversible deletion,

@@ -12,10 +12,13 @@ node src/cli.js config --root .computer-mcp/review-catalog --client codex
 
 The saved review default is **review-mvp**, with its owner console on
 `http://127.0.0.1:17670`. `start --open` is the supported authorization flow;
-the bare URL does not authorize an owner. The guest stays running for review.
+the bare URL does not authorize an owner. The guest stays running for review, idle with frame sharing revoked. The saved
+video example includes a reviewed proposed practice procedure; its new supplied
+values were executed and verified through real MCP. See [Teach](TEACH.md).
 
-All three owned review guests were rebuilt with the final security/lifecycle
-fixes. Their private work/owner credentials were rotated without changing their
+All three owned review guests received the earlier security/lifecycle fixes.
+The running review-mvp additionally has the new Teach/video/analysis runtime;
+rebuild the other stopped guests before using these new capabilities. Their private work/owner credentials were rotated without changing their
 UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
 previous owner sessions are invalid. Configuration output still contains only
 the same state paths, never credentials.

@@ -184,7 +184,7 @@ try {
         pc.api = new RuntimeClient(pc.config);
         pc.identity = await pc.api.info();
         assert.equal(result.result, 'passed');
-        assert.equal(result.tools, 13);
+        assert.equal(result.tools, 15);
       },
     );
   }
@@ -196,6 +196,19 @@ try {
         'qa-internet',
         'qa-offline',
       ]),
+  );
+  await phase(
+    'reviewed Teach skills and private guest video capture/decode/deletion',
+    async () => {
+      const result = JSON.parse(
+        await node('scripts/teach-integration.mjs', [
+          owned[0].state,
+          path.join(directory, 'teaching'),
+        ]),
+      );
+      assert.equal(result.result, 'passed');
+      report.teachingVideo = result;
+    },
   );
   await phase(
     'credential-free generic/read/Codex configurations and idempotent registration',

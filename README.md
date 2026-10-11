@@ -102,40 +102,57 @@ Ask your agent to:
 
 Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 `browser_snapshot`, `browser_action`, `desktop_screenshot`, `terminal_run`,
-`files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`.
-MCP also exposes a pinned identity resource and a `taught-workflow` prompt.
+`files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`,
+`workflow_analyze`, `workflow_propose`. MCP also exposes a pinned identity
+resource, `taught-workflow` and `analyze-demonstration` prompts.
 
 ## Give the agent skills
 
-MCP supplies **tools** to operate the computer. Skills supply **instructions**
-for using those tools to complete a task. A skill does not add permissions or
-execute itself; the connected harness interprets it within your request.
+MCP supplies tools; a skill supplies a reviewed procedure using those tools.
+**Connect agent** provides pinned JSON/TOML configuration and the
+[Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md). Downloads do not
+install settings or change your existing host computer.
 
-Open **Connect agent** in the owner console to copy/download the exact JSON or
-TOML configuration, choose work/read access, discover the current tools and
-download the [Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md).
-Install it as `sendtry-computer/SKILL.md` in your harness's supported skills
-directory. Nothing is installed automatically on your existing computer.
-See [setup and skill integration](docs/SETUP.md).
+In **Skills**, take control, name the task and start recording. Demonstrate it
+on the shared Linux guest, then choose **Review & save** and stop recording.
+The action trace captures browser events and file/terminal markers, omitting
+input values, commands and file contents. Working directories and command
+outcomes remain visible for review.
 
-## Teach a task
+Optionally include a local guest video (no audio; five-minute capture deadline,
+20 MiB per clip, 200 MiB total). Review its visible content before choosing
+**Allow agent analysis**. Copy the analysis request to your connected vision
+agent: `workflow_analyze` supplies sampled frames and the trace;
+`workflow_propose` saves its procedure, expected result and uncertainties.
+The server adds no model account, API key or cloud inference service. Your
+harness/model must support MCP images and perform the reasoning; the console
+cannot launch an unconnected agent by itself.
 
-1. In **Computer**, select **Take control** and **Open practice task**.
-2. Open **Skills** → **Teach a skill**, name the task and **Start recording**.
-3. The console returns to **Computer**. Complete the form on the live screen.
-4. Select **Review & save** → **Save recording**. Review the procedure and its
-   named input parameters in the skill library.
-5. **Export SKILL.md** and place it in the named skill folder shown in the
-   console. Release control, then ask your agent to use it with supplied values.
-   You can also reuse it directly through `workflow_get` or the MCP prompt.
+Correct the proposed procedure, parameterize inputs, remove secrets and define
+how to verify success. **Confirm review** enables **Export SKILL.md**. You can
+discard a proposal while keeping your previous reviewed procedure, revoke frame
+access, or explicitly delete just the video while retaining the skill. Material
+already received by an agent/model provider cannot be recalled. Pending drafts
+are hidden from read-only connections.
 
-Teach captures main-frame navigation, clicks and changed text inputs. Typed
-values and terminal commands are omitted; secret-like input fields are skipped.
-Workspace writes/console commands contribute instruction markers. The recording
-is an event trace, not a video or universal desktop macro. Workflows are
-instructions for a harness to interpret using the tools; there is no automatic
-blind replay. URLs/paths and visible screens can still contain sensitive data;
-review before sharing. Partial recordings survive crashes as `interrupted`.
+This is analysis of sampled evidence, not model training or proof that every
+frame/action was understood. Ordinary trace review works without video or a
+vision model. Arbitrary desktop application input/replay remains a future
+capability; browser, terminal and files are the executable tools in this MVP.
+See [the Teach guide](docs/TEACH.md) and [setup](docs/SETUP.md).
+
+## Try the offline practice task
+
+1. In **Computer**, take control and open the practice task.
+2. In **Skills**, start a named recording, optionally with guest video.
+3. Complete the form on the live guest screen.
+4. Return with **Review & save** and save the recording. Review the trace, or
+   allow your connected agent to analyze sampled video and propose instructions.
+5. Correct the procedure, define a verifiable result and **Confirm review**.
+   Export the skill, release control and ask your agent to reuse it with new
+   supplied values.
+
+[Teach guide](docs/TEACH.md) explains consent, drafts, limits and recovery.
 
 ## Platform support
 

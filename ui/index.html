@@ -314,6 +314,15 @@ Ready. Your command output will appear here.</pre
                     maxlength="2000"
                     placeholder="Describe a clear result, without secrets."
                   ></textarea
+                  ><label class="capture-option" for="teach-video"
+                    ><input id="teach-video" type="checkbox" /><span
+                      ><strong>Include a demonstration video</strong
+                      ><small
+                        >Record only this Linux desktop, without audio. Up to 5
+                        minutes. Visible text and secrets are included; keep the
+                        demo free of private information.</small
+                      ></span
+                    ></label
                   ><button id="teach-start" class="primary" disabled>
                     Start recording
                     <svg class="icon"><use href="#i-arrow" /></svg>
@@ -336,12 +345,13 @@ Ready. Your command output will appear here.</pre
                 <span class="step-number">2</span
                 ><strong>Review &amp; reuse</strong>
                 <p>
-                  Typed values and commands become parameters. Review the steps,
-                  supply the missing values, then export a SKILL.md.
+                  Review captured steps, define how to verify success and supply
+                  the missing values. Then export a SKILL.md for your agent.
                 </p>
                 <p class="caption">
-                  Browser capture covers main-frame actions. Screens and
-                  arbitrary desktop clicks are not recorded as steps.
+                  Steps cover main-frame browser actions and workspace tools.
+                  Video is local reference evidence; it does not train a model
+                  or add tools for arbitrary desktop apps.
                 </p>
               </div>
             </div>
@@ -376,9 +386,146 @@ Ready. Your command output will appear here.</pre
                     <p class="eyebrow">RECORDED PROCEDURE</p>
                     <h2 id="skill-title"></h2>
                   </div>
-                  <span id="skill-state" class="small-badge"></span>
+                  <div class="actions">
+                    <button id="skill-refresh">Check for proposal</button
+                    ><span id="skill-state" class="small-badge"></span>
+                  </div>
                 </div>
                 <p id="skill-goal" class="subtitle"></p>
+                <div class="skill-facts">
+                  <span id="skill-step-count"></span
+                  ><span id="skill-capture-kind"></span>
+                </div>
+                <section
+                  id="skill-video-panel"
+                  class="video-panel"
+                  hidden
+                  aria-labelledby="skill-video-title"
+                >
+                  <div class="section-bar">
+                    <div>
+                      <h3 id="skill-video-title">Your demonstration</h3>
+                      <p id="skill-video-status"></p>
+                    </div>
+                    <a id="skill-video-download" class="button" download
+                      >Download video</a
+                    >
+                  </div>
+                  <video
+                    id="skill-video-player"
+                    controls
+                    preload="metadata"
+                    aria-label="Recorded guest desktop demonstration"
+                  ></video>
+                  <p class="caption">
+                    Saved privately on this computer. Frames are shared only
+                    after you allow agent analysis. The video is not bundled in
+                    SKILL.md.
+                  </p>
+                  <div class="actions">
+                    <button id="skill-video-remove">Delete video</button
+                    ><button
+                      id="skill-video-remove-confirm"
+                      class="danger"
+                      hidden
+                    >
+                      Confirm delete video
+                    </button>
+                  </div>
+                </section>
+                <section
+                  id="skill-analysis-panel"
+                  class="review-panel"
+                  hidden
+                  aria-labelledby="skill-analysis-title"
+                >
+                  <div class="section-bar">
+                    <div>
+                      <h3 id="skill-analysis-title">
+                        Let your agent understand the task.
+                      </h3>
+                      <p id="skill-analysis-status"></p>
+                    </div>
+                    <span class="small-badge">Your agent · your model</span>
+                  </div>
+                  <p class="caption">
+                    Allow connected agents with work access to inspect sampled
+                    frames. Visible content, including secrets, may reach your
+                    agent’s configured model provider. Review the video first.
+                    This server adds no AI service or automatic training.
+                  </p>
+                  <div class="actions">
+                    <button id="skill-analysis-toggle">
+                      Allow agent analysis</button
+                    ><button id="skill-analysis-copy" hidden>
+                      Copy analysis request
+                    </button>
+                  </div>
+                  <div id="skill-proposal" hidden>
+                    <h3>Agent proposal · needs your review</h3>
+                    <button id="skill-proposal-discard">
+                      Discard proposal
+                    </button>
+                    <p
+                      id="skill-proposal-uncertainties"
+                      class="proposal-note"
+                    ></p>
+                    <p class="caption">
+                      Check and edit the proposed procedure below. Sampled
+                      frames can miss actions; this proposal has not been
+                      executed or verified.
+                    </p>
+                  </div>
+                </section>
+                <h3>Captured action trace</h3>
+                <ol id="skill-timeline" class="skill-timeline"></ol>
+                <form id="skill-review-form" class="review-panel">
+                  <div class="section-bar">
+                    <div>
+                      <h3>Make it useful for your agent.</h3>
+                      <p>
+                        Correct the procedure, supply missing parameters and
+                        define a result the agent can verify.
+                      </p>
+                    </div>
+                    <span id="skill-review-state" class="small-badge"></span>
+                  </div>
+                  <label for="skill-procedure">Procedure for the agent</label
+                  ><textarea
+                    id="skill-procedure"
+                    rows="8"
+                    maxlength="12000"
+                    required
+                    placeholder="Review the captured steps or edit the agent’s proposal. Use named parameters for inputs and commands."
+                  ></textarea>
+                  <label for="skill-expected-result"
+                    >How should the agent verify success?</label
+                  ><textarea
+                    id="skill-expected-result"
+                    rows="3"
+                    maxlength="1000"
+                    required
+                    placeholder="For example: read the saved file and check the requested project name and next step."
+                  ></textarea
+                  ><label for="skill-notes"
+                    >Clarifications for the agent (optional)</label
+                  ><textarea
+                    id="skill-notes"
+                    rows="3"
+                    maxlength="5000"
+                    placeholder="Explain missing steps, selectors, prerequisites or failed attempts. Avoid secrets."
+                  ></textarea
+                  ><button id="skill-review-save" class="primary">
+                    Confirm review
+                  </button>
+                  <p class="caption">
+                    The action trace omits typed values. Video analysis can
+                    include visible values; remove secrets and parameterize
+                    inputs before approving. Review publishes these instructions
+                    to connected agents; it does not prove the task will succeed
+                    automatically.
+                  </p>
+                </form>
                 <div class="actions">
                   <button id="skill-download" class="primary">
                     <svg class="icon"><use href="#i-download" /></svg>Export
@@ -388,7 +535,10 @@ Ready. Your command output will appear here.</pre
                 <p id="skill-export-hint" class="caption">
                   Review the steps and parameters before use.
                 </p>
-                <pre id="workflow-text" tabindex="0"></pre>
+                <details class="instruction-preview">
+                  <summary>Preview agent instructions</summary>
+                  <pre id="workflow-text" tabindex="0"></pre>
+                </details>
               </div>
             </div>
           </div>

@@ -169,12 +169,13 @@ Registration in a specific harness UI still needs separate validation.
 
 The operator skill downloads as `SKILL.md`. Place it in a folder named
 `sendtry-computer` in your harness's supported skills directory. For taught skills,
-**Skills** → select a completed recording → **Export SKILL.md**; use the exact
+**Skills** → select a completed recording → correct the procedure and expected result → **Confirm review** → **Export SKILL.md**; use the exact
 folder name displayed below the export button. Review the URLs, selectors,
 computer identity and missing parameters before installation/use. Interrupted
-recordings need a new completed demonstration before export. Skills do not
-contain typed values or recorded terminal commands, but names, goals and paths
-can contain owner-provided sensitive information: review what you share.
+recordings need a new completed demonstration before export. The action trace omits typed values and recorded terminal commands. Video and
+agent-generated drafts may include visible values; remove secrets and use named
+parameters before confirming review. Names, goals and paths can also be sensitive.
+See [Teach video analysis and review](TEACH.md) for the complete flow.
 
 The format follows the [Agent Skills specification](https://agentskills.io/specification):
 a skill folder containing YAML-frontmatter `SKILL.md` and Markdown instructions.
@@ -191,6 +192,17 @@ by download.
   to load the updated runtime/UI. A ready `start` preserves its existing runtime
   deliberately. Older guests may reject new owner setup metadata until rebuilt;
   host config and volume identities are retained.
+- **Old taught skill needs review**: existing procedures are retained, but export
+  now requires owner review and a success criterion. Missing legacy working
+  directories are marked `CONFIRM_WORKING_DIRECTORY`, not assumed to be root.
+- **Analysis denied**: use work access and enable frame sharing for that specific
+  saved video in Skills. Read-only access cannot analyze or propose. Send the
+  copied request to a connected vision-capable agent; enabling consent does not
+  itself invoke a model. Refresh the selected skill to see a new proposal.
+- **Demonstration changed**: refresh the selected skill and review the current
+  draft/revision; do not automatically retry a stale write.
+- **Video quota/decode failure**: explicitly delete unneeded clips or record
+  steps only. An interrupted video may be incomplete; re-record if needed.
 - **Computer busy**: another bridge owns the lease. Release it or take control in
   the console. A crashed bridge’s lease expires after at most 90 seconds.
 - **Owner access required**: run `node src/cli.js open` with the same name/state.
@@ -228,6 +240,10 @@ its Docker volume, and back up private host config separately.
 - [MCP TypeScript SDK v2](https://github.com/modelcontextprotocol/typescript-sdk)
   and its installed version’s declarations for `serveStdio`, tool schemas and
   per-request cancellation.
+- [MCP image tool results](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)
+  and [prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts)
+  for sampled frame delivery and user-selected analysis instructions. The pinned
+  SDK handles the negotiated protocol; no raw WebM content type is invented.
 - [MCP transports](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
   for stdio framing and stdout discipline; current v2 discovery is delegated to
   the SDK, not a handwritten protocol shim.
