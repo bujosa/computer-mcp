@@ -32,6 +32,7 @@ export class RuntimeClient {
       if (!response.ok) {
         const error = new Error(value.error || 'Runtime request failed.');
         error.code = value.code;
+        error.status = response.status;
         throw error;
       }
       return value;
@@ -40,15 +41,22 @@ export class RuntimeClient {
       signal?.removeEventListener('abort', abort);
     }
   }
-  async info() {
-    const info = await this.request('/api/info', { timeoutMs: 5000 });
+  async info({ timeoutMs = 5000 } = {}) {
+    const info = await this.request('/api/info', { timeoutMs });
     if (
+      !info ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        info.workspaceId,
+      ) ||
       info.computerId !== this.config.computerId ||
       (this.config.workspaceId && info.workspaceId !== this.config.workspaceId)
-    )
-      throw new Error(
+    ) {
+      const error = new Error(
         'Pinned computer/workspace identity changed. Refusing this connection.',
       );
+      error.code = 'identity_mismatch';
+      throw error;
+    }
     return info;
   }
   async call(name, args = {}, signal) {

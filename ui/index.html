@@ -83,6 +83,9 @@
         <button class="tab" data-view="connect">
           <svg class="icon"><use href="#i-connect" /></svg>Connect agent
         </button>
+        <button class="tab" data-view="computers">
+          <svg class="icon"><use href="#i-computer" /></svg>Your computers
+        </button>
       </nav>
       <div class="sidebar-note">
         <span class="preview-label">PRIVATE PREVIEW</span>
@@ -492,6 +495,50 @@ Ready. Your command output will appear here.</pre
             ><code id="open-command"
               >computer-mcp open --name &lt;your-computer&gt;</code
             >
+          </div>
+        </section>
+        <section id="computers" class="view" hidden>
+          <div class="panel computers-overview">
+            <div>
+              <p class="eyebrow">LOCAL COMPUTER CATALOG</p>
+              <h2 id="catalog-default">Choose where work happens.</h2>
+              <p class="subtitle">
+                Each computer keeps its own files, browser and skills.
+              </p>
+            </div>
+            <button id="computers-list-copy" disabled>
+              Copy status command
+            </button>
+          </div>
+          <p class="caption catalog-note">
+            This list was loaded when you opened the console. Run the status
+            command on your host to check which computers are ready or occupied.
+            Reopen this console after catalog changes.
+          </p>
+          <div id="computer-catalog" class="computer-catalog"></div>
+          <div class="panel catalog-create">
+            <p class="eyebrow">ROOM FOR ANOTHER TASK</p>
+            <h2>Create a dedicated computer.</h2>
+            <p class="subtitle">
+              Choose a unique name. A free console port is selected for you. The
+              guest starts offline; enable internet only when your task needs
+              it.
+            </p>
+            <pre
+              id="computer-create-command"
+              tabindex="0"
+              aria-label="Create computer command"
+            >
+Run the CLI on your host to create a computer.</pre
+            >
+            <button id="computer-create-copy" disabled>
+              Copy create command
+            </button>
+            <p class="caption">
+              Run the command on your host, then follow the printed start
+              command. Selecting a default affects future CLI commands; saved
+              MCP connections keep their own computer.
+            </p>
           </div>
         </section>
         <footer>

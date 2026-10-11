@@ -17,15 +17,16 @@ code/assets.
 
 ## Experience
 
-The console has five working views:
+The console has six working views:
 
-| View          | Owner's job                                                                           |
-| ------------- | ------------------------------------------------------------------------------------- |
-| Computer      | Watch the real guest screen, take/release control and open the offline practice task  |
-| Files         | Browse the contained workspace and read/save bounded text files                       |
-| Terminal      | Execute a focused guest command and inspect its output/deadline                       |
-| Skills        | Teach, search, review and export a completed procedure                                |
-| Connect agent | Choose work/read access, copy exact MCP configuration and download the operator skill |
+| View           | Owner's job                                                                           |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Computer       | Watch the real guest screen, take/release control and open the offline practice task  |
+| Files          | Browse the contained workspace and read/save bounded text files                       |
+| Terminal       | Execute a focused guest command and inspect its output/deadline                       |
+| Skills         | Teach, search, review and export a completed procedure                                |
+| Your computers | Inspect the registered catalog/default and copy owner create/start/open/use commands  |
+| Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill |
 
 The flow is **create computer → connect agent → work together → teach a task →
 review → reuse**. MCP tools are capabilities. Skills are procedural instructions.
@@ -46,7 +47,7 @@ and lease state; it does not claim that a specific harness is connected.
 ## Visual and interaction rules
 
 Use light, quiet surfaces and one primary action per local task. Ink is text,
-salmon is action/selection, and compact SVG icons identify the five views. The
+salmon is action/selection, and compact SVG icons identify the views. The
 live Linux desktop retains its actual browser/OS appearance. No remote font,
 analytics, cloud account, provider OAuth or model/chat UI is required.
 

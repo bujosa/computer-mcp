@@ -15,6 +15,7 @@
     "start": "node src/cli.js",
     "test": "node --test test/*.test.js",
     "test:integration": "node scripts/integration.mjs",
+    "test:catalog-integration": "node scripts/catalog-integration.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

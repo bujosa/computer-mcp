@@ -12,7 +12,7 @@ remote adapters are design seams, not advertised implementations.
 
 | Module                                                  | Responsibility                                                                                                                        |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/cli.js`, `config.js`, `docker.js`                  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
+| `src/cli.js`, `config.js`, `computers.js`, `docker.js`  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
 | `src/mcp.js`, `client.js`                               | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
 | `src/catalog.js`                                        | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
 | `runtime/server.js`                                     | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
@@ -92,6 +92,41 @@ Setup assigns a UUID and saves private state outside the repo by default:
 `~/.computer-mcp/computers/<name>/computer.json` (0600, parent 0700). Windows ACL
 semantics must be reviewed before representing that mode as equivalent to a
 POSIX private directory. Config output includes paths, not credentials.
+
+`src/computers.js` owns the host-only version-1 catalog at
+`<root>/registry.json` (0600, new directory 0700; default root
+`~/.computer-mcp`). Entries contain a unique name, UUID and canonical absolute
+state pointer, never credentials. The first creation/registration chooses the
+default; `use` changes it only after revalidating the target's identity. An
+explicit state wins over name/default, and generated stdio configurations always
+pin that state. A busy/unreachable default does not cause reassignment to
+another computer. Version-1 known legacy paths remain usable without an implicit
+scan or migration. `register` adds existing owned product state idempotently.
+
+Catalog writes use atomic replacement under an exclusive directory lock. Create
+holds that lock across checking registered ports, a bounded loopback bind probe,
+config creation and registration. Different local engines still reserve distinct
+host console ports. The probe is not a persistent OS reservation: a new external
+listener can win before Docker publishing, which must then fail. A config may
+survive a failed catalog write; owner inspection plus `register --state` recovers
+without resetting credentials. Crash-stale locks/corruption require inspection,
+never automatic deletion/reset. The catalog is capped at 100 entries.
+
+Availability probes read only the explicit registered endpoints, using pinned
+identity and credentials, 1.5-second deadlines and four concurrent workers.
+Reachable computers are ready/busy; authenticated startup and missing pins have
+separate states. Unreachable does not assert stopped. There is no Docker-wide or
+network discovery. `start` validates local engine and owned resources, then skips
+Compose when the pinned runtime is already ready, preserving its lease and boot.
+`--rebuild` is explicit recreation after updates, with normal session invalidation.
+
+Owner console metadata may include a strict, credential-free catalog snapshot
+and copyable CLI commands. It is loaded at `open`, not a live cross-computer API;
+other entries are labelled registered. The UI never executes those commands,
+changes the default, builds containers or receives a host-management credential.
+`--root` is retained in owner management/reopen commands; generated MCP entries
+need only their canonical absolute state. Catalog code is not copied into the
+guest image. No new service, gateway or scheduler is introduced.
 
 Docker commands always include the saved `--context`; only Unix socket/named
 pipe endpoints and Linux engines are accepted. The default Docker context is
@@ -196,6 +231,9 @@ computer unless the owner reviews an adaptation.
 
 No existing Piblo state is imported or migrated. This is a new private repo with
 versioned fresh state. Incompatible schemas fail rather than silently resetting.
+The optional owner catalog metadata extends the setup contract. Rebuild an older
+guest with `start --rebuild` after updating the checkout; it may otherwise reject
+the new fields. Ready `start` does not silently apply source/runtime updates.
 Rollback can stop the owned computer and use a previous reviewed image/source
 with a compatible schema; backups include the volume and private host config.
 There is no production deployment, default-branch change or public package.

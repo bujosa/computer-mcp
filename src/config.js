@@ -3,6 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { atomicJSON } from '../runtime/store.js';
+const uuid =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 export function statePath(name = 'my-computer', override) {
   if (!/^[a-z][a-z0-9-]{0,39}$/.test(name))
@@ -54,7 +56,8 @@ export async function readConfig(state) {
   if (
     config.version !== 1 ||
     !['isolated', 'internet'].includes(config.network) ||
-    !/^[0-9a-f-]{36}$/.test(config.computerId) ||
+    !uuid.test(config.computerId) ||
+    (config.workspaceId !== null && !uuid.test(config.workspaceId)) ||
     !/^[0-9a-f]{64}$/.test(config.token) ||
     !/^[0-9a-f]{64}$/.test(config.ownerToken) ||
     !Number.isInteger(config.port) ||

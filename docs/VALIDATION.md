@@ -10,8 +10,8 @@ not support inferred from portable JavaScript or CI configuration.
   pinned Playwright 1.64.0, visible Xvfb/Openbox desktop.
 - Every Docker operation used explicit `--context desktop-linux`. The default
   context remained `ser9`; no operation targeted that remote daemon.
-- Two new owned UUID projects/volumes were used, with loopback console ports
-  17670 (internet) and 17671 (isolated). No Piblo containers, profiles or volumes
+- Three new owned UUID projects/volumes were used, with loopback console ports
+  17670 (internet), 17671 (isolated) and 17672 (isolated catalog QA). No Piblo containers, profiles or volumes
   were reused. Reference worktrees were read-only.
 
 ## Checks
@@ -22,7 +22,7 @@ not support inferred from portable JavaScript or CI configuration.
 | `npm run format:check`                                         | Passed                                                           |
 | `npm run lint`                                                 | Passed                                                           |
 | `npm run build`                                                | Syntax checks and actual noVNC ESM bundle passed                 |
-| `npm test`                                                     | 9 backend/security contract tests passed on macOS                |
+| `npm test`                                                     | 19 backend/security/CLI contract tests passed on macOS           |
 | `npm audit --omit=dev`                                         | 0 known production dependency vulnerabilities reported           |
 | `setup`, `doctor`, `start`, `status`, `open`, `config`, `stop` | Local CLI paths exercised; macOS browser opener returned success |
 | `npm run test:integration -- <internet-owned-state>`           | Passed against the running guest                                 |
@@ -152,3 +152,46 @@ adapters, hostile-code isolation and public packaging/license review remain
 pending. The first image build downloads desktop/browser dependencies; this is
 not a zero-download native executable. See [SECURITY.md](../SECURITY.md) for
 sandbox, network, process-tree and disk-quota limits.
+
+## Local computer management refinement
+
+The host-only catalog was exercised under the ignored
+`.computer-mcp/review-catalog`, without touching global defaults or another
+project's resources. Existing review computers were registered idempotently;
+`init --name catalog-sandbox --context desktop-linux` selected free port 17672
+and created a separate owned guest. `list`, `list --json`, `use`, unnamed default
+selection, explicit names/state, `config --client codex`, `status`, `doctor` and
+`start --open` were exercised. The actual macOS opener returned success.
+
+`npm run test:catalog-integration -- .computer-mcp/review-catalog review-mvp catalog-sandbox`
+passed against two real, idle guests. Changing the default did not retarget the
+previously generated official SDK stdio entry. Both guests independently held
+leases and stored different content under the same uniquely named file. A repeat
+`start` preserved the first guest's boot UUID and lease generation. Authenticated
+owner UI metadata returned the exact catalog/commands; agent access was rejected
+with `human_only`. The script released leases and restored the prior default.
+
+Both `npm run test:integration -- .computer-mcp/review-mvp` and
+`npm run test:integration -- .computer-mcp/review-catalog/computers/catalog-sandbox`
+passed on the refined branch, including the real MCP/security/browser/Teach paths
+above. Owned sandbox stop/start with the normal non-recreating path retained its
+workspace UUID, file contents and taught workflow; boot UUID changed and old
+leases were absent. Sandbox and offline-review are stopped with volumes retained;
+review-mvp remains available as the review catalog's default.
+
+New contract tests cover default persistence, pinned selection, occupied/reserved
+ports, duplicate/replaced identities, legacy state, corrupt catalogs, crash locks,
+concurrent creation, real CLI option/config output, read-only availability probes,
+authenticated startup and strict credential-free owner catalog metadata. Tests use
+private temporary catalogs; CI on other host platforms remains blocked as recorded
+above, so passing local contracts does not claim Windows/Linux lifecycle support.
+
+Manual T3 browser review covered the new Your computers view at 1280 × 800,
+1440 × 1050 and 390 × 844, registered/current/default states, copied status and
+set-default commands with the exact root, native clipboard paste without executing
+the pasted command, and keyboard focus preserved across runtime refreshes. The
+narrow document had no horizontal overflow. Other computers are labelled registered
+rather than assumed ready; the catalog is explicitly a snapshot loaded at open.
+The current card changed to occupied on human control and unavailable after an
+owned guest stop, then recovered through start/open with its identity preserved.
+No automated UI/appearance test harness was added.

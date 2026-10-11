@@ -9,6 +9,8 @@ import { RuntimeClient } from './client.js';
 import { tools } from './catalog.js';
 
 export async function serveMCP(config) {
+  if (config.access && !['work', 'read'].includes(config.access))
+    throw new Error('Choose --access work or read.');
   if (!config.workspaceId)
     throw new Error('Start the computer once before connecting MCP.');
   const readOnly = config.access === 'read';

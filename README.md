@@ -23,18 +23,19 @@ reuse the image and data. Run these commands inside this private checkout:
 
 ```sh
 npm ci
-node src/cli.js setup --name my-computer --context desktop-linux
-node src/cli.js start --name my-computer
-node src/cli.js open --name my-computer
+node src/cli.js init --name my-computer --context desktop-linux
+node src/cli.js start --open
+node src/cli.js list
 ```
 
-On Linux with a local Docker Engine, use `--context default` for setup instead.
+On Linux with a local Docker Engine, use `--context default` for init instead.
 The CLI always supplies the saved context explicitly and never changes your
 Docker default. Remote SSH/TCP contexts are refused. When the machine’s default
 context points at another computer, it is not used automatically on macOS or
 Windows.
 
-The console opens at **http://127.0.0.1:17670**. Take control to use the live
+The CLI prints the loopback console URL (the first free port starts at 17670).
+The first computer becomes the CLI default. Take control to use the live
 desktop, edit files or run commands. Release control to let the agent acquire its
 own lease. Stop preserves the data:
 
@@ -46,9 +47,31 @@ node src/cli.js stop --name my-computer
 
 Computers default to an **isolated/offline Docker network**. The included teaching
 sandbox works offline. To use public websites or download dependencies, create a
-separate computer with `setup --name web-computer --port 17671 --context
-desktop-linux --network internet`. Internet mode also allows connections to
+separate computer with `init --name web-computer --context desktop-linux
+--network internet`. Internet mode also allows connections to
 reachable LAN/host services; it is not an outbound security firewall.
+
+## Manage your computers
+
+```sh
+node src/cli.js init --name research --context desktop-linux --network internet
+node src/cli.js list                 # Available, busy, unreachable; * is default
+node src/cli.js use research         # Default for future CLI commands
+node src/cli.js start --open
+node src/cli.js status
+```
+
+Every computer has its own UUID, state, port, files and browser profile. Create
+chooses a free port; it never takes over another listener. `use` does not move an
+existing agent: generated MCP configurations remain fixed to their computer.
+`start` preserves sessions when the selected computer is already ready; use
+`start --rebuild` after a source update to rebuild/recreate it.
+
+Existing state can be added with `register --state /private/existing/path`.
+Selection is `--state` → `--name` → saved default. `--root /private/catalog`
+isolates development/test catalogs. See [the local review workspace](docs/LOCAL-REVIEW.md)
+for the existing demo computers. The **Your computers** console view shows
+registered PCs and copies exact owner commands. [Full command reference](docs/SETUP.md#computers-availability-and-default-selection).
 
 ## Connect an agent
 

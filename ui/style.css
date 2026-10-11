@@ -1223,3 +1223,48 @@ code {
   max-height: 500px;
   overflow-y: auto;
 }
+
+.computers-overview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.catalog-note {
+  margin: 18px 0;
+}
+.computer-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.computer-card h3 {
+  margin: 0;
+}
+.computer-card .section-bar {
+  margin-bottom: 12px;
+}
+.computer-card-id {
+  overflow-wrap: anywhere;
+}
+.computer-card .actions {
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.catalog-create pre {
+  margin: 22px 0 16px;
+  border: 1px solid var(--line);
+  padding: 16px;
+  background: var(--paper);
+  border-radius: 8px;
+}
+.catalog-create .caption {
+  margin-top: 18px;
+}
+@media (max-width: 760px) {
+  .computers-overview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

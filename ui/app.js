@@ -31,6 +31,12 @@ const pages = {
     'Your computer. Connected.',
     'Bring the agent you already use. Give it a place to work.',
   ],
+  computers: [
+    'Your computers',
+    'A SPACE FOR EVERY TASK',
+    'Your computers, in one place.',
+    'Choose a default, start a workspace and connect your agent.',
+  ],
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
 let view = 'desktop',
@@ -127,6 +133,7 @@ async function showView(next) {
   stream();
   if (info && view === 'files') await browse();
   if (info && view === 'teach') await recording();
+  if (view === 'computers') renderComputers();
 }
 function mutationState() {
   for (const id of ['run', 'file-save', 'demo', 'teach-start', 'teach-stop'])
@@ -169,6 +176,9 @@ async function refresh() {
       ? 'Control enabled · your agent can follow along'
       : 'View only · take control to interact';
     stream();
+    const currentComputer = document.querySelector('[data-current-computer]');
+    if (currentComputer)
+      currentComputer.textContent = `${currentComputer.dataset.default === 'true' ? 'Default for the CLI' : 'Select by name in the CLI'} · ${info.lease ? 'Control occupied' : 'Ready for an agent'}`;
     if (view === 'teach') await recording();
   } finally {
     refreshing = false;
@@ -295,6 +305,7 @@ function renderConfig() {
     $('computer-name').textContent = ownerConfig.computerName;
     $('open-command').textContent = ownerConfig.openCommand;
   }
+  renderComputers();
   if (info) {
     $('capability-summary').textContent =
       `${info.capabilities.length} tools discovered · browser, files, terminal, screenshots and workflows`;
@@ -306,6 +317,63 @@ function renderConfig() {
       }),
     );
   }
+}
+function renderComputers() {
+  const catalog = ownerConfig?.management;
+  $('computers-list-copy').disabled = !catalog;
+  $('computer-create-copy').disabled = !catalog;
+  $('catalog-default').textContent = catalog?.defaultName
+    ? `Default computer · ${catalog.defaultName}`
+    : 'No default selected.';
+  $('computer-create-command').textContent =
+    catalog?.createCommand ||
+    'Reopen this console from the CLI to load your computer catalog.';
+  const cards = (catalog?.computers || []).map((computer) => {
+    const card = document.createElement('article');
+    card.className = 'panel computer-card';
+    const heading = document.createElement('div');
+    heading.className = 'section-bar';
+    const name = document.createElement('h3');
+    name.textContent = computer.name;
+    const badge = document.createElement('span');
+    badge.className = 'small-badge';
+    badge.textContent = computer.isCurrent ? 'This computer' : 'Registered';
+    heading.append(name, badge);
+    const identity = document.createElement('p');
+    identity.className = 'caption computer-card-id';
+    identity.textContent = computer.computerId;
+    const detail = document.createElement('p');
+    detail.className = 'caption';
+    if (computer.isCurrent) {
+      detail.dataset.currentComputer = 'true';
+      detail.dataset.default = String(computer.isDefault);
+    }
+    detail.textContent = `${computer.isDefault ? 'Default for the CLI' : 'Select by name in the CLI'}${computer.isCurrent && info ? ` · ${info.lease ? 'Control occupied' : 'Ready for an agent'}` : ''}`;
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    for (const [label, command] of [
+      ['Copy start & open', computer.startCommand],
+      ['Copy open', computer.openCommand],
+      ['Copy set default', computer.useCommand],
+    ]) {
+      const button = document.createElement('button');
+      button.textContent = label;
+      button.onclick = guarded(() => copy(command));
+      if (label === 'Copy set default' && computer.isDefault)
+        button.disabled = true;
+      actions.append(button);
+    }
+    card.append(heading, identity, detail, actions);
+    return card;
+  });
+  if (!cards.length) {
+    const empty = document.createElement('p');
+    empty.className = 'caption';
+    empty.textContent =
+      'No registered computers were included. Register existing state with the CLI, then reopen this console.';
+    cards.push(empty);
+  }
+  $('computer-catalog').replaceChildren(...cards);
 }
 async function copy(text) {
   if (!navigator.clipboard?.writeText)
@@ -418,6 +486,12 @@ $('skill-download').onclick = guarded(async () => {
 $('skill-copy').onclick = guarded(() => copy(selectedSkill.instructions));
 $('client-format').onchange = renderConfig;
 $('client-access').onchange = renderConfig;
+$('computers-list-copy').onclick = guarded(() =>
+  copy(ownerConfig.management.listCommand),
+);
+$('computer-create-copy').onclick = guarded(() =>
+  copy(ownerConfig.management.createCommand),
+);
 $('config-copy').onclick = guarded(() => copy(configText()));
 $('config-download').onclick = () =>
   download(
@@ -433,6 +507,10 @@ $('agent-copy').onclick = guarded(() =>
 );
 function disconnected(error) {
   info = undefined;
+  const currentComputer = document.querySelector('[data-current-computer]');
+  if (currentComputer)
+    currentComputer.textContent =
+      'Computer unavailable · run status on the host';
   rfb?.disconnect();
   rfb = null;
   mode = null;
