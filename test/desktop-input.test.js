@@ -66,7 +66,9 @@ test(
     await fs.mkdir(site, { recursive: true });
     const marker = path.join(root, 'customization-loaded');
     await fs.writeFile(
-      path.join(site, 'sitecustomize.py'),
+      // Some distributions import their own sitecustomize before user-site.
+      // usercustomize still proves writable-home code runs without isolation.
+      path.join(site, 'usercustomize.py'),
       `from pathlib import Path\nPath(${JSON.stringify(marker)}).write_text('loaded')\n`,
     );
     run(['-B', '-c', 'pass']);
