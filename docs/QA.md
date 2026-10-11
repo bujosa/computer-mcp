@@ -40,6 +40,9 @@ The runner exercises real CLI commands and official SDK stdio MCP clients:
   explicit clip deletion and Teach after Chromium closes.
 - Stop/start with the same computer/workspace/files/workflow and saved browser
   note, a new boot UUID, no old lease, and browser recovery after closing it.
+- Owner-only activity, scoped read/work identity, modern/legacy MCP labels,
+  terminal failures/timeouts, takeover cancellation, payload exclusion and the
+  exact retained operation after a real guest restart.
 - Positive public HTTPS access in internet mode and blocked outbound connection
   in isolated mode. Internet-mode failure can also indicate unavailable DNS/TLS
   or the external fixture; it remains a reported failure for investigation.
@@ -82,7 +85,8 @@ Manual vision review is separate. Generated media/frames/skills remain private.
 Use an idle computer owned by the review, `start --open`, and the local owner
 console. Review desktop streaming/input, Files save/read, Terminal execution,
 Teach start/stop, optional video play/download, consent/revoke, proposal correction/discard, review gate and skill/config downloads, work/read setup,
-computer/default commands, keyboard focus and compact layouts. Save a practice
+computer/default commands, Activity range/session filters, paging and JSON
+export, keyboard focus and compact layouts. Save a practice
 note and reload to verify the displayed saved result. Release control afterwards.
 UI appearance and interaction are reviewed manually; there is no generated UI
 appearance, navigation or E2E test harness.

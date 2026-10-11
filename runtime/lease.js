@@ -3,14 +3,20 @@ import { requireThat } from './errors.js';
 
 // One runtime owns the lease; process restart invalidates every old session.
 export class Lease {
-  constructor({ ttl = 90000, now = () => Date.now() } = {}) {
+  constructor({
+    ttl = 90000,
+    now = () => Date.now(),
+    onChange = () => {},
+  } = {}) {
     this.ttl = ttl;
     this.now = now;
+    this.onChange = onChange;
     this.current = null;
     this.active = null;
   }
   status() {
-    if (this.current && this.current.expiresAt <= this.now()) this.revoke();
+    if (this.current && this.current.expiresAt <= this.now())
+      this.revoke('expired');
     return (
       this.current && {
         owner: this.current.owner,
@@ -31,16 +37,18 @@ export class Lease {
       409,
     );
     if (this.current?.owner === owner) {
-      this.current.expiresAt = this.now() + this.ttl;
+      this.renew(owner);
       return this.status();
     }
-    this.revoke();
-    this.current = {
+    const current = {
       owner,
       kind,
       generation: randomUUID(),
       expiresAt: this.now() + this.ttl,
     };
+    this.onChange(this.current, current, takeover ? 'takeover' : 'acquired');
+    this.active?.controller.abort();
+    this.current = current;
     return this.status();
   }
   assert(owner) {
@@ -54,16 +62,23 @@ export class Lease {
     return this.current;
   }
   renew(owner) {
-    this.assert(owner).expiresAt = this.now() + this.ttl;
+    const previous = this.assert(owner);
+    const current = { ...previous, expiresAt: this.now() + this.ttl };
+    this.onChange(previous, current, 'renewed');
+    this.current = current;
     return this.status();
   }
   release(owner) {
     this.assert(owner);
     this.revoke();
   }
-  revoke() {
-    this.active?.controller.abort();
-    this.current = null;
+  revoke(reason = 'released') {
+    try {
+      if (this.current) this.onChange(this.current, null, reason);
+    } finally {
+      this.active?.controller.abort();
+      this.current = null;
+    }
   }
   async run(owner, fn, operationId, signal) {
     const lease = this.assert(owner);

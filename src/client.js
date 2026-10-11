@@ -1,11 +1,15 @@
 import { randomUUID } from 'node:crypto';
 export class RuntimeClient {
-  constructor(config) {
+  constructor(config, { source = 'api' } = {}) {
     this.config = config;
     this.sessionId = randomUUID();
     this.base = `http://127.0.0.1:${config.port}`;
+    this.source = source;
   }
-  async request(path, { body, signal, timeoutMs = 35000, operationId } = {}) {
+  async request(
+    path,
+    { body, signal, timeoutMs = 35000, operationId, client } = {},
+  ) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     const abort = () => controller.abort();
@@ -20,6 +24,7 @@ export class RuntimeClient {
           authorization: `Bearer ${this.config.token}`,
           'x-session-id': this.sessionId,
           'x-computer-id': this.config.computerId,
+          'x-audit-client': JSON.stringify(client || { source: this.source }),
           ...(operationId ? { 'x-operation-id': operationId } : {}),
           ...(this.config.workspaceId
             ? { 'x-workspace-id': this.config.workspaceId }
@@ -41,8 +46,8 @@ export class RuntimeClient {
       signal?.removeEventListener('abort', abort);
     }
   }
-  async info({ timeoutMs = 5000 } = {}) {
-    const info = await this.request('/api/info', { timeoutMs });
+  async info({ timeoutMs = 5000, client } = {}) {
+    const info = await this.request('/api/info', { timeoutMs, client });
     if (
       !info ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
@@ -59,8 +64,8 @@ export class RuntimeClient {
     }
     return info;
   }
-  async call(name, args = {}, signal) {
-    await this.info();
+  async call(name, args = {}, signal, client) {
+    await this.info({ client });
     const operationId = randomUUID();
     const abort = () => {
       void this.request('/api/cancel', {
@@ -75,10 +80,14 @@ export class RuntimeClient {
           body: { name, args },
           signal,
           operationId,
+          client,
         })
       ).result;
     } finally {
       signal?.removeEventListener('abort', abort);
     }
+  }
+  async endSession() {
+    return this.request('/api/session/end', { body: {}, timeoutMs: 5000 });
   }
 }

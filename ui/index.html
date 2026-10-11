@@ -45,6 +45,10 @@
       <symbol id="i-record" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="7" />
       </symbol>
+      <symbol id="i-activity" viewBox="0 0 24 24">
+        <path d="M4 5h16M4 12h7m5 0h4M4 19h16" />
+        <circle cx="13" cy="12" r="2" />
+      </symbol>
     </svg>
     <aside class="sidebar">
       <a class="brand" href="/" aria-label="Sendtry Computer home"
@@ -82,6 +86,9 @@
         </button>
         <button class="tab" data-view="connect">
           <svg class="icon"><use href="#i-connect" /></svg>Connect agent
+        </button>
+        <button class="tab" data-view="activity">
+          <svg class="icon"><use href="#i-activity" /></svg>Activity
         </button>
         <button class="tab" data-view="computers">
           <svg class="icon"><use href="#i-computer" /></svg>Your computers
@@ -645,6 +652,106 @@ Ready. Your command output will appear here.</pre
             ><code id="open-command"
               >computer-mcp open --name &lt;your-computer&gt;</code
             >
+          </div>
+        </section>
+        <section id="activity" class="view" hidden>
+          <div class="activity-toolbar">
+            <div class="activity-filters">
+              <div>
+                <label for="activity-range">Time range</label
+                ><select id="activity-range">
+                  <option value="1">Last 24 hours</option>
+                  <option value="7" selected>Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </div>
+              <div>
+                <label for="activity-session">Session</label
+                ><select id="activity-session">
+                  <option value="">All sessions</option>
+                </select>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="activity-refresh">Refresh</button
+              ><button id="activity-export">
+                <svg class="icon"><use href="#i-download" /></svg>Export JSON
+              </button>
+            </div>
+          </div>
+          <div class="activity-metrics" aria-label="Usage in selected range">
+            <div>
+              <span>Actions</span><strong id="activity-actions">—</strong
+              ><small id="activity-results">Recorded outcomes</small>
+            </div>
+            <div>
+              <span>Computer control</span
+              ><strong id="activity-control">—</strong
+              ><small>Time holding exclusive control</small>
+            </div>
+            <div>
+              <span>Tool execution</span><strong id="activity-tools">—</strong
+              ><small>Cumulative completed tool time</small>
+            </div>
+            <div>
+              <span>Sessions</span><strong id="activity-count">—</strong
+              ><small>Owner and agent sessions</small>
+            </div>
+          </div>
+          <div class="activity-grid">
+            <div class="panel activity-history">
+              <div class="section-bar">
+                <div>
+                  <strong>What happened</strong>
+                  <p id="activity-updated">
+                    Load activity to see recent actions.
+                  </p>
+                </div>
+                <span class="small-badge">Local history</span>
+              </div>
+              <ol id="activity-events" class="activity-events"></ol>
+              <div id="activity-empty" class="activity-empty" hidden>
+                <svg class="icon"><use href="#i-activity" /></svg>
+                <h3>A fresh start.</h3>
+                <p>
+                  Actions will appear here when you or an agent use this
+                  computer.
+                </p>
+              </div>
+              <button id="activity-more" hidden>Load earlier actions</button>
+            </div>
+            <aside class="activity-side">
+              <div class="panel">
+                <div class="section-bar">
+                  <div>
+                    <strong>Who used this computer</strong>
+                    <p id="activity-sessions-hint">
+                      Sessions in the selected range.
+                    </p>
+                  </div>
+                </div>
+                <ol id="activity-sessions" class="activity-sessions"></ol>
+              </div>
+              <div class="panel activity-privacy">
+                <svg class="icon"><use href="#i-computer" /></svg>
+                <h3>Your history stays here.</h3>
+                <p>
+                  Activity records times, access, actions and outcomes.
+                  Commands, file content and screen content are excluded.
+                </p>
+                <p>
+                  Client names are declared by the connected agent. They do not
+                  verify a person or model. Sharing a credential also shares its
+                  authority.
+                </p>
+                <p id="activity-retention"></p>
+                <p>
+                  Control time and tool time help evaluate usage. They are not
+                  billable hours or proof a task succeeded.
+                </p>
+              </div>
+            </aside>
           </div>
         </section>
         <section id="computers" class="view" hidden>

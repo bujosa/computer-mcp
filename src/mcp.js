@@ -7,6 +7,7 @@ import {
 import * as z from 'zod';
 import { RuntimeClient } from './client.js';
 import { tools } from './catalog.js';
+import { declaredClient } from './audit-contract.js';
 
 export async function serveMCP(config) {
   if (config.access && !['work', 'read'].includes(config.access))
@@ -22,7 +23,7 @@ export async function serveMCP(config) {
           .digest('hex'),
       }
     : config;
-  const client = new RuntimeClient(credential);
+  const client = new RuntimeClient(credential, { source: 'mcp' });
   await client.info();
   const server = new McpServer(
     { name: 'computer-mcp', version: '0.1.0' },
@@ -32,6 +33,20 @@ export async function serveMCP(config) {
     },
   );
   let heartbeat;
+  let heldClient;
+  const metadata = (ctx) => {
+    const envelope = ctx?.mcpReq?.envelope;
+    // Modern metadata is per request; absent clientInfo must stay unknown.
+    return declaredClient(
+      'mcp',
+      envelope
+        ? envelope['io.modelcontextprotocol/clientInfo']
+        : server.server.getClientVersion(),
+      envelope
+        ? envelope['io.modelcontextprotocol/protocolVersion']
+        : server.server.getNegotiatedProtocolVersion(),
+    );
+  };
   const stopHeartbeat = () => {
     clearInterval(heartbeat);
     heartbeat = undefined;
@@ -53,11 +68,20 @@ export async function serveMCP(config) {
       },
       async (args, ctx) => {
         try {
-          const result = await client.call(name, args, ctx.mcpReq.signal);
-          if (name === 'control_acquire' && !heartbeat)
+          const result = await client.call(
+            name,
+            args,
+            ctx.mcpReq.signal,
+            metadata(ctx),
+          );
+          if (name === 'control_acquire' && !heartbeat) {
+            heldClient = metadata(ctx);
             heartbeat = setInterval(() => {
-              void client.call('control_renew').catch(stopHeartbeat);
+              void client
+                .call('control_renew', {}, undefined, heldClient)
+                .catch(stopHeartbeat);
             }, 20000);
+          }
           if (name === 'control_release') stopHeartbeat();
           if (name === 'desktop_screenshot')
             return {
@@ -104,12 +128,12 @@ export async function serveMCP(config) {
       mimeType: 'application/json',
       description: 'Pinned computer and workspace, capabilities and limits.',
     },
-    async (uri) => ({
+    async (uri, ctx) => ({
       contents: [
         {
           uri: uri.href,
           mimeType: 'application/json',
-          text: JSON.stringify(await client.info()),
+          text: JSON.stringify(await client.info({ client: metadata(ctx) })),
         },
       ],
     }),
@@ -141,8 +165,13 @@ export async function serveMCP(config) {
         'Get reusable instructions from a human teaching recording. Review before execution.',
       argsSchema: z.object({ id: z.uuid() }),
     },
-    async ({ id }) => {
-      const workflow = await client.call('workflow_get', { id });
+    async ({ id }, ctx) => {
+      const workflow = await client.call(
+        'workflow_get',
+        { id },
+        ctx.mcpReq.signal,
+        metadata(ctx),
+      );
       if (!workflow.review || workflow.draft)
         throw new Error('The owner must review this skill in Skills first.');
       return {
@@ -158,10 +187,17 @@ export async function serveMCP(config) {
       };
     },
   );
-  const cleanup = async () => {
-    stopHeartbeat();
-    await client.call('control_release').catch(() => {});
-  };
+  let closing;
+  const cleanup = () =>
+    (closing ||= (async () => {
+      const heldControl = !!heartbeat;
+      stopHeartbeat();
+      if (heldControl)
+        await client
+          .call('control_release', {}, undefined, heldClient)
+          .catch(() => {});
+      await client.endSession().catch(() => {});
+    })());
   server.server.onclose = () => {
     void cleanup();
   };

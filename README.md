@@ -141,6 +141,23 @@ vision model. Arbitrary desktop application input/replay remains a future
 capability; browser, terminal and files are the executable tools in this MVP.
 See [the Teach guide](docs/TEACH.md) and [setup](docs/SETUP.md).
 
+## Review usage and activity
+
+Open **Activity** in the owner console to inspect sessions, action outcomes,
+time holding computer control and cumulative tool execution time. Filter by
+session or the last 24 hours, 7, 30 or 90 days; export retained metadata as JSON
+for your own future evaluations. History persists in that computer's private
+volume across stops and rebuilds. It starts with this feature; older actions
+are not reconstructed.
+
+The bridge records the MCP client's declared name/version, access and session
+ID. These identify a connection, not a verified person or model; shared
+credentials can impersonate session IDs. Commands, paths, file content,
+screenshots, video and raw errors are excluded from activity records. Exports
+require the owner console; agent credentials cannot read history. Local
+retention is bounded, and these timings are not billing or proof of task
+success. See [the activity contract](docs/ACTIVITY.md).
+
 ## Try the offline practice task
 
 1. In **Computer**, take control and open the practice task.

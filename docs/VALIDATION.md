@@ -4,6 +4,34 @@ Private Sendtry Computer MVP reviewed on 10 October 2026 (11 October UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Local activity update
+
+Activity now persists scoped observation sessions, allowlisted actions and
+exclusive control intervals in a private bounded SQLite database. Local gates
+passed: formatting, lint, build (43 JavaScript modules plus noVNC), and 43
+contracts with no failures/skips. The real focused runtime/MCP activity contract
+passed against the owned review computer, including modern and legacy client
+metadata, nonzero exit/timeout, takeover cancellation, copied read actor IDs,
+exact stdio session closure, owner-only export, pagination and payload exclusion.
+Private evidence is `artifacts/audit-local-final/`.
+
+Manual T3 review covered Activity at 1440 × 1050 and 390 × 844: range and exact
+session filters, outcome/exit-code display and JSON export. The downloaded JSON
+was parsed from the actual preview download and contained nine selected-session
+events and one session with the pinned computer identity. Desktop had no
+horizontal page overflow; compact controls and metrics stacked in the screenshot.
+Preview automation disconnected during subsequent compact scrolling, so no
+claim is made for that unavailable follow-up inspection. No generated UI test
+harness was added.
+
+Earlier focused attempts exposed an unlabeled internal MCP cleanup request and
+an attempt overlapping an owned rebuild. Both were corrected/re-run; those
+attempts are not counted as passes. Independent audit also corrected read-close
+authority, retention attribution, SQL ambiguity, failure outcomes, cancellation
+on storage failure, and owner capacity under saturation. Full updated E2E adds
+the activity contract and verifies the exact completed operation across a real
+guest restart; its independent results are recorded below when available.
+
 ## Teach media, analysis and review update
 
 Final source passed local formatting, lint and build (38 JavaScript modules plus

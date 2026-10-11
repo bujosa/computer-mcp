@@ -17,7 +17,7 @@ code/assets.
 
 ## Experience
 
-The console has six working views:
+The console has seven working views:
 
 | View           | Owner's job                                                                           |
 | -------------- | ------------------------------------------------------------------------------------- |
@@ -27,6 +27,7 @@ The console has six working views:
 | Skills         | Teach, search, review and export a completed procedure                                |
 | Your computers | Inspect the registered catalog/default and copy owner create/start/open/use commands  |
 | Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill |
+| Activity       | Inspect sessions, control/tool time, outcomes and private local history exports       |
 
 The flow is **create computer → connect agent → work together → teach a task →
 optional agent video analysis → review → reuse**. MCP tools are capabilities. Skills are procedural instructions.
@@ -77,3 +78,11 @@ before publishing reviewed skill instructions. Drafts can be discarded without
 losing prior approved edits. No model/chat gateway or automatic training is
 included. Sampled frames may miss actions; universal desktop input/replay,
 skill imports and archives remain future work. See [Teach](TEACH.md).
+
+Activity connects operational evidence to the same computer: declared client,
+authenticated access, observation session, tool outcomes and control intervals.
+The owner can filter and export metadata for later evaluation without exposing
+commands, file data or video. Identity and time are deliberately described as
+observed metadata, not verified people/models, billing or success certification.
+Local retention and owner-readable exports replace any hosted analytics service.
+See [Activity](ACTIVITY.md).

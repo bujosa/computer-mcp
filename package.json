@@ -17,6 +17,7 @@
     "test:integration": "node scripts/integration.mjs",
     "test:catalog-integration": "node scripts/catalog-integration.mjs",
     "test:teach-integration": "node scripts/teach-integration.mjs",
+    "test:audit-integration": "node scripts/audit-integration.mjs",
     "test:e2e": "node scripts/e2e.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",

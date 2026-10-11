@@ -29,6 +29,8 @@ import { exportSkill } from './skill.js';
 import { connectionSchema } from '../src/connection.js';
 import { Fault, requireThat } from './errors.js';
 import { tools } from '../src/catalog.js';
+import { Audit, auditLimits } from './audit.js';
+import { activityMiddleware, activityFault } from './audit-http.js';
 
 const computerId = process.env.COMPUTER_ID;
 const expectedHost = `127.0.0.1:${process.env.PUBLIC_PORT || '17670'}`;
@@ -48,16 +50,44 @@ delete process.env.COMPUTER_TOKEN;
 delete process.env.OWNER_TOKEN;
 const store = new Store('/data/control');
 const identity = await store.init(computerId);
-const lease = new Lease();
 const files = new FileService('/data/workspace');
 const bootId = randomUUID();
+const audit = await new Audit('/data/control/activity', {
+  ...identity,
+  bootId,
+}).init();
+const lease = new Lease({
+  onChange: (previous, current, reason) =>
+    audit.control(previous, current, reason),
+});
 const video = new Video('/data/control/videos', {
   identity: { computerId, workspaceId: identity.workspaceId, bootId },
 });
 const teach = new Teach(store, computerId, video);
-const desktop = new Desktop();
+const desktop = new Desktop({
+  onConnection: (actor, control) => {
+    const req = { actor, kind: 'human' };
+    const id = audit.start(req, control ? 'desktop.control' : 'desktop.view');
+    return () => {
+      try {
+        audit.finish(id);
+      } catch {
+        /* runtime blocks further work */
+      }
+    };
+  },
+});
 const sessions = new Map();
 const analyses = new Map();
+audit.onFailure = () => {
+  try {
+    lease.revoke('audit_unavailable');
+  } catch {
+    /* revocation still aborts */
+  }
+  desktop.disconnect({ code: 1011, reason: 'Activity storage unavailable' });
+  for (const controller of analyses.values()) controller.abort();
+};
 const publicWorkflow = (workflow, req) => {
   const result = {
     ...workflow,
@@ -188,6 +218,7 @@ app.post('/api/ui/session', (req, res) => {
     );
     const id = randomBytes(32).toString('hex');
     actor = `human:${randomUUID()}`;
+    audit.touch({ actor, kind: 'human' }, true);
     sessions.set(id, {
       actor,
       expiresAt: Date.now() + 12 * 3600000,
@@ -243,6 +274,7 @@ app.use('/api', (req, res, next) => {
   requireThat(ready, 'not_ready', 'Computer is still starting.', 503);
   next();
 });
+app.use('/api', activityMiddleware(audit));
 function info() {
   return {
     ...identity,
@@ -264,6 +296,7 @@ function info() {
       leaseMs: lease.ttl,
       teachingVideo: videoLimits,
       analysisFrames: frameLimits,
+      activity: auditLimits,
     },
     desktop: { width: 1280, height: 800 },
     policy:
@@ -311,7 +344,7 @@ async function screenshot() {
   }
 }
 async function call(req, name, args, signal) {
-  const tool = tools[name];
+  const tool = Object.hasOwn(tools, name) ? tools[name] : undefined;
   requireThat(tool, 'unknown_tool', 'Unknown tool.', 404);
   const parsed = tool.schema.safeParse(args);
   requireThat(parsed.success, 'invalid_arguments', 'Invalid tool arguments.');
@@ -421,6 +454,17 @@ async function call(req, name, args, signal) {
           gid: 1000,
           home: '/data/home',
         });
+        req.auditOutcome = {
+          outcome:
+            result.stopped === 'cancelled'
+              ? 'cancelled'
+              : result.stopped || result.exitCode !== 0
+                ? 'failed'
+                : 'success',
+          code:
+            result.stopped || (result.exitCode !== 0 ? 'nonzero_exit' : null),
+          exitCode: result.exitCode,
+        };
         if (req.kind === 'human')
           await teach.append({
             type: 'terminal',
@@ -450,6 +494,59 @@ app.post('/api/cancel', (req, res) => {
   res.json({ cancelled: true });
 });
 app.get('/api/info', (_req, res) => res.json(info()));
+app.post('/api/session/end', (req, res) => {
+  requireThat(
+    req.kind === 'agent',
+    'agent_only',
+    'This endpoint closes an agent bridge session.',
+    403,
+  );
+  if (!req.readOnly && lease.status()?.owner === req.actor) {
+    lease.release(req.actor);
+    syncSockets();
+  }
+  audit.end(req);
+  res.json({ ended: true });
+});
+let lastActivityExport = 0;
+app.get('/api/activity', (req, res) => {
+  requireThat(
+    req.kind === 'human',
+    'human_only',
+    'Activity history is private to the owner.',
+    403,
+  );
+  requireThat(
+    Object.keys(req.query).every((key) =>
+      ['days', 'session', 'before', 'limit'].includes(key),
+    ),
+    'invalid_activity_filter',
+    'Unknown activity filter.',
+  );
+  res.json(audit.read(req.query));
+});
+app.get('/api/activity/export', (req, res) => {
+  requireThat(
+    req.kind === 'human',
+    'human_only',
+    'Activity exports are private to the owner.',
+    403,
+  );
+  requireThat(
+    Object.keys(req.query).every((key) => ['days', 'session'].includes(key)),
+    'invalid_activity_filter',
+    'Unknown export filter.',
+  );
+  requireThat(
+    Date.now() - lastActivityExport >= 10000,
+    'export_busy',
+    'Wait a moment before exporting activity again.',
+    429,
+  );
+  const result = audit.export(req.query);
+  lastActivityExport = Date.now();
+  res.attachment(`computer-${computerId}-activity.json`).json(result);
+});
 app.get('/api/ui/connection', (req, res) => {
   requireThat(
     req.kind === 'human',
@@ -666,7 +763,8 @@ app.use(
 );
 app.use('/demo', express.static('/opt/computer-mcp/ui/demo'));
 app.use(express.static('/opt/computer-mcp/ui', { dotfiles: 'deny' }));
-app.use((error, _req, res, _next) => {
+app.use((error, req, res, _next) => {
+  activityFault(req, error);
   const known = error instanceof Fault;
   res
     .status(
@@ -731,7 +829,11 @@ server.listen(7070, '0.0.0.0', async () => {
 });
 let saving = false;
 const tick = setInterval(async () => {
-  syncSockets();
+  try {
+    syncSockets();
+  } catch {
+    /* activity storage failure blocks new requests */
+  }
   if (saving) return;
   saving = true;
   try {
@@ -751,13 +853,24 @@ const tick = setInterval(async () => {
   }
 }, 1000);
 async function shutdown() {
+  ready = false;
   clearInterval(tick);
-  lease.revoke();
+  try {
+    lease.revoke('runtime_stop');
+  } catch {
+    /* revocation still aborts control */
+  }
   syncSockets();
+  desktop.disconnect();
   for (const controller of analyses.values()) controller.abort();
   if (teach.active)
     await teach.stop(teach.active.owner, { interrupted: true }).catch(() => {});
   await browser.context?.close().catch(() => {});
+  try {
+    audit.close();
+  } catch {
+    /* preserve fail-closed evidence for recovery */
+  }
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(0), 2000).unref();
 }

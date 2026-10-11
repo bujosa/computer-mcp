@@ -10,20 +10,21 @@ remote adapters are design seams, not advertised implementations.
 
 ## Modules and dependency direction
 
-| Module                                                  | Responsibility                                                                                                                        |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/cli.js`, `config.js`, `computers.js`, `docker.js`  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
-| `src/mcp.js`, `client.js`                               | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
-| `src/catalog.js`                                        | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
-| `runtime/server.js`                                     | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
-| `runtime/lease.js`                                      | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
-| `runtime/relay.js`                                      | Offline-mode TCP relay from loopback publishing to the internal guest; fixed destination, no credentials, API, files or guest egress  |
-| `runtime/desktop.js`                                    | Authorized binary RFB WebSocket bridge with backpressure, bounded frames and control revocation                                       |
-| `runtime/browser.js`, `recorder.js`                     | Persistent visible Chromium, bounded actions, browser inspection and untrusted recorder input                                         |
-| `runtime/process.js`                                    | Unprivileged command process groups, reduced environment, output/deadline limits                                                      |
-| `runtime/files.js`, `file-service.js`, `file-worker.js` | Workspace paths and limits; perform filesystem operations in a short-lived UID-1000 child                                             |
-| `runtime/store.js`, `teach.js`                          | Atomic versioned identity/workflow persistence, event sanitization and reusable Markdown                                              |
-| `ui/`                                                   | Human desktop, file explorer/editor, bounded terminal and teaching controls; no model features                                        |
+| Module                                                       | Responsibility                                                                                                                        |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/cli.js`, `config.js`, `computers.js`, `docker.js`       | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
+| `src/mcp.js`, `client.js`                                    | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
+| `src/catalog.js`                                             | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
+| `runtime/server.js`                                          | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
+| `runtime/lease.js`                                           | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
+| `runtime/audit.js`, `audit-http.js`, `src/audit-contract.js` | Root-only SQLite session/action/control history, allowlisted metadata, bounded retention, owner reads/exports and declared MCP labels |
+| `runtime/relay.js`                                           | Offline-mode TCP relay from loopback publishing to the internal guest; fixed destination, no credentials, API, files or guest egress  |
+| `runtime/desktop.js`                                         | Authorized binary RFB WebSocket bridge with backpressure, bounded frames and control revocation                                       |
+| `runtime/browser.js`, `recorder.js`                          | Persistent visible Chromium, bounded actions, browser inspection and untrusted recorder input                                         |
+| `runtime/process.js`                                         | Unprivileged command process groups, reduced environment, output/deadline limits                                                      |
+| `runtime/files.js`, `file-service.js`, `file-worker.js`      | Workspace paths and limits; perform filesystem operations in a short-lived UID-1000 child                                             |
+| `runtime/store.js`, `teach.js`                               | Atomic versioned identity/workflow persistence, event sanitization and reusable Markdown                                              |
+| `ui/`                                                        | Human desktop, file explorer/editor, bounded terminal and teaching controls; no model features                                        |
 
 Host lifecycle is not exposed as an MCP tool. An agent using these tools cannot
 ask the bridge to start another computer, change Docker context, bind a host path
@@ -110,6 +111,61 @@ stored in browser storage or placed in request URLs. Human sessions expire after
 owner's private host state, so this separates protocol authority, not hostile
 host users with access to that file. Host and Origin checks reject rebinding and
 cross-origin requests; there is no wildcard CORS or remote login system.
+
+## Local activity boundary
+
+`runtime/audit.js` owns `/data/control/activity/activity.sqlite` (0600 in a
+0700 root-only directory) using the Node 22.13+ built-in SQLite API. There is no
+extra database service or telemetry endpoint. Computer/workspace/schema are
+pinned again inside the database. A single synchronous writer commits small
+transactions with `synchronous=FULL`, a DELETE journal and a 32 MiB database cap.
+Reads use indexed, bounded queries; retention caps 20,000 events, 2,000 sessions,
+20,000 control intervals and 90 days. Evicting a complete session removes its
+dependent history together; active effects/control cannot be evicted. Four
+reserved operation slots preserve takeover/cancellation/closure under ordinary
+request saturation. One hundred observation slots are reserved for owners
+independently of agents. No space for a new session or operation rejects it
+before execution. SQLite remains an
+experimental built-in API on the supported Node 22 line.
+
+Authenticated owner/work/read authority determines actor kind and access.
+`src/audit-contract.js` bounds optional descriptive client labels. MCP modern
+metadata comes from each request's SDK envelope, including an explicitly
+unknown client when `clientInfo` is absent; legacy metadata comes from
+initialize. These labels never authorize effects. Events include actor/session,
+computer/workspace (export envelope), boot, operation, fixed action, timestamps,
+monotonic completed duration, outcome, fixed fault code and numeric exit code.
+Workflow references are UUIDs only. No raw arguments/results/messages,
+commands, paths, URLs, file data, screenshots, video, credentials or tickets
+enter this database. Descriptive names are user-controlled metadata, not secrets.
+
+An operation commits an attempt before execution and a result before the JSON
+response. A response disconnect closes it as interrupted; a known cancellation
+is distinct from a failed operation. Crash recovery marks unfinished effects
+interrupted with unknown duration, never successful. Lease transition hooks
+write exclusive control intervals; renew updates expiry without another event,
+expiry is capped at its actual deadline, and read session closure cannot release
+work control. Revocation cancels effects even when the audit writer fails.
+Storage failure blocks new authenticated requests and desktop upgrades until
+owner inspection/restart. Effects already performed cannot be rolled back if
+the result commit fails. The owner must preserve a backup before recovering a
+corrupt database; the runtime never silently resets it.
+
+`/api/activity` and `/api/activity/export` repeat owner-only checks. Pagination
+uses descending event IDs; exports are bounded snapshots with retention and
+identity caveats, not an indefinite archive. Info polling, successful renewals,
+activity reads and connection probes produce no action rows. Desktop records
+only authorized connection intervals, never keyboard/RFB bytes. Each stdio
+bridge closes its observation session on disconnect/signals; missing close
+expires after five minutes without observed requests, except while control or
+an operation is active. Owner observation sessions are independent from the
+12-hour authorization cookie and survive only as private historical metadata.
+
+This is an owner-editable local operational record, not tamper-evident compliance
+storage, verified identity, billing, inferred human work or model-quality scoring.
+Shared work credentials can claim a visible session UUID. A future per-agent
+credential adapter must bind actors before stronger attribution is claimed.
+See [activity semantics and export](docs/ACTIVITY.md).
 
 ## Computers, ownership and isolation
 

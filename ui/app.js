@@ -37,6 +37,12 @@ const pages = {
     'Your computers, in one place.',
     'Choose a default, start a workspace and connect your agent.',
   ],
+  activity: [
+    'Activity',
+    'A CLEAR RECORD OF THE WORK',
+    'Know who worked. See what happened.',
+    'Review sessions, computer control and tool outcomes in one place.',
+  ],
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
 let view = 'desktop',
@@ -135,6 +141,7 @@ async function showView(next) {
   if (info && view === 'files') await browse();
   if (info && view === 'teach') await recording();
   if (view === 'computers') renderComputers();
+  if (info && view === 'activity') await loadActivity();
 }
 function mutationState() {
   for (const id of ['run', 'file-save', 'demo', 'teach-start', 'teach-stop'])
@@ -183,6 +190,164 @@ async function refresh() {
     if (view === 'teach') await recording();
   } finally {
     refreshing = false;
+  }
+}
+let activityCursor,
+  activityRows = [];
+const duration = (ms) => {
+  if (ms === null || ms === undefined) return 'Unknown';
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(ms < 10000 ? 1 : 0)} s`;
+  if (ms < 3600000)
+    return `${Math.floor(ms / 60000)} min ${Math.floor(ms / 1000) % 60} s`;
+  return `${Math.floor(ms / 3600000)} h ${Math.floor(ms / 60000) % 60} min`;
+};
+const activityTime = (at) =>
+  new Date(at).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+const clientName = (client, kind) =>
+  kind === 'human'
+    ? 'Owner console'
+    : kind === 'runtime'
+      ? 'Computer runtime'
+      : client?.name ||
+        (client?.source === 'mcp'
+          ? 'MCP agent · unnamed'
+          : 'API client · unnamed');
+const actionNames = {
+  'tool.control_acquire': 'Acquired computer control',
+  'tool.control_release': 'Released computer control',
+  'tool.browser_snapshot': 'Inspected the browser',
+  'tool.browser_action': 'Used the browser',
+  'tool.browser_action.navigate': 'Navigated the browser',
+  'tool.browser_action.fill': 'Filled a browser field',
+  'tool.browser_action.click': 'Clicked in the browser',
+  'tool.browser_action.press': 'Pressed a browser key',
+  'tool.browser_action.scroll': 'Scrolled the browser',
+  'tool.desktop_screenshot': 'Captured a screenshot',
+  'tool.terminal_run': 'Ran a terminal command',
+  'tool.files_list': 'Browsed workspace files',
+  'tool.files_read': 'Read a workspace file',
+  'tool.files_write': 'Wrote a workspace file',
+  'tool.workflow_list': 'Browsed taught skills',
+  'tool.workflow_get': 'Read a taught skill',
+  'tool.workflow_analyze': 'Analyzed demonstration frames',
+  'tool.workflow_propose': 'Proposed a skill draft',
+  'control.takeover': 'Owner took computer control',
+  'operation.cancel': 'Requested cancellation',
+  'teach.start': 'Started teaching a task',
+  'teach.stop': 'Saved a demonstration',
+  'skill.read': 'Opened a taught skill',
+  'skill.review': 'Reviewed a skill',
+  'skill.export': 'Exported a skill',
+  'skill.analysis.allow': 'Allowed agent video analysis',
+  'skill.analysis.revoke': 'Revoked agent video analysis',
+  'skill.draft.discard': 'Discarded a skill draft',
+  'teach.video.view': 'Viewed a demonstration video',
+  'teach.video.delete': 'Deleted a demonstration video',
+  'desktop.control': 'Opened the desktop with control',
+  'desktop.view': 'Viewed the desktop',
+  'session.end': 'Closed an agent session',
+  'runtime.start': 'Computer started',
+  'runtime.stop': 'Computer stopped',
+  'activity.export': 'Exported activity history',
+  'activity.denied': 'Requested private activity history',
+  'tool.unknown': 'Requested an unknown tool',
+};
+function activityQuery() {
+  const query = new URLSearchParams({ days: $('activity-range').value });
+  if ($('activity-session').value)
+    query.set('session', $('activity-session').value);
+  return query;
+}
+async function loadActivity(more = false) {
+  const query = activityQuery();
+  if (more && activityCursor) query.set('before', activityCursor);
+  const data = await request(`/api/activity?${query}`);
+  activityCursor = data.nextCursor;
+  activityRows = more ? [...activityRows, ...data.events] : data.events;
+  $('activity-actions').textContent = data.summary.operations.toLocaleString();
+  $('activity-results').textContent =
+    `${data.summary.succeeded} completed · ${data.summary.failed} failed · ${data.summary.interrupted} interrupted${data.summary.running ? ` · ${data.summary.running} in progress` : ''}`;
+  $('activity-control').textContent = duration(data.summary.controlMs);
+  $('activity-tools').textContent = duration(data.summary.toolMs);
+  $('activity-count').textContent = data.summary.sessions.toLocaleString();
+  $('activity-updated').textContent =
+    `Updated ${activityTime(data.generatedAt)} · your local time`;
+  $('activity-retention').textContent =
+    `Kept locally for up to ${data.retention.days} days, ${data.retention.events.toLocaleString()} events and ${data.retention.sessions.toLocaleString()} sessions.${data.retention.prunedEvents ? ` ${data.retention.prunedEvents.toLocaleString()} older events have been removed by retention.` : ''}`;
+  $('activity-empty').hidden = activityRows.length > 0;
+  $('activity-more').hidden = !activityCursor;
+  $('activity-events').replaceChildren(
+    ...activityRows.map((event) => {
+      const li = document.createElement('li');
+      const dot = document.createElement('span');
+      dot.className = `activity-dot ${event.outcome}`;
+      const body = document.createElement('div');
+      const title = document.createElement('strong');
+      title.textContent = actionNames[event.action] || 'Recorded action';
+      const detail = document.createElement('p');
+      detail.textContent = `${clientName(event.client, event.kind)}${event.actor ? ` · ${event.actor.split(':')[1].slice(0, 8)}` : ''}${event.access ? ` · ${event.access} access` : ''}`;
+      const facts = document.createElement('small');
+      facts.textContent = `${event.outcome === 'running' ? 'In progress' : duration(event.durationMs)}${event.exitCode !== null ? ` · exit ${event.exitCode}` : ''}${event.code ? ` · ${event.code.replaceAll('_', ' ')}` : ''}`;
+      body.append(title, detail, facts);
+      const when = document.createElement('div');
+      when.className = 'activity-when';
+      const time = document.createElement('time');
+      time.dateTime = event.startedAt;
+      time.title = `UTC ${event.startedAt}`;
+      time.textContent = activityTime(event.startedAt);
+      const badge = document.createElement('span');
+      badge.className = `activity-outcome ${event.outcome}`;
+      badge.textContent =
+        event.outcome === 'success' ? 'Completed' : event.outcome;
+      when.append(time, badge);
+      li.append(dot, body, when);
+      return li;
+    }),
+  );
+  $('activity-sessions-hint').textContent = data.sessionsTruncated
+    ? 'Latest 100 sessions. Export includes all retained sessions.'
+    : 'Select a session to inspect its actions.';
+  $('activity-sessions').replaceChildren(
+    ...data.sessions.slice(0, 12).map((session) => {
+      const li = document.createElement('li'),
+        button = document.createElement('button');
+      button.className = 'activity-session-card';
+      const strong = document.createElement('strong');
+      strong.textContent = clientName(session.client, session.kind);
+      const id = document.createElement('small');
+      id.textContent = `${session.actor.split(':')[1].slice(0, 8)} · ${session.access} access${session.client.mixed ? ' · varied client labels' : ''}`;
+      const observed = document.createElement('span');
+      observed.textContent = `${duration(session.controlMs)} control · ${session.operations} actions`;
+      const when = document.createElement('small');
+      when.textContent = `${activityTime(session.startedAt)} · ${session.endedAt ? session.reason.replaceAll('_', ' ') : 'recently seen'}`;
+      button.append(strong, id, observed, when);
+      button.onclick = guarded(async () => {
+        $('activity-session').value = session.id;
+        await loadActivity();
+      });
+      li.append(button);
+      return li;
+    }),
+  );
+  if (!$('activity-session').value) {
+    const all = new Option('All sessions', '');
+    $('activity-session').replaceChildren(
+      all,
+      ...data.sessions.map(
+        (session) =>
+          new Option(
+            `${clientName(session.client, session.kind)} · ${session.actor.split(':')[1].slice(0, 8)} · ${session.access}`,
+            session.id,
+          ),
+      ),
+    );
   }
 }
 async function recording() {
@@ -532,6 +697,22 @@ function startTeaching() {
 }
 for (const tab of document.querySelectorAll('.tab'))
   tab.onclick = guarded(() => showView(tab.dataset.view));
+$('activity-range').onchange = guarded(() => loadActivity());
+$('activity-session').onchange = guarded(() => loadActivity());
+$('activity-refresh').onclick = guarded(() => loadActivity());
+$('activity-more').onclick = guarded(() => loadActivity(true));
+$('activity-export').onclick = guarded(async () => {
+  const response = await fetch(`/api/activity/export?${activityQuery()}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Activity export failed.');
+  download(
+    JSON.stringify(data, null, 2) + '\n',
+    `computer-${data.computerId}-activity.json`,
+  );
+  notice(
+    'Activity exported. This file includes local session identities and times.',
+  );
+});
 $('desktop-connect').onclick = guarded(() => showView('connect'));
 $('desktop-teach').onclick = guarded(async () => {
   await showView('teach');

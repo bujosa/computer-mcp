@@ -211,6 +211,20 @@ try {
     },
   );
   await phase(
+    'persistent owner-only activity, MCP identity, durations and read scope',
+    async () => {
+      const result = JSON.parse(
+        await node('scripts/audit-integration.mjs', [
+          owned[0].state,
+          path.join(directory, 'activity'),
+        ]),
+      );
+      assert.equal(result.result, 'passed');
+      report.activity = result;
+      owned[0].activityProof = result.retainedOperationId;
+    },
+  );
+  await phase(
     'credential-free generic/read/Codex configurations and idempotent registration',
     async () => {
       const first = owned[0];
@@ -251,7 +265,7 @@ try {
       }
     });
     await phase(
-      `${pc.config.name} restart retains identity/files/profile/Teach and clears lease`,
+      `${pc.config.name} restart retains identity/files/profile/Teach/activity and clears lease`,
       async () => {
         const marker = `restart-${randomUUID()}.txt`;
         await pc.api.call('control_acquire');
@@ -267,6 +281,42 @@ try {
         assert.equal(after.computerId, pc.identity.computerId);
         assert.notEqual(after.bootId, pc.identity.bootId);
         assert.equal(after.lease, null);
+        if (pc.activityProof) {
+          const base = pc.api.base;
+          const ticket = await fetch(base + '/api/owner/ticket', {
+            method: 'POST',
+            headers: {
+              authorization: `Bearer ${pc.config.ownerToken}`,
+              'content-type': 'application/json',
+            },
+            body: '{}',
+          });
+          assert.equal(ticket.status, 200);
+          const session = await fetch(base + '/api/ui/session', {
+            method: 'POST',
+            headers: { origin: base, 'content-type': 'application/json' },
+            body: JSON.stringify(await ticket.json()),
+          });
+          assert.equal(session.status, 200);
+          const response = await fetch(
+            base + '/api/activity?days=1&limit=100',
+            {
+              headers: {
+                cookie: session.headers.get('set-cookie').split(';')[0],
+              },
+            },
+          );
+          assert.equal(response.status, 200);
+          const retained = (await response.json()).events.find(
+            (event) => event.operationId === pc.activityProof,
+          );
+          assert.ok(
+            retained,
+            'Owned volume must retain the exact completed activity operation across guest restart.',
+          );
+          assert.equal(retained.outcome, 'success');
+          assert.notEqual(retained.bootId, after.bootId);
+        }
         assert.equal(
           (await pc.api.call('files_read', { path: marker })).text,
           marker,

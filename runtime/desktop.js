@@ -3,7 +3,8 @@ import { WebSocketServer, WebSocket } from 'ws';
 
 // The runtime authorizes every upgrade; this bridge never publishes raw RFB.
 export class Desktop {
-  constructor() {
+  constructor({ onConnection = () => () => {} } = {}) {
+    this.onConnection = onConnection;
     this.server = new WebSocketServer({
       noServer: true,
       maxPayload: 1024 * 1024,
@@ -20,12 +21,23 @@ export class Desktop {
       return;
     }
     this.server.handleUpgrade(req, socket, head, (ws) => {
+      let finish;
+      try {
+        finish = this.onConnection(actor, control);
+      } catch {
+        ws.close(1011, 'Activity storage unavailable');
+        return;
+      }
       const tcp = net.createConnection({
         host: '127.0.0.1',
         port: control ? 5901 : 5900,
       });
       this.clients.set(ws, control ? actor : null);
       const close = () => {
+        if (finish) {
+          finish();
+          finish = null;
+        }
         tcp.destroy();
         this.clients.delete(ws);
         if (ws.readyState === WebSocket.OPEN) ws.close(1000);
@@ -53,5 +65,8 @@ export class Desktop {
   sync(owner) {
     for (const [ws, actor] of this.clients)
       if (actor && actor !== owner) ws.close(1000, 'Control released');
+  }
+  disconnect({ code = 1001, reason = 'Computer stopping' } = {}) {
+    for (const ws of this.clients.keys()) ws.close(code, reason);
   }
 }
