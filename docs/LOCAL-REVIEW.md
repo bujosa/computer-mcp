@@ -1,5 +1,12 @@
 # Review this workspace locally
 
+The 11 October forward test found the local Docker guest filesystem at 100%
+capacity (0 available). Host APFS still had space. `review-mvp` is running the
+previous connection-polish image, not the latest storage/Teach/terminal fixes;
+it was not rebuilt on the full daemon. Inspect capacity before writes, recording
+or rebuilds. No Docker pruning, volume deletion or unrelated cleanup was performed.
+The new source fixes are validated separately in [the validation record](VALIDATION.md).
+
 The implementation worktree has an ignored, independent review catalog at
 `.computer-mcp/review-catalog`. This is local QA state, not state distributed by
 the repository. Run the following from this checkout:

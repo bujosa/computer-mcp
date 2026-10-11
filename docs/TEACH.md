@@ -32,6 +32,11 @@
 
 ## Use a reviewed skill
 
+An approved video-only procedure remains editable after its proposal is accepted
+or its video is deleted. Saving edits creates a new reviewed revision. Save review
+changes before using, copying or exporting; those actions use the persisted review,
+not unsaved form text.
+
 The request tells the agent to check `computer_info` against both IDs and fetch
 `workflow_get`. It must require `status: ready`, `reviewed: true` and the exact
 saved revision. A changed skill, pending proposal or wrong computer needs a fresh

@@ -47,6 +47,7 @@ const pages = {
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
 let skillUse;
+let terminalRun;
 const firstTaskPath = `sendtry-check-${crypto.randomUUID().slice(0, 8)}.txt`;
 let skillUseGeneration = 0;
 let view = 'desktop',
@@ -62,7 +63,11 @@ function notice(text, error = false) {
 async function request(path, body, options = {}) {
   const response = await fetch(path, {
     method: options.method || (body === undefined ? 'GET' : 'POST'),
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      ...(options.operationId ? { 'x-operation-id': options.operationId } : {}),
+    },
+    signal: options.signal,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = await response.json();
@@ -74,8 +79,8 @@ async function request(path, body, options = {}) {
   }
   return data;
 }
-async function call(name, args = {}) {
-  return (await request('/api/call', { name, args })).result;
+async function call(name, args = {}, options = {}) {
+  return (await request('/api/call', { name, args }, options)).result;
 }
 const own = () => !!actor && info?.lease?.owner === actor;
 function guarded(fn) {
@@ -467,7 +472,10 @@ async function selectSkill(id) {
       ? 'Steps + guest video'
       : 'Steps only';
   $('skill-review-form').hidden =
-    !ready || (!selectedSkill.steps.length && !selectedSkill.draft);
+    !ready ||
+    (!selectedSkill.steps.length &&
+      !selectedSkill.draft &&
+      !selectedSkill.review?.procedure);
   $('skill-procedure').value =
     selectedSkill.draft?.procedure || selectedSkill.procedure || '';
   $('skill-expected-result').value =
@@ -509,7 +517,9 @@ function requireSavedReview() {
       selectedSkill.review.expectedResult.trim() ||
     $('skill-notes').value.trim() !== (selectedSkill.review.notes || '').trim()
   )
-    throw new Error('Save your review changes before preparing a request.');
+    throw new Error(
+      'Save your review changes before using, copying or exporting this skill.',
+    );
 }
 const useInputs = () =>
   Object.fromEntries(
@@ -966,16 +976,75 @@ $('file-form').onsubmit = guarded(async () => {
   await browse();
 });
 $('terminal-form').onsubmit = guarded(async () => {
+  const running = {
+    operationId: crypto.randomUUID(),
+    controller: new AbortController(),
+    cancelRequested: false,
+  };
+  terminalRun = running;
   $('terminal-output').textContent = 'Running…';
+  $('terminal-status').textContent = 'Running';
   $('run').disabled = true;
-  const result = await call('terminal_run', {
-    command: $('command').value,
-    cwd: $('cwd').value,
-    timeoutMs: Number($('timeout').value) * 1000,
-  });
-  $('terminal-output').textContent =
-    `${result.stdout}${result.stderr}\n[exit ${result.exitCode ?? result.signal}${result.stopped ? ` · ${result.stopped}` : ''}]`;
+  $('terminal-cancel').hidden = false;
+  $('terminal-cancel').disabled = false;
+  const fields = ['command', 'cwd', 'timeout'].map($);
+  for (const field of fields) field.disabled = true;
+  try {
+    const result = await call(
+      'terminal_run',
+      {
+        command: $('command').value,
+        cwd: $('cwd').value,
+        timeoutMs: Number($('timeout').value) * 1000,
+      },
+      { operationId: running.operationId, signal: running.controller.signal },
+    );
+    const status =
+      result.stopped === 'timeout'
+        ? 'Timeout reached'
+        : result.stopped === 'output_limit'
+          ? 'Output limit reached'
+          : result.stopped
+            ? 'Command stopped'
+            : result.exitCode === 0
+              ? 'Completed · exit 0'
+              : `Ended · ${result.exitCode !== null ? `exit ${result.exitCode}` : result.signal}`;
+    $('terminal-status').textContent = status;
+    $('terminal-output').textContent =
+      `${result.stdout}${result.stderr}\n[${status}${result.truncated ? ' · output truncated' : ''}]${result.stopped ? '\nChanges already made may remain. Inspect the result before running again.' : ''}`;
+  } catch (error) {
+    const message = running.cancelRequested
+      ? 'Cancellation requested. Changes already made may remain; inspect results before running again.'
+      : `${error.message} The command’s result is unavailable. Inspect results before running again.`;
+    $('terminal-status').textContent = running.cancelRequested
+      ? 'Cancellation requested · inspect results'
+      : 'Result unavailable';
+    $('terminal-output').textContent = message;
+    throw new Error(message, { cause: error });
+  } finally {
+    terminalRun = undefined;
+    $('terminal-cancel').hidden = true;
+    for (const field of fields) field.disabled = false;
+  }
 });
+$('terminal-cancel').onclick = async () => {
+  const running = terminalRun;
+  if (!running || running.cancelRequested) return;
+  running.cancelRequested = true;
+  $('terminal-cancel').disabled = true;
+  $('terminal-status').textContent = 'Requesting cancellation…';
+  try {
+    await request(
+      '/api/cancel',
+      { operationId: running.operationId },
+      { signal: AbortSignal.timeout(5000) },
+    );
+  } catch {
+    // Closing the original request also aborts its scoped operation on the server.
+  } finally {
+    if (terminalRun === running) running.controller.abort();
+  }
+};
 $('teach-form').onsubmit = guarded(async () => {
   await request('/api/teach/start', {
     name: $('teach-name').value,
@@ -1055,7 +1124,9 @@ $('skill-video-remove-confirm').onclick = guarded(async () => {
   notice('Video deleted. The taught steps and skill are preserved.');
 });
 $('skill-download').onclick = guarded(async () => {
+  requireSavedReview();
   exportedSkill = await request(`/api/workflows/${selectedSkill.id}/skill`);
+  requireSavedReview();
   download(exportedSkill.content, exportedSkill.filename);
   $('skill-export-hint').textContent =
     `Install as ${exportedSkill.name}/SKILL.md in your agent’s skills directory. Review before use.`;
@@ -1063,7 +1134,10 @@ $('skill-download').onclick = guarded(async () => {
     'SKILL.md exported. It contains instructions and parameters; the MCP connection supplies the tools.',
   );
 });
-$('skill-copy').onclick = guarded(() => copy(selectedSkill.instructions));
+$('skill-copy').onclick = guarded(() => {
+  requireSavedReview();
+  return copy(selectedSkill.instructions);
+});
 $('skill-use-open').onclick = guarded(openSkillUse);
 $('skill-use-close').onclick = clearSkillUse;
 $('skill-use-intent').onchange = guarded(async () => {
@@ -1106,6 +1180,7 @@ $('skill-use-copy').onclick = guarded(async () => {
   }
 });
 window.addEventListener('pagehide', clearSkillUse);
+window.addEventListener('pagehide', () => terminalRun?.controller.abort());
 $('client-format').onchange = renderConfig;
 $('client-access').onchange = renderConfig;
 $('computers-list-copy').onclick = guarded(() =>

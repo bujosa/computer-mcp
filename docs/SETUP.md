@@ -262,6 +262,18 @@ by download.
   cancelled browser tab can require choosing the new tab in browser_snapshot.
 - **Large files/directories**: use the bounded APIs for text. Use terminal tools
   for guest operations within the intended task, and watch disk usage.
+- **Storage full**: `storage_full`/507 means a complete replacement could not be
+  committed. Inspect the destination before retrying, particularly with older
+  servers that could leave a partial file. Compare guest `df -h /data/workspace`
+  and `df -i /data/workspace` with host/Docker capacity; free host space alone
+  does not establish free Docker guest space. Stop writes and plan scoped capacity
+  recovery with the owner. Never prune shared Docker resources or delete another
+  computer's volume. A killed file worker may leave its uniquely named staging
+  file; inspect ownership/activity before explicitly removing it.
+- **Terminal stopped or result unavailable**: inspect output, exit status and
+  truncation. Cancel requests termination of that operation; changes already made
+  can remain. Inspect the affected file/page before retrying. A completed MCP/HTTP
+  response with a nonzero exit code is a command failure.
 
 Stop retains the named volume, profile and recordings. There is no automated
 cleanup/deletion command. For backups stop the owned computer before exporting

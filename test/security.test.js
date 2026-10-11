@@ -63,6 +63,95 @@ test('files contain paths, reject symlinks/hardlinks, enforce byte and directory
   );
   await assert.rejects(files.list('many'), { code: 'directory_limit' });
 });
+test('failed file writes preserve destinations and remove staging files', async (t) => {
+  for (const phase of ['writeFile', 'sync', 'rename']) {
+    await t.test(phase, async (t) => {
+      const root = await temporary(t),
+        files = new Files(root);
+      await files.write('existing.txt', 'Keep this complete original.');
+      if (phase === 'rename') {
+        t.mock.method(fs, 'rename', async () => {
+          throw Object.assign(new Error('Injected disk full'), {
+            code: 'ENOSPC',
+          });
+        });
+      } else {
+        const open = fs.open.bind(fs);
+        t.mock.method(fs, 'open', async (...args) => {
+          const file = await open(...args);
+          if (path.basename(args[0]).startsWith('.computer-mcp-write-')) {
+            const write = file.writeFile.bind(file);
+            file[phase] = async () => {
+              if (phase === 'writeFile') await write('Partial staging content');
+              throw Object.assign(new Error('Injected disk full'), {
+                code: 'ENOSPC',
+              });
+            };
+          }
+          return file;
+        });
+      }
+      for (const target of ['existing.txt', 'new.txt']) {
+        await assert.rejects(files.write(target, 'A complete replacement.'), {
+          code: 'storage_full',
+          status: 507,
+        });
+        assert.equal(
+          (await files.read('existing.txt')).text,
+          'Keep this complete original.',
+        );
+        await assert.rejects(fs.lstat(path.join(root, 'new.txt')), {
+          code: 'ENOENT',
+        });
+        assert.deepEqual(await fs.readdir(root), ['existing.txt']);
+      }
+    });
+  }
+});
+test('file replacement detects concurrent changes and preserves ordinary permissions', async (t) => {
+  const root = await temporary(t),
+    files = new Files(root);
+  const target = path.join(root, 'note.txt');
+  await files.write('note.txt', 'Original');
+  await fs.chmod(target, 0o640);
+  await files.write('note.txt', 'Complete replacement');
+  assert.equal((await files.read('note.txt')).text, 'Complete replacement');
+  if (process.platform !== 'win32')
+    assert.equal((await fs.stat(target)).mode & 0o777, 0o640);
+  const open = fs.open.bind(fs);
+  t.mock.method(fs, 'open', async (...args) => {
+    const file = await open(...args);
+    if (path.basename(args[0]).startsWith('.computer-mcp-write-')) {
+      const write = file.writeFile.bind(file);
+      file.writeFile = async (...values) => {
+        await write(...values);
+        await fs.writeFile(target, 'Changed concurrently');
+      };
+    }
+    return file;
+  });
+  await assert.rejects(files.write('note.txt', 'Stale replacement'), {
+    code: 'file_changed',
+    status: 409,
+  });
+  assert.equal((await files.read('note.txt')).text, 'Changed concurrently');
+  assert.deepEqual(await fs.readdir(root), ['note.txt']);
+});
+test(
+  'file replacement respects a destination without write permission',
+  { skip: process.platform === 'win32' || process.getuid?.() === 0 },
+  async (t) => {
+    const root = await temporary(t),
+      files = new Files(root);
+    const target = path.join(root, 'readonly.txt');
+    await fs.writeFile(target, 'Original', { mode: 0o400 });
+    await assert.rejects(files.write('readonly.txt', 'Changed'), {
+      code: 'EACCES',
+    });
+    assert.equal((await files.read('readonly.txt')).text, 'Original');
+    assert.deepEqual(await fs.readdir(root), ['readonly.txt']);
+  },
+);
 test('leases reject a second agent, expire, cannot be resurrected and abort on human takeover', async () => {
   let now = 0;
   const lease = new Lease({ ttl: 100, now: () => now });

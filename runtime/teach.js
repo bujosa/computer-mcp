@@ -64,7 +64,9 @@ export function reviewWorkflow(
 ) {
   requireThat(
     workflow.status === 'ready' &&
-      (workflow.steps.length > 0 || workflow.draft),
+      (workflow.steps.length > 0 ||
+        workflow.draft ||
+        (workflow.review?.reviewedAt && workflow.review.procedure?.trim())),
     'skill_not_ready',
     'Save a demonstration with captured steps before reviewing it.',
     409,

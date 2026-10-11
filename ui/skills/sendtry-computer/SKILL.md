@@ -4,7 +4,7 @@ description: Operate an assigned Sendtry Computer through MCP, analyze an owner-
 metadata:
   requires: Sendtry Computer MCP; changes require work access
   author: Sendtry
-  version: '5'
+  version: '6'
 ---
 
 # Sendtry Computer operator
@@ -130,5 +130,10 @@ result, then release any acquired control. A prepared/copied request is not a co
 - Timeout, lost lease, cancellation or lost response: inspect with read tools
   before deciding whether to retry. Effects may already have completed. If the
   outcome cannot be determined, report unknown and stop further mutations.
+- Storage full (`storage_full` or `ENOSPC`): stop writes and inspect the affected
+  file with read tools. If you still hold control, a bounded guest capacity check
+  can clarify the failure. Report it and release your lease. Do not prune Docker,
+  delete other data or move the task onto the host to make space. Older servers
+  may have left a partial or empty file; verify rather than assuming rollback.
 - Stale browser target/focus: take a new snapshot/screenshot and resolve the
   current target. Do not blindly repeat an old selector or coordinate.

@@ -289,6 +289,19 @@ guest data. Terminal intentionally has access beyond the workspace inside the
 guest. Container escape and a separate compromised host are outside this MVP’s
 security guarantee; use a VM adapter for stronger separation.
 
+File writes prepare a uniquely named, exclusively created sibling staging file,
+write its complete content, synchronize and close it, then replace the destination
+by rename. Existing destinations must still be writable regular single-link files;
+ordinary permission bits are retained. A changed destination detected before
+replacement fails with `file_changed`. Write/sync/rename capacity failures become
+`storage_full` (HTTP 507) without truncating the destination or creating an empty
+destination. Handled failures remove this operation's staging file. A killed worker
+can leave a `.computer-mcp-write-<UUID>.tmp` staging file; no background deletion
+occurs. Replacement changes the inode and does not preserve arbitrary ACLs/xattrs.
+This provides complete-file replacement in the Linux guest, not path-race-proof
+containment, power-loss durability of the directory, disk quotas or rollback of a
+write whose response was lost. See the [Node file APIs](https://nodejs.org/docs/latest-v22.x/api/fs.html).
+
 ## Execution and leases
 
 Each runtime owns one in-memory lease: owner, kind, generation and expiry
@@ -331,6 +344,13 @@ PID limits. Disk is not volume-quota limited. Restart kills container processes,
 invalidates leases/UI sessions and retains the browser profile/workspace. The
 browser opens the local sandbox on startup; saved tabs are not restored as an
 execution queue.
+
+The owner terminal uses a unique operation ID and exposes its bounded deadline,
+exit status and output truncation. Cancel sends the existing session-scoped
+cancellation request and closes that exact in-flight HTTP request. The console
+reports cancellation requested rather than asserting effects were undone; a lost
+response requires inspection. An ordinary nonzero exit is distinct from completion
+with exit zero, timeout and output limit.
 
 ## Data, Teach, media and agent analysis
 

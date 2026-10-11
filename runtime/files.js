@@ -1,7 +1,8 @@
 import fs from 'node:fs/promises';
 import { constants } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import { requireThat } from './errors.js';
+import { Fault, requireThat } from './errors.js';
 
 export const MAX_FILE = 256 * 1024;
 export class Files {
@@ -114,27 +115,80 @@ export class Files {
     );
     const target = await this.resolve(input, { create: true });
     requireThat(target !== this.root, 'invalid_path', 'Choose a file path.');
-    const file = await fs.open(
-      target,
-      constants.O_WRONLY |
-        constants.O_CREAT |
-        constants.O_NOFOLLOW |
-        constants.O_NONBLOCK,
-      0o600,
+    // Check write access without truncating or creating the destination.
+    const existing = await this.writable(target);
+    const staging = path.join(
+      path.dirname(target),
+      `.computer-mcp-write-${randomUUID()}.tmp`,
     );
+    let file,
+      created = false;
     try {
+      file = await fs.open(
+        staging,
+        constants.O_WRONLY |
+          constants.O_CREAT |
+          constants.O_EXCL |
+          constants.O_NOFOLLOW,
+        0o600,
+      );
+      created = true;
+      await file.writeFile(text);
+      if (this.uid !== undefined) await file.chown(this.uid, this.gid);
+      else if (existing && process.platform !== 'win32')
+        await file.chown(existing.uid, existing.gid);
+      if (existing) await file.chmod(existing.mode & 0o777);
+      await file.sync();
+      await file.close();
+      file = undefined;
+      await this.resolve(input, { create: true });
+      const current = await this.writable(target);
+      requireThat(
+        existing
+          ? current &&
+              ['dev', 'ino', 'size', 'mtimeMs', 'ctimeMs'].every(
+                (key) => current[key] === existing[key],
+              )
+          : !current,
+        'file_changed',
+        'File changed while preparing the write. Read it before trying again.',
+        409,
+      );
+      await fs.rename(staging, target);
+      created = false;
+    } catch (error) {
+      if (['ENOSPC', 'EDQUOT'].includes(error.code))
+        throw new Fault(
+          'storage_full',
+          'Computer storage is full. Inspect capacity before trying again; the destination was not replaced.',
+          507,
+        );
+      throw error;
+    } finally {
+      await file?.close();
+      if (created) await fs.unlink(staging);
+    }
+    return { path: input, bytes: Buffer.byteLength(text) };
+  }
+  async writable(target) {
+    let file;
+    try {
+      file = await fs.open(
+        target,
+        constants.O_WRONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
+      );
       const stat = await file.stat();
       requireThat(
         stat.isFile() && stat.nlink === 1,
         'invalid_file',
         'Write only a regular file with one link.',
       );
-      await file.truncate(0);
-      await file.writeFile(text);
-      if (this.uid !== undefined) await file.chown(this.uid, this.gid);
+      return stat;
+    } catch (error) {
+      if (error.code === 'ENOENT') return null;
+      throw error;
     } finally {
-      await file.close();
+      await file?.close();
     }
-    return { path: input, bytes: Buffer.byteLength(text) };
   }
 }

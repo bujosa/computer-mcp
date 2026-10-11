@@ -19,15 +19,15 @@ code/assets.
 
 The console has seven working views:
 
-| View           | Owner's job                                                                           |
-| -------------- | ------------------------------------------------------------------------------------- |
-| Computer       | Watch the real guest screen, take/release control and open the offline practice task  |
-| Files          | Browse the contained workspace and read/save bounded text files                       |
-| Terminal       | Execute a focused guest command and inspect its output/deadline                       |
-| Skills         | Teach, search, review, prepare an agent request and export a completed procedure      |
-| Your computers | Inspect the registered catalog/default and copy owner create/start/open/use commands  |
-| Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill |
-| Activity       | Inspect sessions, control/tool time, outcomes and private local history exports       |
+| View           | Owner's job                                                                             |
+| -------------- | --------------------------------------------------------------------------------------- |
+| Computer       | Watch the real guest screen, take/release control and open the offline practice task    |
+| Files          | Browse the contained workspace and read/save bounded text files                         |
+| Terminal       | Execute/cancel a focused guest command and inspect exit status, deadline and truncation |
+| Skills         | Teach, search, review, prepare an agent request and export a completed procedure        |
+| Your computers | Inspect the registered catalog/default and copy owner create/start/open/use commands    |
+| Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill   |
+| Activity       | Inspect sessions, control/tool time, outcomes and private local history exports         |
 
 The flow is **create computer → connect agent → work together → teach a task →
 optional agent video analysis → review → reuse**. MCP tools are capabilities. Skills are procedural instructions.

@@ -154,3 +154,49 @@ test('Video-only demonstrations can become reviewed drafts; incomplete videos an
     exportSkill(approved, identity).content.includes(draft.draft.procedure),
   );
 });
+
+test('Owner can revise an approved video-only procedure after the draft and video are gone', () => {
+  const original = { ...fixture(), steps: [] };
+  const shared = grantAnalysis(original, {
+    enabled: true,
+    expectedRevision: original.revision,
+  });
+  const draft = proposeWorkflow(shared, proposal(shared), 'agent:qa');
+  const approved = reviewWorkflow(draft, {
+    expectedRevision: draft.revision,
+    draftId: draft.draft.id,
+    procedure: draft.draft.procedure,
+    expectedResult: draft.draft.expectedResult,
+  });
+  const retained = { ...approved, video: { status: 'deleted' } };
+  const correction = {
+    expectedRevision: retained.revision,
+    procedure: 'Inspect the current page and verify the supplied result.',
+    expectedResult: 'The page shows the exact supplied result.',
+    notes: 'Corrected after reviewing the first attempt.',
+  };
+  const edited = reviewWorkflow(retained, correction);
+  assert.equal(edited.steps.length, 0);
+  assert.equal(edited.review.procedure, correction.procedure);
+  assert.equal(edited.review.expectedResult, correction.expectedResult);
+  assert.notEqual(edited.revision, retained.revision);
+  assert.equal(edited.video.status, 'deleted');
+  assert.equal(retained.review.procedure, approved.review.procedure);
+  assert.throws(() => reviewWorkflow(edited, correction), {
+    code: 'workflow_changed',
+  });
+  assert.throws(
+    () =>
+      reviewWorkflow(original, {
+        ...correction,
+        expectedRevision: original.revision,
+      }),
+    { code: 'skill_not_ready' },
+  );
+  assert.ok(
+    exportSkill(edited, {
+      computerId: original.computerId,
+      workspaceId: randomUUID(),
+    }).content.includes(correction.procedure),
+  );
+});

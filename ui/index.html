@@ -244,7 +244,9 @@
                   <p>Run a command in your computer’s workspace.</p>
                 </div>
               </div>
-              <span class="small-badge">30s maximum</span>
+              <span id="terminal-status" class="small-badge" role="status"
+                >Ready · 30s maximum</span
+              >
             </div>
             <form id="terminal-form">
               <label for="command">Command</label>
@@ -256,6 +258,9 @@
                   autocomplete="off"
                   required
                 /><button class="primary" id="run" disabled>Run command</button>
+                <button type="button" id="terminal-cancel" hidden>
+                  Cancel command
+                </button>
               </div>
               <div class="terminal-options">
                 <div>

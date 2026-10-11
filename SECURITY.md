@@ -29,6 +29,12 @@ service or a substitute for a VM. No native host control adapter is installed.
   file workers prevent guest races from accessing root control secrets. This is
   not an atomic openat2-based path sandbox against malicious concurrent rename
   races; terminal already has access to other readable guest data.
+  Writes stage/sync complete content before replacing the destination. Capacity
+  failures preserve the destination; handled failures remove their staging file.
+  A killed worker may leave a private staging file in the workspace. Replacement
+  changes the inode and preserves ordinary permission bits, not arbitrary ACLs or
+  xattrs. Directory power-loss durability and disk quotas remain outside this
+  guarantee. A lost response can still follow a completed write; inspect it.
 - **Processes**: 30-second command deadline, 64 KiB combined output, process-group
   kill on timeout/cancellation/output cap. Browser selector/navigation deadlines
   are 5/15 seconds. Container limits are 2 CPUs, 1536 MiB RAM and 192 PIDs; output
