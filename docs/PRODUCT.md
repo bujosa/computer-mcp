@@ -1,5 +1,9 @@
 # Sendtry Computer: product and design
 
+The dated [market review](MARKET.md) and [design review](DESIGN-REVIEW.md) record
+the positioning hypothesis, observed UX gaps and proposed next slices. Proposed
+work in those documents is not part of the implemented experience below.
+
 ## Purpose and brand
 
 Give an existing personal/coding agent a dedicated computer, let its owner see
