@@ -317,19 +317,23 @@ try {
   });
   await tool('browser_action', { action: 'click', selector: '#project' });
   await tool('desktop_action', { action: 'key', key: 'Ctrl+a' });
+  const browserNote = {
+    project: `Desktop reuse ${proof}`,
+    note: 'Supplied values through guest desktop input.',
+  };
   await tool('desktop_action', {
     action: 'type',
-    text: `Desktop reuse ${proof}`,
+    text: browserNote.project,
   });
   await tool('browser_action', { action: 'click', selector: '#note' });
   await tool('desktop_action', {
     action: 'type',
-    text: 'Supplied values through guest desktop input.',
+    text: browserNote.note,
   });
   await tool('browser_action', { action: 'click', selector: '#save-note' });
-  assert.ok(
-    (await tool('browser_snapshot')).text.includes(`Desktop reuse ${proof}`),
-  );
+  const saved = await tool('browser_snapshot');
+  assert.ok(saved.text.includes(browserNote.project));
+  assert.ok(saved.text.includes(browserNote.note));
   const activity = await owner('/api/activity?days=7');
   assert.ok(
     activity.events.some(
@@ -359,6 +363,7 @@ try {
     readScope: true,
     typedValuesOmitted: true,
     browserResultVerified: true,
+    browserNote,
   };
   await fs.writeFile(
     path.join(directory, 'report.json'),

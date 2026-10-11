@@ -181,6 +181,10 @@ try {
         );
         pc.workflowId = result.workflowId;
         pc.browserProof = result.browserProof;
+        pc.browserNote = {
+          project: `Reused teaching task ${result.browserProof}`,
+          note: `Explicit parameter supplied by the MCP client ${result.browserProof}`,
+        };
         pc.api = new RuntimeClient(pc.config);
         pc.identity = await pc.api.info();
         assert.equal(result.result, 'passed');
@@ -235,6 +239,9 @@ try {
       );
       assert.equal(result.result, 'passed');
       report.desktopInput = result;
+      // The practice app retains the latest saved note. This phase replaces
+      // the earlier DOM-only proof; restart must retain this exact native result.
+      owned[0].browserNote = result.browserNote;
     },
   );
   await phase(
@@ -340,13 +347,11 @@ try {
         );
         const restoredPage = await pc.api.call('browser_snapshot');
         assert.ok(
-          restoredPage.text.includes(`Reused teaching task ${pc.browserProof}`),
+          restoredPage.text.includes(pc.browserNote.project),
           'Saved project must be restored by the same persistent browser.',
         );
         assert.ok(
-          restoredPage.text.includes(
-            `Explicit parameter supplied by the MCP client ${pc.browserProof}`,
-          ),
+          restoredPage.text.includes(pc.browserNote.note),
           'Saved note must survive restart.',
         );
         await pc.api.call('control_acquire');
