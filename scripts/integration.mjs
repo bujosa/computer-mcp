@@ -521,6 +521,11 @@ PY`,
   assert.equal(exported.filename, 'SKILL.md');
   assert.ok(exported.content.includes(config.computerId));
   assert.ok(
+    exported.content.includes(`  workspace-id: "${identity.workspaceId}"`) &&
+      exported.content.includes(`  workflow-revision: "${workflow.revision}"`),
+    'The runtime export pins its persistent workspace and reviewed revision.',
+  );
+  assert.ok(
     !exported.content.includes('Parameter values are intentionally omitted'),
   );
   const exportDirectory = path.join(artifactDirectory, 'skills', exported.name);

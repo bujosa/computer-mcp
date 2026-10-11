@@ -350,7 +350,7 @@ test('owner connection configuration has exact state/access without embedding cr
   assert.throws(() => formatConnection(connection.work, 'unsupported'));
 });
 
-test('skill export retains identity and missing parameters and refuses interrupted recordings', async () => {
+test('skill export pins trusted identities and the reviewed revision, including legacy recordings', async () => {
   const { exportSkill } = await import('../runtime/skill.js');
   const computerId = randomUUID();
   const id = randomUUID();
@@ -371,7 +371,8 @@ test('skill export retains identity and missing parameters and refuses interrupt
       { type: 'terminal', parameter: 'command_2' },
     ],
   };
-  const skill = exportSkill(workflow);
+  const identity = { computerId, workspaceId: randomUUID() };
+  const skill = exportSkill(workflow, identity);
   assert.equal(skill.filename, 'SKILL.md');
   assert.ok(skill.name.startsWith('sendtry-ecrire-une-note-'));
   assert.match(skill.name, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -380,11 +381,48 @@ test('skill export retains identity and missing parameters and refuses interrupt
     skill.content.includes('input_1') && skill.content.includes('command_2'),
   );
   assert.ok(skill.content.includes(workflow.instructions));
-  const longName = exportSkill({ ...workflow, name: 'a'.repeat(80) });
+  const longName = exportSkill({ ...workflow, name: 'a'.repeat(80) }, identity);
   assert.ok(longName.name.length <= 64);
-  const unicode = exportSkill({ ...workflow, name: '任务' });
+  const unicode = exportSkill({ ...workflow, name: '任务' }, identity);
   assert.match(unicode.name, /^sendtry-task-/);
-  assert.throws(() => exportSkill({ ...workflow, status: 'interrupted' }), {
-    code: 'skill_not_ready',
-  });
+  assert.throws(
+    () => exportSkill({ ...workflow, status: 'interrupted' }, identity),
+    { code: 'skill_not_ready' },
+  );
+  const field = (artifact, key) => {
+    const line = artifact.content
+      .split('\n')
+      .find((line) => line.startsWith(`  ${key}: `));
+    assert.ok(line, `Missing exported metadata: ${key}`);
+    return JSON.parse(line.slice(line.indexOf(': ') + 2));
+  };
+  assert.equal(field(skill, 'computer-id'), computerId);
+  assert.equal(field(skill, 'workspace-id'), identity.workspaceId);
+  assert.equal(field(skill, 'workflow-id'), id);
+  assert.equal(field(skill, 'workflow-revision'), id);
+  const reviewedRevision = randomUUID();
+  const updated = exportSkill(
+    { ...workflow, revision: reviewedRevision },
+    identity,
+  );
+  assert.equal(field(updated, 'workflow-revision'), reviewedRevision);
+  assert.equal(
+    field(skill, 'workflow-revision'),
+    id,
+    'An existing download keeps its original pin.',
+  );
+  for (const invalidIdentity of [
+    undefined,
+    {},
+    { ...identity, computerId: randomUUID() },
+    { ...identity, workspaceId: 'invalid' },
+  ]) {
+    assert.throws(() => exportSkill(workflow, invalidIdentity), {
+      code: 'identity_mismatch',
+    });
+  }
+  assert.throws(
+    () => exportSkill({ ...workflow, revision: 'invalid' }, identity),
+    { code: 'invalid_workflow' },
+  );
 });

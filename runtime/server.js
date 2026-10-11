@@ -673,7 +673,7 @@ app.get('/api/workflows/:id', async (req, res) =>
   res.json(publicWorkflow(await store.get(req.params.id), req)),
 );
 app.get('/api/workflows/:id/skill', async (req, res) =>
-  res.json(exportSkill(await store.get(req.params.id))),
+  res.json(exportSkill(await store.get(req.params.id), identity)),
 );
 app.post('/api/workflows/:id/use', async (req, res) => {
   requireThat(

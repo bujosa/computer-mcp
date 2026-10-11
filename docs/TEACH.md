@@ -39,6 +39,13 @@ review/request. The owner endpoint checks again before copy; a change detected
 while Skills is open clears the prepared request. Unsaved edits must be saved
 before preparing it. The server returns instructions, not an execution runner.
 
+Exported `SKILL.md` files carry the same computer/workspace and exact revision
+pins. They require fetching the current saved workflow, including after a wait
+or reconnect, rather than falling back to the embedded procedure if it changes
+or becomes unavailable. Export again after changes; older downloads need a
+fresh version-3 export. General MCP action tools do not bind effects to that
+reviewed revision, so these checks remain agent instructions.
+
 Input names/descriptions come from captured steps, including command cwd, file
 content and guest window focus. Other values may still be missing from the
 reviewed procedure. Blank fields mean ask for a value, not an instruction to

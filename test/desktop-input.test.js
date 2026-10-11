@@ -404,6 +404,10 @@ test('Teach stores desktop geometry with supplied text/key parameters and audite
     input: { action: 'move', x: 1280, y: 0 },
   });
   const workflow = await teach.stop('human:test');
+  const identity = {
+    computerId: workflow.computerId,
+    workspaceId: randomUUID(),
+  };
   assert.equal(workflow.steps.length, 4);
   assert.equal(workflow.steps[1].parameter, 'input_2');
   assert.equal(workflow.steps[2].parameter, 'input_3');
@@ -413,7 +417,7 @@ test('Teach stores desktop geometry with supplied text/key parameters and audite
     expectedRevision: workflow.revision,
     expectedResult: 'Inspect the resulting guest window.',
   });
-  const skill = exportSkill(reviewed).content;
+  const skill = exportSkill(reviewed, identity).content;
   assert.ok(
     skill.includes('single-line text') &&
       skill.includes('supported desktop key/chord') &&

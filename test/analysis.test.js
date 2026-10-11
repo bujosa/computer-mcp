@@ -30,6 +30,10 @@ const proposal = (w) => ({
 
 test('Video analysis consent and proposals are scoped, revision checked and never approve a skill', () => {
   const original = fixture();
+  const identity = {
+    computerId: original.computerId,
+    workspaceId: randomUUID(),
+  };
   assert.throws(() => assertAnalysis(original), {
     code: 'analysis_not_authorized',
   });
@@ -49,7 +53,9 @@ test('Video analysis consent and proposals are scoped, revision checked and neve
   assert.ok(next.draft.id && next.draft.sourceRevision === shared.revision);
   assert.equal(next.review, undefined);
   assert.equal(original.analysis, undefined);
-  assert.throws(() => exportSkill(next), { code: 'skill_needs_review' });
+  assert.throws(() => exportSkill(next, identity), {
+    code: 'skill_needs_review',
+  });
   assert.throws(() => proposeWorkflow(next, proposal(shared), 'agent:qa'), {
     code: 'workflow_changed',
   });
@@ -64,6 +70,10 @@ test('Video analysis consent and proposals are scoped, revision checked and neve
 
 test('Owner review applies the exact current editable draft and publishes only reviewed instructions', () => {
   const original = fixture();
+  const identity = {
+    computerId: original.computerId,
+    workspaceId: randomUUID(),
+  };
   const shared = grantAnalysis(original, {
     enabled: true,
     expectedRevision: original.revision,
@@ -88,7 +98,9 @@ test('Owner review applies the exact current editable draft and publishes only r
   const approved = reviewWorkflow(draft, review);
   assert.equal(approved.draft, undefined);
   assert.equal(approved.review.draftId, draft.draft.id);
-  assert.ok(exportSkill(approved).content.includes('confirm the selector'));
+  assert.ok(
+    exportSkill(approved, identity).content.includes('confirm the selector'),
+  );
   const replacement = proposeWorkflow(approved, proposal(approved), 'agent:qa');
   assert.deepEqual(replacement.review, approved.review);
   const restored = discardProposal(replacement, {
@@ -96,12 +108,20 @@ test('Owner review applies the exact current editable draft and publishes only r
     draftId: replacement.draft.id,
   });
   assert.equal(restored.draft, undefined);
-  assert.ok(exportSkill(restored).content.includes('confirm the selector'));
-  assert.throws(() => exportSkill(replacement), { code: 'skill_needs_review' });
+  assert.ok(
+    exportSkill(restored, identity).content.includes('confirm the selector'),
+  );
+  assert.throws(() => exportSkill(replacement, identity), {
+    code: 'skill_needs_review',
+  });
 });
 
 test('Video-only demonstrations can become reviewed drafts; incomplete videos and oversized drafts fail', () => {
   const original = { ...fixture(), steps: [] };
+  const identity = {
+    computerId: original.computerId,
+    workspaceId: randomUUID(),
+  };
   assert.throws(
     () =>
       grantAnalysis(
@@ -130,5 +150,7 @@ test('Video-only demonstrations can become reviewed drafts; incomplete videos an
     procedure: draft.draft.procedure,
     expectedResult: draft.draft.expectedResult,
   });
-  assert.ok(exportSkill(approved).content.includes(draft.draft.procedure));
+  assert.ok(
+    exportSkill(approved, identity).content.includes(draft.draft.procedure),
+  );
 });

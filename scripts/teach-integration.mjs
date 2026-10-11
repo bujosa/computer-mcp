@@ -279,6 +279,12 @@ try {
   });
   const skill = await api.request(`/api/workflows/${saved.id}/skill`);
   assert.ok(
+    skill.content.includes(`  computer-id: "${initial.computerId}"`) &&
+      skill.content.includes(`  workspace-id: "${initial.workspaceId}"`) &&
+      skill.content.includes(`  workflow-revision: "${saved.revision}"`),
+    'A video-derived skill exports the trusted identities and exact owner-reviewed revision.',
+  );
+  assert.ok(
     skill.content.includes('## Verify success') &&
       skill.content.includes('text content') &&
       skill.content.includes(nested),

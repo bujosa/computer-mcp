@@ -75,6 +75,10 @@ test('Teach retains cwd/outcomes/file parameters, deduplicates inputs and requir
     url: 'https://example.org/?private=omitted',
   });
   const workflow = await teach.stop('human:a');
+  const identity = {
+    computerId: workflow.computerId,
+    workspaceId: randomUUID(),
+  };
   assert.equal(workflow.steps.length, 3);
   assert.equal(workflow.steps[0].path, longPath);
   assert.equal(workflow.steps[0].parameter, 'input_1');
@@ -83,7 +87,9 @@ test('Teach retains cwd/outcomes/file parameters, deduplicates inputs and requir
   assert.ok(workflow.instructions.includes('cwd `nested`'));
   assert.ok(workflow.instructions.includes('review this failed step'));
   assert.ok(!JSON.stringify(snapshots).includes('omitted'));
-  assert.throws(() => exportSkill(workflow), { code: 'skill_needs_review' });
+  assert.throws(() => exportSkill(workflow, identity), {
+    code: 'skill_needs_review',
+  });
   assert.throws(() => reviewWorkflow(workflow, { expectedResult: '' }), {
     code: 'invalid_review',
   });
@@ -99,7 +105,7 @@ test('Teach retains cwd/outcomes/file parameters, deduplicates inputs and requir
     expectedResult: 'Read the nested file and verify its content.',
     notes: 'Correct the failed command before reuse.',
   });
-  const skill = exportSkill(reviewed);
+  const skill = exportSkill(reviewed, identity);
   assert.ok(
     skill.content.includes(longPath) && skill.content.includes('text content'),
   );

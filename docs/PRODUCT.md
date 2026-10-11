@@ -49,6 +49,16 @@ only to its owner session and are never exposed by agent credentials. No API
 keys appear in copy/download output. The console reports actual guest capabilities
 and lease state; it does not claim that a specific harness is connected.
 
+Connect agent follows three explicit steps: add the server, install the operator
+skill and verify a first task. Client selection provides the configuration format,
+local project skill path and official setup/skills guides for Claude Code, Cursor
+and Codex. Other stdio clients receive a neutral path placeholder. The request
+preview pins both computer/workspace UUIDs; work checks create/read a uniquely
+named synthetic file and run `pwd`, while read checks observe without a lease.
+Existing different file contents must not be overwritten. Control/recording
+state tells the owner when to release, save Teach or wait. Nothing is marked
+connected or completed merely because configuration/skill/request was copied.
+
 ## Visual and interaction rules
 
 Use light, quiet surfaces and one primary action per local task. Ink is text,
@@ -61,6 +71,9 @@ configuration and instructions wrap, and keyboard focus remains visible. Polling
 preserves skill search and focused list items when data is unchanged. Connection,
 authorization, recording and interrupted states derive from the runtime. Owner
 access failures explain the CLI recovery without exposing the existing host PC.
+Action buttons use a darker Sendtry salmon for legible light text; decorative
+marks and selected surfaces retain the original brand palette. Advanced tool
+names sit behind an accessible disclosure so first connection remains focused.
 
 The practice task is a local form in the real guest browser, styled with the same
 Sendtry palette. It demonstrates Teach and profile persistence offline; its

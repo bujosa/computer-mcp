@@ -71,10 +71,28 @@ when an agent supplies valid work/read credentials. A subsequent CLI `open`
 consumes its new ticket and updates an existing owner's session metadata.
 The strings are displayed/copied, never executed by the UI/runtime.
 
+The connection walkthrough maps client selection to official format/install
+guidance and shows an effect-free first-task request pinned to the current two
+UUIDs. A per-page random check filename is synthetic owner memory, not persisted
+state. Copy performs no MCP call. The chosen agent receives the request and uses
+its exposed tools/credential scope; read observation needs no lease, and work
+changes acquire one. UI readiness/control hints derive from the existing info
+response, not an invented harness connection status. Loss of owner authorization
+clears host setup metadata and the request. This adds no endpoint, table, model
+runtime or lifecycle permission.
+
 `runtime/skill.js` converts a completed workflow into an Agent Skills `SKILL.md`.
 It generates a bounded kebab-case folder name with a workflow-ID suffix,
-YAML name/description/metadata, owning computer identity, missing input parameters
-and the recorded procedure. Interrupted recordings cannot export (409). The
+YAML name/description/metadata, owning computer/workspace identities, reviewed
+revision, missing input parameters and the recorded procedure. The runtime
+supplies its trusted volume identity; missing or foreign identities fail (409).
+Version-3 exports instruct the agent to read the current workflow and require
+ready/reviewed/exact revision before effects, without using the embedded text
+as a fallback when the record changes or is unavailable. These are agent
+instructions, not a revision lock on general action tools. Legacy workflows
+without a revision use their workflow UUID, as the existing prompt does. No
+stored workflow migration is needed; old downloads need a fresh export.
+Interrupted recordings cannot export (409). The
 read endpoint `/api/workflows/:id/skill` uses normal authenticated workflow
 observation authority. The static operator skill is public local UI content
 without computer credentials. Neither export installs a skill nor grants control.

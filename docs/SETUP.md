@@ -132,8 +132,12 @@ Run `node src/cli.js config --name coding`. It emits:
 ```
 
 These are placeholders; use the exact machine-specific output. In Claude Code
-use the documented stdio MCP configuration/add flow. In Cursor place the entry
-in its documented MCP configuration UI/file. Keep credentials out of harness
+merge the full JSON into a local project `.mcp.json`, or use its
+[documented stdio MCP add flow](https://code.claude.com/docs/en/mcp). Its
+`add-json` command takes the inner server entry, not the full `mcpServers` wrapper.
+In Cursor merge it into `.cursor/mcp.json` in your project, or use its
+[MCP settings](https://cursor.com/docs/mcp). Preserve existing entries and keep
+these absolute machine-specific paths local. Keep credentials out of harness
 config and restart/reload its MCP connection after changing entries. Do not use
 `npm start` as the MCP command: npm emits informational stdout; invoke Node
 and `src/cli.js mcp` directly. Standard SDK stdio interoperability is tested;
@@ -161,14 +165,34 @@ catalog. Other PCs are labelled registered, not assumed online. Reopen after
 catalog changes; use the copied `list` command for current availability.
 
 **Connect agent** provides the same exact
-machine-specific configuration as `config`. Select JSON or Codex TOML, choose
-work/read authority, then copy or download. It shows the capabilities discovered
-from the running computer, not a guessed provider-connection status. The optional
-first-task text verifies identity and respects the selected access level.
+machine-specific configuration as `config`. Choose Claude Code, Cursor, Codex or
+another stdio client, select work/read authority, then copy or download. Client
+selection explains where to add the configuration and save the operator skill.
+It shows runtime capabilities separately from the selected credential scope,
+not a guessed provider-connection status. The first-task preview checks **both
+computer and workspace IDs**. Work requests create/read a fresh uniquely named
+check file, run `pwd`, observe browser/desktop and release acquired control; an
+existing different file must not be overwritten. Read requests only observe.
+Copy does not execute anything. Review the agent's reported result and Activity.
 Registration in a specific harness UI still needs separate validation.
 
 The operator skill downloads as `SKILL.md`. Place it in a folder named
-`sendtry-computer` in your harness's supported skills directory. For taught skills,
+`sendtry-computer` in your local harness's supported skills directory:
+
+| Local client | Project skill file                         | Official instructions                                        |
+| ------------ | ------------------------------------------ | ------------------------------------------------------------ |
+| Claude Code  | `.claude/skills/sendtry-computer/SKILL.md` | [Claude Code skills](https://code.claude.com/docs/en/skills) |
+| Cursor       | `.cursor/skills/sendtry-computer/SKILL.md` | [Cursor skills](https://cursor.com/docs/skills)              |
+| Codex        | `.agents/skills/sendtry-computer/SKILL.md` | [OpenAI skills](https://learn.chatgpt.com/docs/build-skills) |
+
+Create the named folder and save the downloaded file there. Check that your
+client discovers `sendtry-computer`; restart its session if necessary. These
+documented paths do not certify harness registration or automatic selection in
+this MVP. The stdio bridge must run on the same host as the CLI/state; a cloud or
+remote agent needs a separately implemented and authorized adapter. No global
+skills directory or existing client configuration is modified by download.
+
+For taught skills,
 **Skills** → select a completed recording → correct the procedure and expected result → **Confirm review** → **Export SKILL.md**; use the exact
 folder name displayed below the export button. Review the URLs, selectors,
 computer identity and missing parameters before installation/use. Interrupted
@@ -176,6 +200,14 @@ recordings need a new completed demonstration before export. The action trace om
 agent-generated drafts may include visible values; remove secrets and use named
 parameters before confirming review. Names, goals and paths can also be sensitive.
 See [Teach video analysis and review](TEACH.md) for the complete flow.
+
+Each taught export pins the computer, workspace and saved reviewed revision.
+Its instructions require fetching the current `workflow_get` record before
+effects; a different revision, pending proposal or unavailable record stops
+reuse. Download the skill again after changes instead of using older embedded
+instructions. Re-export pre-version-3 downloads to include these checks. This
+is agent guidance; credential scopes, identity pins and leases are the enforced
+tool boundaries.
 
 The format follows the [Agent Skills specification](https://agentskills.io/specification):
 a skill folder containing YAML-frontmatter `SKILL.md` and Markdown instructions.

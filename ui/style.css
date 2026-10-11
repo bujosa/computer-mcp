@@ -15,6 +15,8 @@
   --line: #e6dbd3;
   --accent: #d06a54;
   --accent-hover: #b85643;
+  --action: #b95440;
+  --action-hover: #a54433;
   --paper: #fbf7f4;
   --tint: #fbf0ec;
 }
@@ -60,20 +62,21 @@ button:disabled {
   cursor: not-allowed;
 }
 .primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--action);
+  border-color: var(--action);
   color: #fff9f7;
 }
 .primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: var(--action-hover);
+  border-color: var(--action-hover);
 }
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 a:focus-visible,
 select:focus-visible,
-pre:focus-visible {
+pre:focus-visible,
+summary:focus-visible {
   outline: 3px solid #e09a88;
   outline-offset: 3px;
 }
@@ -828,6 +831,78 @@ code {
   grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
   gap: 20px;
 }
+.connect-route {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  padding: 0 0 20px;
+  margin: 0 0 22px;
+  border-bottom: 1px solid var(--line);
+}
+.connect-route li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--soft);
+}
+.setup-guide {
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 16px 0 10px;
+}
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #8e4334;
+  font-size: 11px;
+  text-underline-offset: 3px;
+}
+.text-link .icon {
+  width: 14px;
+  height: 14px;
+}
+.install-path {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+.first-task-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 30px;
+  margin-top: 20px;
+}
+.first-task-intro > p:not(.eyebrow) {
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.first-task-intro > .caption {
+  color: var(--muted);
+  font-size: 11px;
+}
+#agent-request {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  max-height: 245px;
+  margin: 10px 0 0;
+}
+.capability-details summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--soft);
+}
+.capability-details .capabilities {
+  margin-top: 16px;
+}
 .config-options {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -853,11 +928,20 @@ code {
   line-height: 1.8;
   margin: 0 0 16px;
 }
+.connect-side .eyebrow {
+  font-size: 9px;
+  line-height: 1.5;
+  color: #8e4334;
+  margin: 0 0 10px;
+}
 .connect-side .step-number:not(:first-child) {
   margin-top: 24px;
 }
 .operator-card {
   background: var(--paper);
+}
+.operator-card .setup-guide {
+  margin-top: 20px;
 }
 .operator-card > .icon {
   color: var(--accent);
@@ -1194,6 +1278,15 @@ code {
   }
   .connect-grid {
     gap: 16px;
+  }
+  .connect-route {
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 18px;
+  }
+  .first-task-panel {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
   .capability-panel .section-bar {
     gap: 10px;

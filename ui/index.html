@@ -130,7 +130,8 @@
           <div>
             <h2>Open your computer from the CLI.</h2>
             <p>
-              Run <code>computer-mcp open --name &lt;your-computer&gt;</code> on
+              From the source checkout, run
+              <code>node src/cli.js open --name &lt;your-computer&gt;</code> on
               the host to authorize this owner console. Refreshing this page
               cannot unlock it.
             </p>
@@ -605,22 +606,27 @@ Ready. Your command output will appear here.</pre
           </div>
         </section>
         <section id="connect" class="view" hidden>
+          <ol class="connect-route" aria-label="Connection steps">
+            <li><span class="step-number">1</span>Connect the computer</li>
+            <li><span class="step-number">2</span>Add the operator skill</li>
+            <li><span class="step-number">3</span>Verify a first task</li>
+          </ol>
           <div class="connect-grid">
             <div class="panel">
-              <p class="eyebrow">ONE COMPUTER. YOUR CHOICE OF AGENT.</p>
-              <h2>Connect through MCP.</h2>
+              <p class="eyebrow">STEP 1 · THE TOOLS</p>
+              <h2>Connect this computer.</h2>
               <p class="subtitle">
-                Add this server to your agent’s MCP settings. It will discover
-                the tools for this computer.
+                Choose your local agent and the access it needs. Keep your
+                existing MCP servers when adding this one.
               </p>
               <div class="config-options">
                 <div>
-                  <label for="client-format">Configuration format</label
+                  <label for="client-format">Your agent</label
                   ><select id="client-format">
-                    <option value="generic">
-                      JSON · Claude Code / Cursor / other clients
-                    </option>
-                    <option value="codex">TOML · Codex</option>
+                    <option value="claude">Claude Code · JSON</option>
+                    <option value="cursor">Cursor · JSON</option>
+                    <option value="codex">Codex · TOML</option>
+                    <option value="generic">Other stdio client · JSON</option>
                   </select>
                 </div>
                 <div>
@@ -634,6 +640,16 @@ Ready. Your command output will appear here.</pre
               <p id="config-status" class="caption">
                 Loading host configuration…
               </p>
+              <p id="config-guide" class="setup-guide"></p>
+              <a
+                id="config-docs"
+                class="text-link"
+                hidden
+                target="_blank"
+                rel="noreferrer noopener"
+                >Official setup guide
+                <svg class="icon"><use href="#i-arrow" /></svg
+              ></a>
               <pre
                 id="client-config"
                 tabindex="0"
@@ -650,45 +666,88 @@ Ready. Your command output will appear here.</pre
               </p>
             </div>
             <div class="connect-side">
-              <div class="panel">
-                <span class="step-number">1</span>
-                <h3>Add the server</h3>
-                <p>
-                  Paste the config into your client’s MCP settings, then
-                  reconnect or restart the client.
-                </p>
-                <span class="step-number">2</span>
-                <h3>Let the agent discover it</h3>
-                <p id="agent-step">
-                  Ask it to call <code>computer_info</code>, inspect
-                  capabilities and acquire control before making changes.
-                </p>
-                <button id="agent-copy" disabled>
-                  Copy a first task
-                  <svg class="icon"><use href="#i-arrow" /></svg>
-                </button>
-              </div>
               <div class="panel operator-card">
-                <svg class="icon"><use href="#i-skill" /></svg>
-                <h3>Give it the operator skill</h3>
+                <p class="eyebrow">STEP 2 · THE KNOW-HOW</p>
+                <h2>Add the operator skill.</h2>
                 <p>
-                  A small skill explains how to inspect, operate, verify and
-                  release this computer.
+                  Give your agent the instructions for this computer: discover
+                  tools, work within its permissions, verify results and release
+                  control.
                 </p>
                 <a
+                  id="operator-download"
                   class="button"
                   href="/skills/sendtry-computer/SKILL.md"
                   download="SKILL.md"
                   >Download operator skill
                   <svg class="icon"><use href="#i-download" /></svg
                 ></a>
+                <p class="setup-guide">
+                  Save the downloaded file in your local project:
+                </p>
+                <code id="operator-path" class="install-path"
+                  >sendtry-computer/SKILL.md</code
+                >
+                <a
+                  id="operator-docs"
+                  class="text-link"
+                  hidden
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  >Official skills guide
+                  <svg class="icon"><use href="#i-arrow" /></svg
+                ></a>
                 <p class="caption">
-                  Install as <code>sendtry-computer/SKILL.md</code> in your
-                  agent’s skills directory. Installation is up to you.
+                  The skill supplies instructions; the MCP connection supplies
+                  tools. Downloading installs neither.
+                </p>
+              </div>
+              <div class="panel connection-note">
+                <svg class="icon"><use href="#i-computer" /></svg>
+                <h3>One dedicated space.</h3>
+                <p>
+                  Your agent uses this Linux computer. You see the same screen
+                  and can take control whenever you need to.
+                </p>
+                <p class="caption">
+                  A running computer is not proof that your agent is connected.
+                  Verify it with the task below.
                 </p>
               </div>
             </div>
           </div>
+          <section
+            class="panel first-task-panel"
+            aria-labelledby="first-task-title"
+          >
+            <div class="first-task-intro">
+              <p class="eyebrow">STEP 3 · THE PROOF</p>
+              <h2 id="first-task-title">See it work.</h2>
+              <p id="agent-step"></p>
+              <p id="agent-control-hint" class="caption" role="status"></p>
+              <div class="actions">
+                <button id="agent-copy" class="primary" disabled>
+                  Copy first task
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+                <button id="connect-activity">View activity</button>
+              </div>
+              <p class="caption">
+                Send this request to your agent after reconnecting its MCP
+                server. Copying starts no execution.
+              </p>
+            </div>
+            <div>
+              <span class="preview-label">REQUEST PREVIEW</span>
+              <pre
+                id="agent-request"
+                tabindex="0"
+                aria-label="First agent task"
+              >
+Authorize this console to prepare a task for its computer.</pre
+              >
+            </div>
+          </section>
           <div class="panel capability-panel">
             <div class="section-bar">
               <div>
@@ -699,12 +758,15 @@ Ready. Your command output will appear here.</pre
               </div>
               <span class="small-badge">Docker Linux guest</span>
             </div>
-            <div id="capabilities" class="capabilities"></div>
+            <details class="capability-details">
+              <summary>View available tool names</summary>
+              <div id="capabilities" class="capabilities"></div>
+            </details>
           </div>
           <div class="reopen">
             <span>Need to open this console again?</span
             ><code id="open-command"
-              >computer-mcp open --name &lt;your-computer&gt;</code
+              >node src/cli.js open --name &lt;your-computer&gt;</code
             >
           </div>
         </section>
