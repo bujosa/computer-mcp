@@ -1,8 +1,71 @@
 # Validation record
 
-Private Sendtry Computer MVP reviewed on 10 October 2026 (11 October UTC).
+Private Sendtry Computer MVP reviewed on 10–11 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
+
+## First connection and independent skill export polish
+
+Product commit `e034cf3d20623eb9599a8dd2cbe81d6828fba7ba` gives Connect agent
+a three-step setup, client-specific configuration/skill paths, official guides
+and an inspectable first task. It distinguishes read observation from work
+execution and checks both computer/workspace IDs. Operator skill v5 and MCP
+guidance require the current completed review/revision for all taught reuse.
+Independent taught exports now include trusted workspace/revision pins (v3),
+refuse missing/foreign identity and instruct the agent to stop on a changed or
+unavailable workflow instead of using embedded text. These instructions do not
+enforce a workflow revision on general action tools.
+
+PASS `npm run format:check`, `npm run lint`, `npm run build` (49 JavaScript
+modules plus UI/noVNC/shared bundle), `npm test` (57 contracts, no failures/skips),
+`npm audit --omit=dev --audit-level=high` (zero findings), operator and real
+taught-artifact `quick_validate.py`, and `git diff --check`. Export contracts
+exercise trusted identity rejection, legacy UUID revision fallback, immutable
+download pins and pending-review rejection. Before the broad gates, the 30
+affected contracts passed separately.
+
+The owned local review computer was rebuilt with saved context `desktop-linux`;
+image `sha256:04e828b8b8f3ebc9070c0287b3593a437b97cecb0ad4b155cae577000637db11`.
+PASS `npm run test:integration -- .computer-mcp/review-mvp artifacts/connection-polish-final-mcp`:
+real modern/legacy stdio, discovery of 16 tools, auth/scopes/identity, lease/takeover,
+terminal limits, contained files, Chromium, screenshot, Teach/export/prompt/reuse
+and RFB contracts. The export assertion now checks the runtime's exact trusted
+workspace and reviewed revision.
+
+PASS `npm run test:teach-integration -- .computer-mcp/review-mvp artifacts/connection-polish-final-teach`:
+actual WebM (18,934 bytes, three decoded samples), consent, analysis/proposal,
+owner review, trusted export pins, pending-draft/read restrictions, pinned reuse,
+actual supplied file readback, control release and metadata-only handoff audit.
+This deterministic contract calls the analysis/proposal tools; it does not
+certify a model's video understanding.
+
+The actual visible/copied work request was saved and performed with the official
+SDK stdio client, using an ignored private manual MCP helper. PASS both identity
+checks, discovery of seven read tools, observation without lease/change, real guest screenshot/browser/file
+observation, creation/readback of its synthetic check file, `pwd` returning
+`/data/workspace` with exit 0/no stopped/truncated result, and lease release.
+Evidence: `artifacts/connection-polish-final-first-task/`. This verifies the
+requested operations, not model interpretation or harness registration.
+
+Manual T3 browser review covered 1440×1000 and 390×844: aligned step headings,
+Claude/Cursor JSON, Codex TOML and neutral other-client guidance, work/read
+previews, control hints, clipboard acknowledgement, actual config/skill
+downloads, keyboard focus, tool disclosure, first-task-to-Activity navigation
+and unauthorized CLI recovery with disabled actions. The final operator download
+matched versioned v5 exactly (8,164 bytes). Mobile page scroll width equalled
+390; long configuration/request text stayed contained. Activity's **Prepared a
+skill request** label, times, outcomes and owner attribution were visually
+reviewed. Screenshots are private in `artifacts/connection-polish-ui/`. No
+automated UI appearance/E2E harness or permission changes were added. Existing
+noVNC VideoFrame cleanup diagnostics remain a known browser limitation.
+
+Independent read-only review found no remaining material contract contradiction.
+Final owned runtime remained idle, Teach inactive, identities preserved and ports
+loopback-only. Docker's default context remained `ser9`. Full remote 17-phase
+E2E below belongs to `998fc72`, not this newer polish; it was not rerun because
+the affected export/MCP/Teach paths and UI were validated directly. Windows/Linux
+host lifecycle, individual harness registration, model behavior, scale and
+public licensing/packaging remain pending.
 
 ## Reviewed skill handoff update
 
