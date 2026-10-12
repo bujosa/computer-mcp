@@ -4,6 +4,8 @@ The dated [market review](MARKET.md) and [design review](DESIGN-REVIEW.md) recor
 the positioning hypothesis, observed UX gaps and ordered next slices. The guided
 Teach/connection slice is now implemented below; task-result records, new adapters
 and Skills over MCP remain proposals.
+The [readiness review](READINESS.md) prioritizes installation, measured resources,
+repeated Teach usefulness, result attribution and public distribution gates.
 
 ## Purpose and brand
 

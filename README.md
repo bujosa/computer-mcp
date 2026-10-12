@@ -4,15 +4,19 @@ A computer to work in. Skills to work with.
 
 `computer-mcp` is the technical repository and CLI for this Sendtry product.
 
-Give any MCP agent its own computer, and share its screen when you want to help.
+Give your MCP agent a dedicated computer, and share its screen when you want to help.
 
 This private MVP runs a dedicated **Linux desktop in Docker**, with Chromium,
 a bounded command runner, a workspace file explorer, screenshots, bounded guest
 mouse/keyboard input and **Teach**: record a demonstration, review reusable instructions and export
-a portable `SKILL.md`. A small Node CLI
+a `SKILL.md` pinned to its computer, workspace and reviewed revision. A small Node CLI
 starts the computer; your harness launches a separate MCP bridge over stdio.
 There is no model subscription, chatbot, gateway, cloud provisioning or Piblo
 backend dependency.
+
+Current product assessment, GitHub comparison and what remains before a public
+preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
+[executed validation](docs/VALIDATION.md). Licensing/publication remains pending.
 
 ## Start your first computer
 

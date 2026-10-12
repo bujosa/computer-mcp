@@ -57,8 +57,8 @@ Priorities are proposed implementation order, not measured severity scores.
 | P1       | Compact captures have contained content, but branding/nav/heading/control consume much of the first viewport.           | Useful task controls and results arrive late on a small screen.                                              | Treat compact as monitoring/review first. Reduce repeated explanatory chrome; keep recording/cancel/next action reachable without hiding recovery. Verify at 390px with keyboard and touch-sized controls.                                             |
 | P2       | Skills arrive through manual download/install or a copied pinned request.                                               | Harness discovery remains an extra adoption step.                                                            | Evaluate the official optional Skills over MCP extension after checking SDK/client support. Keep file export and prompts as fallback; no auto-install, auto-activation or permission grant.                                                            |
 
-The proposed progress rail and task outcomes are new functionality. None of the
-current screens should be represented as already having them.
+The progress/next-action rail was delivered in the follow-up described above.
+Task outcomes remain proposed functionality; current screens do not have them.
 
 ## Recommended first design slice
 
