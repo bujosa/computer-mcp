@@ -81,6 +81,14 @@ response, not an invented harness connection status. Loss of owner authorization
 clears host setup metadata and the request. This adds no endpoint, table, model
 runtime or lifecycle permission.
 
+UI connection-stage selection is local navigation, not installation/connection
+evidence. The Teach guide derives its next action from the current info response,
+saved workflow revision/draft/review and open form state; it adds no persisted
+progress or task-success record. The recording banner and builder share the
+existing stop/save handler, which returns to the saved skill. Review readiness,
+frame consent, proposal availability and prepared handoff remain distinct. The
+console never infers an analysis job or verified task from a click/download.
+
 `runtime/skill.js` converts a completed workflow into an Agent Skills `SKILL.md`.
 It generates a bounded kebab-case folder name with a workflow-ID suffix,
 YAML name/description/metadata, owning computer/workspace identities, reviewed

@@ -4,6 +4,88 @@ Private Sendtry Computer MVP reviewed on 10–11 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Guided Teach and connection: real recording, review and new-input trial
+
+This presentation-only iteration adds Teach's four-stage next-action guide,
+direct Finish/save, expandable evidence, explicit Reviewed/trial wording and
+three selectable MCP connection stages. Proposal uncertainties remain outside
+collapsed evidence; Finish requires own control; same-skill refresh preserves
+expanded evidence. A different skill selection focuses the next-action heading.
+No backend/API/schema, operator or protocol capability changed.
+
+PASS local scoped Prettier on the three UI files and affected documentation,
+`npx eslint ui/app.js`, `npm run build` (49 modules plus UI/noVNC/shared bundle),
+exported-skill `quick_validate.py` and diff checks. Remote scoped formatting,
+lint and the same build passed after each copied UI correction. The unchanged
+64-contract/backend/integration suites were not repeated; their exact prior
+source and results remain separately recorded below.
+
+Manual T3 review used the actual Mac mini isolated Linux guest at 1440×1000 and
+390×844. PASS client-stage selection/next focus, one visible setup panel, config
+disclosure, client/access formats, identity pins and copy acknowledgements.
+Actual installation or connection of Claude Code/Cursor/Codex was not inferred
+from copying settings. The current-computer control opens the catalog without
+retargeting; Activity wording describes sessions rather than verified people.
+
+The owner UI recorded a new synthetic browser demonstration with silent WebM,
+four structured steps and explicit frame consent. The SDK/MCP returned three
+real PNG samples. The parent inspected these images and the trace, reasoned a
+parameterized procedure with explicit sampling uncertainties, then an SDK client
+submitted that exact proposal. This attribution distinguishes model reasoning
+from the deterministic MCP delivery. The frames did not demonstrate a reload
+or the full lower saved note, so the procedure required separate verification.
+
+Manual owner review approved workflow `cc0cc06b-0ffa-47ba-a7f3-9c92936cb80e`,
+revision `7dd64399-cc5f-4198-a85d-d7a49c21856e`. The guide highlighted pending
+review, exposed uncertainties, rejected unsaved export and retained expanded
+evidence during same-ID refresh. Preparing a trial defaulted to plan; the owner
+explicitly chose execution with new synthetic inputs and copied the pinned
+request. Preparation/consent/copy never displayed an analysis or execution job.
+
+PASS separate real SDK/stdio trial: both computer/workspace IDs, 16 tools,
+current ready/reviewed revision with no draft, own lease, observed browser
+controls, new project/note and exact comparisons of both rendered saved-card
+values after save **and after document reload**. Screenshot, own release,
+`lease: null` and closed stdio were verified. Both values and the exact approved
+review also survived a subsequent actual guest rebuild/restart. This is one
+bounded synthetic taught task, not certification of all models or harnesses.
+
+Final source SHA256: app
+`7f0862c3186ab98a6f5439a60b846c3dc211d93034da2fa412e6aca8b45f0783`,
+index `6bf15583c23f7d50610c8ee70bc71385ecb4c1329c262e36cf7c1205cb87b6ef`,
+style `32dac704f0466f9d65835d8f254d54788220e8a98c09545a11a27077477d5c00`.
+The other 80 archived files remained byte-identical to backend `6ab1c3a`;
+updated local documentation was not copied. Snapshot fingerprint
+`98d8354d2486223601ed87d00f93db0aec2072c4f5c02315ed34c220a55ec287`,
+image `sha256:6b439dd2403efa228143d0b622615ae1719a5b744932137efc9f831e5408c996`.
+Only the previously owned isolated computer was rebuilt; internet QA stayed stopped.
+
+On that final source, selecting the reviewed skill focused the visible next-action
+heading on the compact viewport; document scroll width was 375 for width 390
+with its vertical scrollbar. A new trace-only demonstration was finished through
+keyboard Enter on the persistent banner: one step saved, Skills opened, focus
+returned to the next action and status remained Ready to review. Control was
+released and Teach was inactive. The real 4,962-byte downloaded reviewed
+`SKILL.md` passed validation. No generated UI appearance/E2E harness was added.
+
+Independent static review found hidden proposal uncertainties, Finish enabled
+without own control and nested trial-click error focus; all were corrected and
+re-reviewed. Cross-owner Finish and forced-503 trial error were not manually
+exercised. A transient SSH route failure and unsupported preview selectors were
+recovered without resource/network changes. T3 captures sometimes duplicated or
+softened page composition and reported an old capture surface despite confirmed
+DOM viewports; screenshots are diagnostic evidence, not pixel-perfect certification.
+
+Private allowlisted proof: `artifacts/ui-journey-20261011/` and
+`artifacts/remote-qa/0c5e2bd2-c785-403e-a44c-073c04c4f60c/`. No credentials,
+owner cookies, configurations, catalogs or local environment files were copied.
+Final resource closure PASS: isolated guest/proxy stopped, internet guest remained
+stopped, both owned volumes and seven saved workflows retained, all 32 network
+identities, unrelated container identities/statuses and the default context
+preserved. Bindings stayed loopback-only; helper socket was absent and the parent
+closed its own SSH tunnel/browser tab. Hosted CI status is recorded separately;
+local/remote passes do not establish a hosted platform matrix or mass-use readiness.
+
 ## Product recovery, current Mac mini and independent operator acceptance
 
 Backend/product commit `6ab1c3a3317ffdf59920e2393137a1df7201fa2f` fixes

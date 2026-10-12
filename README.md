@@ -109,7 +109,7 @@ resource, `taught-workflow` and `analyze-demonstration` prompts.
 ## Give the agent skills
 
 MCP supplies tools; a skill supplies a reviewed procedure using those tools.
-In **Skills**, **Use with agent** prepares a plan or execution request pinned to
+In **Skills**, **Try with new inputs** prepares a plan or execution request pinned to
 the saved review and owning computer/workspace. Supply task parameters, inspect
 the request and send it to your connected agent. Inputs remain in the open form
 until copy and clear on close/navigation; preparation does not start execution.
@@ -118,7 +118,10 @@ until copy and clear on close/navigation; preparation does not start execution.
 install settings or change your existing host computer.
 
 In **Skills**, take control, name the task and start recording. Demonstrate it
-on the shared Linux guest, then choose **Review & save** and stop recording.
+on the shared Linux guest, then choose **Finish demonstration** to save its evidence
+and return to Skills. The guide shows the next step for the current recording or
+selected saved skill. **Reviewed** means approved instructions, not a verified
+successful task.
 The action trace captures browser events and file/terminal markers, omitting
 input values, commands and file contents. Working directories and command
 outcomes remain visible for review.
@@ -169,7 +172,7 @@ success. See [the activity contract](docs/ACTIVITY.md).
 1. In **Computer**, take control and open the practice task.
 2. In **Skills**, start a named recording, optionally with guest video.
 3. Complete the form on the live guest screen.
-4. Return with **Review & save** and save the recording. Review the trace, or
+4. Choose **Finish demonstration** to save and return to Skills. Review the trace, or
    allow your connected agent to analyze sampled video and propose instructions.
 5. Correct the procedure, define a verifiable result and **Confirm review**.
    Export the skill, release control and ask your agent to reuse it with new

@@ -59,13 +59,18 @@
           height="32"
         /><span>Computer</span></a
       >
-      <div class="computer-switch">
+      <button
+        id="computer-nav"
+        class="computer-switch"
+        type="button"
+        aria-label="View your registered computers"
+      >
         <img src="/assets/brand-mark.svg" alt="" width="32" height="32" />
         <div>
           <strong id="computer-name">Your computer</strong
-          ><span>Personal workspace</span>
+          ><span>Current computer · view all</span>
         </div>
-      </div>
+      </button>
       <p class="nav-label">WORKSPACE</p>
       <nav aria-label="Computer views">
         <button class="tab active" data-view="desktop" aria-current="page">
@@ -141,7 +146,7 @@
           <span class="record-dot"></span
           ><span id="record-summary">Recording your task…</span
           ><button id="record-review">
-            Review &amp; save <svg class="icon"><use href="#i-arrow" /></svg>
+            Finish demonstration <svg class="icon"><use href="#i-arrow" /></svg>
           </button>
         </div>
         <section id="desktop" class="view">
@@ -288,13 +293,45 @@ Ready. Your command output will appear here.</pre
           </div>
         </section>
         <section id="teach" class="view" hidden>
+          <section class="teach-journey" aria-labelledby="teach-next-title">
+            <ol class="journey-route" aria-label="Teaching stages">
+              <li data-teach-stage="1">
+                <span class="step-number">1</span>Demonstrate
+              </li>
+              <li data-teach-stage="2">
+                <span class="step-number">2</span>Understand
+              </li>
+              <li data-teach-stage="3">
+                <span class="step-number">3</span>Review
+              </li>
+              <li data-teach-stage="4">
+                <span class="step-number">4</span>Try new inputs
+              </li>
+            </ol>
+            <div class="journey-next">
+              <div>
+                <h2 id="teach-next-title" tabindex="-1">
+                  Show your agent a small task.
+                </h2>
+                <p id="teach-next-description">
+                  Record a demonstration, review the procedure and try it with
+                  new inputs.
+                </p>
+              </div>
+              <div class="actions">
+                <button id="teach-next" class="primary" disabled>
+                  Set up a demonstration</button
+                ><button id="teach-alternative" hidden>Review manually</button>
+              </div>
+            </div>
+          </section>
           <div class="section-bar library-bar">
             <div>
               <strong>Your skill library</strong>
-              <p>Procedures you teach, ready for your agent to reuse.</p>
+              <p>Demonstrations and reviewed procedures for this computer.</p>
             </div>
-            <button id="new-skill" class="primary">
-              <svg class="icon"><use href="#i-record" /></svg>Teach a skill
+            <button id="new-skill">
+              <svg class="icon"><use href="#i-record" /></svg>Teach a task
             </button>
           </div>
           <div id="teach-builder" class="panel" hidden>
@@ -342,7 +379,7 @@ Ready. Your command output will appear here.</pre
                   </button>
                 </form>
                 <button id="teach-stop" class="primary" hidden>
-                  Save recording
+                  Finish demonstration
                 </button>
                 <p id="teach-status" role="status">
                   Take control before starting a recording.
@@ -401,7 +438,7 @@ Ready. Your command output will appear here.</pre
                     <h2 id="skill-title"></h2>
                   </div>
                   <div class="actions">
-                    <button id="skill-refresh">Check for proposal</button
+                    <button id="skill-refresh">Refresh saved skill</button
                     ><span id="skill-state" class="small-badge"></span>
                   </div>
                 </div>
@@ -410,89 +447,94 @@ Ready. Your command output will appear here.</pre
                   <span id="skill-step-count"></span
                   ><span id="skill-capture-kind"></span>
                 </div>
-                <section
-                  id="skill-video-panel"
-                  class="video-panel"
-                  hidden
-                  aria-labelledby="skill-video-title"
-                >
-                  <div class="section-bar">
-                    <div>
-                      <h3 id="skill-video-title">Your demonstration</h3>
-                      <p id="skill-video-status"></p>
+                <details id="skill-evidence" class="evidence-details">
+                  <summary>Review the demonstration evidence</summary>
+                  <section
+                    id="skill-video-panel"
+                    class="video-panel"
+                    hidden
+                    aria-labelledby="skill-video-title"
+                  >
+                    <div class="section-bar">
+                      <div>
+                        <h3 id="skill-video-title">Your demonstration</h3>
+                        <p id="skill-video-status"></p>
+                      </div>
+                      <a id="skill-video-download" class="button" download
+                        >Download video</a
+                      >
                     </div>
-                    <a id="skill-video-download" class="button" download
-                      >Download video</a
-                    >
-                  </div>
-                  <video
-                    id="skill-video-player"
-                    controls
-                    preload="metadata"
-                    aria-label="Recorded guest desktop demonstration"
-                  ></video>
-                  <p class="caption">
-                    Saved privately on this computer. Frames are shared only
-                    after you allow agent analysis. The video is not bundled in
-                    SKILL.md.
-                  </p>
-                  <div class="actions">
-                    <button id="skill-video-remove">Delete video</button
-                    ><button
-                      id="skill-video-remove-confirm"
-                      class="danger"
-                      hidden
-                    >
-                      Confirm delete video
-                    </button>
-                  </div>
-                </section>
-                <section
-                  id="skill-analysis-panel"
-                  class="review-panel"
-                  hidden
-                  aria-labelledby="skill-analysis-title"
-                >
-                  <div class="section-bar">
-                    <div>
-                      <h3 id="skill-analysis-title">
-                        Let your agent understand the task.
-                      </h3>
-                      <p id="skill-analysis-status"></p>
-                    </div>
-                    <span class="small-badge">Your agent · your model</span>
-                  </div>
-                  <p class="caption">
-                    Allow connected agents with work access to inspect sampled
-                    frames. Visible content, including secrets, may reach your
-                    agent’s configured model provider. Review the video first.
-                    This server adds no AI service or automatic training.
-                  </p>
-                  <div class="actions">
-                    <button id="skill-analysis-toggle">
-                      Allow agent analysis</button
-                    ><button id="skill-analysis-copy" hidden>
-                      Copy analysis request
-                    </button>
-                  </div>
-                  <div id="skill-proposal" hidden>
-                    <h3>Agent proposal · needs your review</h3>
-                    <button id="skill-proposal-discard">
-                      Discard proposal
-                    </button>
-                    <p
-                      id="skill-proposal-uncertainties"
-                      class="proposal-note"
-                    ></p>
+                    <video
+                      id="skill-video-player"
+                      controls
+                      preload="metadata"
+                      aria-label="Recorded guest desktop demonstration"
+                    ></video>
                     <p class="caption">
-                      Check and edit the proposed procedure below. Sampled
-                      frames can miss actions; this proposal has not been
-                      executed or verified.
+                      Saved privately on this computer. Frames are shared only
+                      after you allow agent analysis. The video is not bundled
+                      in SKILL.md.
                     </p>
-                  </div>
-                </section>
-                <h3>Captured action trace</h3>
-                <ol id="skill-timeline" class="skill-timeline"></ol>
+                    <div class="actions">
+                      <button id="skill-video-remove">Delete video</button
+                      ><button
+                        id="skill-video-remove-confirm"
+                        class="danger"
+                        hidden
+                      >
+                        Confirm delete video
+                      </button>
+                    </div>
+                  </section>
+                  <section
+                    id="skill-analysis-panel"
+                    class="review-panel"
+                    hidden
+                    aria-labelledby="skill-analysis-title"
+                  >
+                    <div class="section-bar">
+                      <div>
+                        <h3 id="skill-analysis-title">
+                          Prepare analysis with your agent.
+                        </h3>
+                        <p id="skill-analysis-status"></p>
+                      </div>
+                      <span class="small-badge">Your agent · your model</span>
+                    </div>
+                    <p class="caption">
+                      Allow connected agents with work access to inspect sampled
+                      frames. Visible content, including secrets, may reach your
+                      agent’s configured model provider. Review the video first.
+                      This server adds no AI service or automatic training.
+                    </p>
+                    <div class="actions">
+                      <button id="skill-analysis-toggle">
+                        Allow agent analysis</button
+                      ><button id="skill-analysis-copy" hidden>
+                        Copy analysis request
+                      </button>
+                    </div>
+                  </section>
+                  <h3>Captured action trace</h3>
+                  <p id="skill-trace-empty" class="caption" hidden>
+                    No structured events were captured. Review the video or
+                    proposed procedure; a trace count is not a task result.
+                  </p>
+                  <ol id="skill-timeline" class="skill-timeline"></ol>
+                </details>
+                <div id="skill-proposal" class="review-panel" hidden>
+                  <h3>Agent proposal · needs your review</h3>
+                  <button id="skill-proposal-discard">Discard proposal</button>
+                  <p
+                    id="skill-proposal-uncertainties"
+                    class="proposal-note"
+                  ></p>
+                  <p class="caption">
+                    Check and edit the proposed procedure below. Sampled frames
+                    can miss actions; this proposal has not been executed or
+                    verified.
+                  </p>
+                </div>
                 <form id="skill-review-form" class="review-panel">
                   <div class="section-bar">
                     <div>
@@ -542,7 +584,7 @@ Ready. Your command output will appear here.</pre
                 </form>
                 <div class="actions">
                   <button id="skill-use-open" class="primary">
-                    Use with agent
+                    Try with new inputs
                   </button>
                   <button id="skill-download">
                     <svg class="icon"><use href="#i-download" /></svg>Export
@@ -565,7 +607,9 @@ Ready. Your command output will appear here.</pre
                 >
                   <div class="section-bar">
                     <div>
-                      <h3 id="skill-use-title">Use what you taught.</h3>
+                      <h3 id="skill-use-title">
+                        Prepare a trial with new inputs.
+                      </h3>
                       <p>
                         Prepare a request for the agent already connected to
                         this computer.
@@ -617,12 +661,28 @@ Ready. Your command output will appear here.</pre
         </section>
         <section id="connect" class="view" hidden>
           <ol class="connect-route" aria-label="Connection steps">
-            <li><span class="step-number">1</span>Connect the computer</li>
-            <li><span class="step-number">2</span>Add the operator skill</li>
-            <li><span class="step-number">3</span>Verify a first task</li>
+            <li>
+              <button type="button" data-connect-step="1" aria-current="step">
+                <span class="step-number">1</span>Configure MCP
+              </button>
+            </li>
+            <li>
+              <button type="button" data-connect-step="2">
+                <span class="step-number">2</span>Add the skill
+              </button>
+            </li>
+            <li>
+              <button type="button" data-connect-step="3">
+                <span class="step-number">3</span>Verify a task
+              </button>
+            </li>
           </ol>
+          <p class="caption connect-explanation">
+            Follow these steps in your chosen agent. Copying configuration or
+            downloading a skill does not install it or confirm a connection.
+          </p>
           <div class="connect-grid">
-            <div class="panel">
+            <div id="connect-setup" class="panel">
               <p class="eyebrow">STEP 1 · THE TOOLS</p>
               <h2>Connect this computer.</h2>
               <p class="subtitle">
@@ -660,11 +720,14 @@ Ready. Your command output will appear here.</pre
                 >Official setup guide
                 <svg class="icon"><use href="#i-arrow" /></svg
               ></a>
-              <pre
-                id="client-config"
-                tabindex="0"
-                aria-label="MCP configuration"
-              ></pre>
+              <details id="config-preview" class="instruction-preview">
+                <summary>Inspect exact MCP configuration</summary>
+                <pre
+                  id="client-config"
+                  tabindex="0"
+                  aria-label="MCP configuration"
+                ></pre>
+              </details>
               <div class="actions">
                 <button id="config-copy" class="primary" disabled>
                   Copy configuration</button
@@ -674,8 +737,15 @@ Ready. Your command output will appear here.</pre
                 Runs locally over stdio. No API key is included. The host’s
                 private state file holds the computer credentials.
               </p>
+              <div class="wizard-footer">
+                <span>Added it in your agent? Reconnect its MCP server.</span
+                ><button id="connect-to-skill" type="button">
+                  Next: add the skill
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+              </div>
             </div>
-            <div class="connect-side">
+            <div id="connect-skill" class="connect-side" hidden>
               <div class="panel operator-card">
                 <p class="eyebrow">STEP 2 · THE KNOW-HOW</p>
                 <h2>Add the operator skill.</h2>
@@ -724,15 +794,26 @@ Ready. Your command output will appear here.</pre
                   Verify it with the task below.
                 </p>
               </div>
+              <div class="wizard-footer">
+                <span
+                  >Saved the skill in your project? Ask the agent to load
+                  it.</span
+                ><button id="connect-to-task" type="button" class="primary">
+                  Next: verify a task
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+              </div>
             </div>
           </div>
           <section
+            id="connect-check"
             class="panel first-task-panel"
             aria-labelledby="first-task-title"
+            hidden
           >
             <div class="first-task-intro">
               <p class="eyebrow">STEP 3 · THE PROOF</p>
-              <h2 id="first-task-title">See it work.</h2>
+              <h2 id="first-task-title">Verify the connection with a task.</h2>
               <p id="agent-step"></p>
               <p id="agent-control-hint" class="caption" role="status"></p>
               <div class="actions">

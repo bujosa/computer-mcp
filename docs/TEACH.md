@@ -1,12 +1,13 @@
 # Teach a task, understand it, reuse it
 
 1. Start/open your selected computer. Take control in the owner console.
-2. In **Skills**, choose **Teach a skill**, name the outcome and optionally include
+2. In **Skills**, choose **Teach a task**, name the outcome and optionally include
    guest video. Keep credentials/customer data out of the demonstration.
 3. Demonstrate in the live guest, Files or Terminal. The action trace omits typed
    values/commands/content and preserves parameters, cwd and command outcomes.
    Video records the visible guest screen, including values the trace omits.
-4. Return using **Review & save**, then stop recording. Play the saved video and
+4. Choose **Finish demonstration** to save and return to Skills. Open
+   **Review the demonstration evidence** to play the saved video and
    inspect the trace. Silent clips have a five-minute capture deadline and a
    20 MiB limit; storage reserves 20 MiB per capture within 200 MiB total.
 5. For agent reasoning, choose **Allow agent analysis**, then **Copy analysis
@@ -19,11 +20,11 @@
    No lease is needed for this metadata/media handoff. The agent must explain
    uncertainties, missing inputs, failed attempts and unsupported desktop actions,
    without executing the demonstrated effects or copying credentials.
-7. Choose **Check for proposal** / **Review updated proposal**. Correct the full
+7. Choose **Refresh saved skill** / **Review updated proposal**. Correct the full
    procedure and success criterion, then **Confirm review**. A stale revision
    fails; refresh and review the current proposal. **Discard proposal** preserves
    prior owner-approved edits. Video-free trace review works directly too.
-8. Choose **Use with agent** to prepare a request tied to the saved review,
+8. Choose **Try with new inputs** to prepare a request tied to the saved review,
    computer and workspace. Supply task inputs or leave them blank for the agent
    to ask. **Prepare a plan first** is the default; **Do the reviewed task**
    requests execution through the existing work connection. Inspect/copy the
@@ -31,6 +32,18 @@
    your harness's supported skills directory.
 
 ## Use a reviewed skill
+
+The teaching guide highlights Demonstrate, Understand, Review or Try new inputs
+from the current recording, selected skill and open review. Its next action opens
+the relevant existing control. Frame consent and copied requests do not start an
+analysis job; a connected vision agent must submit the proposal. Structured trace
+review can proceed manually. A zero-step video without a proposal cannot yet be
+reviewed; the guide directs the owner to video analysis or a new demonstration.
+
+**Reviewed** describes saved instructions. Trying with new inputs defaults to
+planning and prepares a request; it does not record task success or launch an
+agent. Task verification remains with the agent and owner inspecting actual
+results. The operational Activity history contains tool outcomes separately.
 
 An approved video-only procedure remains editable after its proposal is accepted
 or its video is deleted. Saving edits creates a new reviewed revision. Save review

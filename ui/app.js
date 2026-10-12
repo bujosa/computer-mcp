@@ -41,13 +41,14 @@ const pages = {
   activity: [
     'Activity',
     'A CLEAR RECORD OF THE WORK',
-    'Know who worked. See what happened.',
+    'Review sessions. See what happened.',
     'Review sessions, computer control and tool outcomes in one place.',
   ],
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
 let skillUse;
 let terminalRun;
+let reviewingSkillId, teachNextAction, teachAlternativeAction;
 const firstTaskPath = `sendtry-check-${crypto.randomUUID().slice(0, 8)}.txt`;
 let skillUseGeneration = 0;
 let view = 'desktop',
@@ -92,8 +93,17 @@ function guarded(fn) {
       activityControls.includes(document.activeElement.id)
         ? document.activeElement
         : null;
+    const guideFocus =
+      fn === finishTeaching ||
+      [
+        'teach-next',
+        'teach-alternative',
+        'record-review',
+        'teach-stop',
+      ].includes(event?.currentTarget?.id || document.activeElement.id);
     busy = true;
     activityState();
+    renderTeachGuide();
     notice('');
     try {
       await fn(event);
@@ -102,6 +112,14 @@ function guarded(fn) {
     } finally {
       busy = false;
       activityState();
+      renderTeachGuide();
+      if (
+        guideFocus &&
+        view === 'teach' &&
+        document.activeElement === document.body &&
+        !$('teach-next').disabled
+      )
+        $('teach-next').focus({ preventScroll: true });
       if (
         activityFocus &&
         view === 'activity' &&
@@ -178,6 +196,144 @@ function mutationState() {
   $('release').disabled = !own() || busy || !!info?.teach.active;
   $('teach-start').disabled ||= !!info?.teach.active;
   activityState();
+  renderTeachGuide();
+}
+function setConnectStep(step) {
+  for (const [index, id] of [
+    'connect-setup',
+    'connect-skill',
+    'connect-check',
+  ].entries())
+    $(id).hidden = index + 1 !== step;
+  for (const button of document.querySelectorAll('[data-connect-step]')) {
+    const active = Number(button.dataset.connectStep) === step;
+    if (active) button.setAttribute('aria-current', 'step');
+    else button.removeAttribute('aria-current');
+  }
+  document.querySelector(`[data-connect-step="${step}"]`).focus();
+}
+function reviewChanged() {
+  return (
+    !!selectedSkill?.review &&
+    ($('skill-procedure').value.trim() !== selectedSkill.procedure.trim() ||
+      $('skill-expected-result').value.trim() !==
+        selectedSkill.review.expectedResult.trim() ||
+      $('skill-notes').value.trim() !==
+        (selectedSkill.review.notes || '').trim())
+  );
+}
+function renderTeachGuide() {
+  $('record-review').disabled = !own() || busy;
+  let stage = 1;
+  let title = 'Show your agent a small task.';
+  let description =
+    'Record a demonstration, review its instructions and try it with new inputs. Your connected agent supplies the reasoning.';
+  let label = 'Set up a demonstration';
+  teachNextAction = 'new';
+  teachAlternativeAction = undefined;
+  const skill = selectedSkill;
+  const latest = library.find((item) => item.id === skill?.id);
+  const stale = !!latest && latest.revision !== skill?.revision;
+  if (!info) {
+    title = 'Open this computer from your host CLI.';
+    description =
+      'Authorize the owner console before recording, reviewing or preparing an agent request.';
+  } else if (info.teach.active) {
+    title = 'A demonstration is recording.';
+    description = own()
+      ? 'Show the task on the live desktop or workspace tools. Finish to save the evidence and review what your agent should do.'
+      : 'Another owner is recording. Finish is available to the owner in control; wait for them to complete the demonstration.';
+    label = 'Finish demonstration';
+    teachNextAction = 'finish';
+  } else if (!$('teach-builder').hidden) {
+    title = 'Name the task and describe its result.';
+    description = own()
+      ? 'Choose whether to include guest video, then start recording. Keep secrets out of the demonstration.'
+      : 'Set up your demonstration here, then take control above before recording.';
+    label = 'Go to recording setup';
+    teachNextAction = 'setup';
+  } else if (skill) {
+    const ready = skill.status === 'ready';
+    const reviewed = ready && !!skill.review && !skill.draft;
+    const canReview = !$('skill-review-form').hidden;
+    const video = ['ready', 'interrupted'].includes(skill.video?.status);
+    if (stale) {
+      stage = 3;
+      title = 'This saved skill has changed.';
+      description =
+        'Refresh its current procedure or proposal before preparing a new request. Refreshing replaces the open review fields.';
+      label = 'Refresh saved skill';
+      teachNextAction = 'refresh';
+    } else if (!ready) {
+      title =
+        skill.status === 'interrupted'
+          ? 'The demonstration was interrupted.'
+          : 'The demonstration is not ready for review.';
+      description =
+        'Inspect the captured evidence. A new demonstration is required if saving did not finish; this skill cannot be exported yet.';
+    } else if (
+      skill.draft ||
+      reviewChanged() ||
+      reviewingSkillId === skill.id
+    ) {
+      stage = 3;
+      title = skill.draft
+        ? 'An agent proposal is ready for your review.'
+        : 'Review the procedure and expected result.';
+      description =
+        'Correct missing steps, parameterize inputs and save your review. Approval publishes instructions; it does not certify task success.';
+      label = 'Continue reviewing';
+      teachNextAction = 'review';
+    } else if (reviewed) {
+      stage = 4;
+      title = 'Reviewed instructions. Ready for a trial.';
+      description =
+        'Prepare a pinned request with new inputs, send it to your agent and inspect the result. This console has not verified a completed task.';
+      label = 'Try with new inputs';
+      teachNextAction = 'use';
+    } else {
+      stage = 2;
+      title = skill.analysis?.enabled
+        ? 'Frame access is allowed. Your agent takes the next step.'
+        : 'Your demonstration is saved.';
+      description = skill.analysis?.enabled
+        ? 'Send the analysis request to your connected vision agent, then refresh to look for its proposal. Allowing frames or copying a request does not start analysis.'
+        : canReview
+          ? 'Review the captured procedure yourself, or optionally allow your connected agent to inspect video and propose instructions.'
+          : video
+            ? 'This video has no structured trace. Review the clip and let your connected vision agent propose a procedure before owner review.'
+            : 'There is no procedure to review yet. Inspect the evidence and teach the task again with captured steps.';
+      if (skill.analysis?.enabled && video) {
+        label = 'Copy analysis request';
+        teachNextAction = 'analysis-copy';
+        if (canReview) teachAlternativeAction = 'review';
+      } else if (canReview) {
+        label = 'Review manually';
+        teachNextAction = 'review';
+        if (video) teachAlternativeAction = 'analysis';
+      } else if (video) {
+        label = 'Review video & analysis';
+        teachNextAction = 'analysis';
+      }
+    }
+  }
+  for (const item of document.querySelectorAll('[data-teach-stage]')) {
+    if (Number(item.dataset.teachStage) === stage)
+      item.setAttribute('aria-current', 'step');
+    else item.removeAttribute('aria-current');
+  }
+  $('teach-next-title').textContent = title;
+  $('teach-next-description').textContent = description;
+  $('teach-next').textContent = label;
+  $('teach-next').classList.toggle('primary', teachNextAction !== 'setup');
+  $('teach-next').disabled =
+    !info || busy || (teachNextAction === 'finish' && !own());
+  $('teach-alternative').hidden = !teachAlternativeAction;
+  $('teach-alternative').textContent =
+    teachAlternativeAction === 'analysis'
+      ? 'Review video & analysis'
+      : 'Review manually';
+  $('teach-alternative').disabled = !info || busy;
 }
 async function refresh() {
   if (!actor || refreshing) return;
@@ -431,7 +587,8 @@ async function recording() {
   $('skill-refresh').textContent =
     latest && latest.revision !== selectedSkill.revision
       ? 'Review updated proposal'
-      : 'Check for proposal';
+      : 'Refresh saved skill';
+  renderTeachGuide();
 }
 function renderLibrary() {
   const search = $('skill-search').value.trim().toLowerCase();
@@ -464,7 +621,7 @@ function renderLibrary() {
   $('workflows').replaceChildren(...children);
 }
 function skillStatus(status, reviewed = false) {
-  if (status === 'ready' && reviewed) return 'Ready to use';
+  if (status === 'ready' && reviewed) return 'Reviewed';
   return (
     {
       ready: 'Ready to review',
@@ -475,8 +632,11 @@ function skillStatus(status, reviewed = false) {
   );
 }
 async function selectSkill(id) {
+  const changedSelection = selectedSkill?.id !== id;
   selectedSkill = await call('workflow_get', { id });
   exportedSkill = null;
+  reviewingSkillId = undefined;
+  if (changedSelection) $('skill-evidence').open = false;
   clearSkillUse();
   const ready = selectedSkill.status === 'ready';
   const reviewed = ready && !!selectedSkill.review && !selectedSkill.draft;
@@ -520,16 +680,19 @@ async function selectSkill(id) {
     ? 'Save review changes'
     : 'Confirm review';
   renderTimeline(selectedSkill.steps);
+  $('skill-trace-empty').hidden = selectedSkill.steps.length > 0;
   renderVideo();
   renderAnalysis();
   $('skill-export-hint').textContent = reviewed
-    ? 'Ready to use with your agent, or export for its skills directory.'
+    ? 'Reviewed instructions can be tried with new inputs or exported. Check the actual result; review is not proof of execution.'
     : ready
       ? 'Review the steps and define how to verify success before exporting.'
       : ['recording', 'saving'].includes(selectedSkill.status)
         ? 'Save the current recording before exporting it.'
         : 'This recording was interrupted. Review it and teach the task again before exporting.';
   renderLibrary();
+  renderTeachGuide();
+  if (changedSelection && view === 'teach') $('teach-next-title').focus();
 }
 function clearSkillUse() {
   skillUseGeneration++;
@@ -541,12 +704,7 @@ function clearSkillUse() {
   $('skill-use-intent').value = 'plan';
 }
 function requireSavedReview() {
-  if (
-    $('skill-procedure').value.trim() !== selectedSkill.procedure.trim() ||
-    $('skill-expected-result').value.trim() !==
-      selectedSkill.review.expectedResult.trim() ||
-    $('skill-notes').value.trim() !== (selectedSkill.review.notes || '').trim()
-  ) {
+  if (reviewChanged()) {
     const message =
       'Save your review changes before using, copying or exporting this skill.';
     $('skill-export-hint').textContent = message;
@@ -638,14 +796,14 @@ function renderAnalysis() {
   const available =
     selectedSkill.status === 'ready' &&
     ['ready', 'interrupted'].includes(selectedSkill.video?.status);
-  $('skill-analysis-panel').hidden = !available && !selectedSkill.draft;
+  $('skill-analysis-panel').hidden = !available;
   $('skill-analysis-toggle').hidden = !available;
   $('skill-analysis-toggle').textContent = enabled
     ? 'Revoke frame access'
     : 'Allow agent analysis';
   $('skill-analysis-copy').hidden = !enabled;
   $('skill-analysis-status').textContent = enabled
-    ? 'Frame access enabled. Ask your connected agent to analyze this demonstration.'
+    ? 'Frame access is allowed. Send the request to your connected agent; this console cannot start analysis.'
     : 'Frames stay private until you choose to share them.';
   $('skill-proposal').hidden = !selectedSkill.draft;
   $('skill-proposal-uncertainties').textContent =
@@ -944,8 +1102,56 @@ function download(content, filename) {
 }
 function startTeaching() {
   $('teach-builder').hidden = false;
+  renderTeachGuide();
   $('teach-name').focus();
 }
+async function finishTeaching() {
+  const saved = await request('/api/teach/stop', {});
+  $('skill-search').value = '';
+  await selectSkill(saved.id);
+  $('teach-builder').hidden = true;
+  await showView('teach');
+  notice(
+    'Demonstration saved. Review the procedure or prepare analysis with your connected agent.',
+  );
+}
+async function copyAnalysisRequest() {
+  await copy(
+    `Analyze demonstration ${selectedSkill.id} using this computer’s MCP server. Call workflow_analyze, inspect frames and the action trace without executing effects, then call workflow_propose with the returned sourceRevision. Parameterize inputs and commands, explain uncertainties and unsupported actions, and define how to verify success. Leave the draft for me to correct and review in Skills.`,
+  );
+  notice(
+    'Analysis request copied. Send it to your connected vision agent, then refresh this skill to check for a proposal. Analysis has not started in this console.',
+  );
+}
+async function followTeachGuide(action) {
+  if (action === 'finish') return finishTeaching();
+  if (action === 'new' || action === 'setup') return startTeaching();
+  if (action === 'refresh') return selectSkill(selectedSkill.id);
+  if (action === 'use') return openSkillUse();
+  if (action === 'analysis-copy') return copyAnalysisRequest();
+  if (action === 'review') {
+    reviewingSkillId = selectedSkill.id;
+    renderTeachGuide();
+    $('skill-procedure').focus();
+  } else if (action === 'analysis') {
+    $('skill-evidence').open = true;
+    $('skill-analysis-toggle').focus();
+  }
+}
+$('teach-next').onclick = guarded(() => followTeachGuide(teachNextAction));
+$('teach-alternative').onclick = guarded(() =>
+  followTeachGuide(teachAlternativeAction),
+);
+for (const field of $('skill-review-form').querySelectorAll('textarea'))
+  field.addEventListener('input', () => {
+    reviewingSkillId = selectedSkill?.id;
+    renderTeachGuide();
+  });
+for (const button of document.querySelectorAll('[data-connect-step]'))
+  button.onclick = () => setConnectStep(Number(button.dataset.connectStep));
+$('connect-to-skill').onclick = () => setConnectStep(2);
+$('connect-to-task').onclick = () => setConnectStep(3);
+$('computer-nav').onclick = guarded(() => showView('computers'));
 for (const tab of document.querySelectorAll('.tab'))
   tab.onclick = guarded(() => showView(tab.dataset.view));
 $('activity-range').onchange = guarded(() => loadActivity());
@@ -972,8 +1178,9 @@ $('desktop-teach').onclick = guarded(async () => {
 $('new-skill').onclick = startTeaching;
 $('close-builder').onclick = () => {
   if (!info?.teach.active) $('teach-builder').hidden = true;
+  renderTeachGuide();
 };
-$('record-review').onclick = guarded(() => showView('teach'));
+$('record-review').onclick = guarded(finishTeaching);
 $('skill-search').oninput = renderLibrary;
 $('take').onclick = guarded(async () => {
   await request('/api/control/take', {});
@@ -1094,18 +1301,10 @@ $('teach-form').onsubmit = guarded(async () => {
   notice(
     $('teach-video').checked
       ? 'Recording steps and guest video. Keep visible secrets out of this demonstration.'
-      : 'Recording steps. Show the task, then choose Review & save. Input values are omitted.',
+      : 'Recording steps. Show the task, then choose Finish demonstration. Input values are omitted.',
   );
 });
-$('teach-stop').onclick = guarded(async () => {
-  const saved = await request('/api/teach/stop', {});
-  $('skill-search').value = '';
-  await selectSkill(saved.id);
-  $('teach-builder').hidden = true;
-  notice(
-    'Demonstration saved. Review the steps and define how to verify success, then export your skill.',
-  );
-});
+$('teach-stop').onclick = guarded(finishTeaching);
 $('skill-review-form').onsubmit = guarded(async () => {
   await request(`/api/workflows/${selectedSkill.id}/review`, {
     procedure: $('skill-procedure').value,
@@ -1116,7 +1315,7 @@ $('skill-review-form').onsubmit = guarded(async () => {
   });
   await selectSkill(selectedSkill.id);
   notice(
-    'Review saved. Your skill is ready to export and use with supplied parameters.',
+    'Review saved. Prepare a trial with new inputs or export the instructions, then verify the actual result.',
   );
 });
 $('skill-proposal-discard').onclick = guarded(async () => {
@@ -1140,11 +1339,7 @@ $('skill-analysis-toggle').onclick = guarded(async () => {
       : 'Frame access revoked. Material already received by an agent cannot be recalled.',
   );
 });
-$('skill-analysis-copy').onclick = guarded(() =>
-  copy(
-    `Analyze demonstration ${selectedSkill.id} using this computer’s MCP server. Call workflow_analyze, inspect frames and the action trace without executing effects, then call workflow_propose with the returned sourceRevision. Parameterize inputs and commands, explain uncertainties and unsupported actions, and define how to verify success. Leave the draft for me to correct and review in Skills.`,
-  ),
-);
+$('skill-analysis-copy').onclick = guarded(copyAnalysisRequest);
 $('skill-video-remove').onclick = () => {
   $('skill-video-remove-confirm').hidden = false;
   notice(

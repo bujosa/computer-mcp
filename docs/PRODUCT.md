@@ -1,8 +1,9 @@
 # Sendtry Computer: product and design
 
 The dated [market review](MARKET.md) and [design review](DESIGN-REVIEW.md) record
-the positioning hypothesis, observed UX gaps and proposed next slices. Proposed
-work in those documents is not part of the implemented experience below.
+the positioning hypothesis, observed UX gaps and ordered next slices. The guided
+Teach/connection slice is now implemented below; task-result records, new adapters
+and Skills over MCP remain proposals.
 
 ## Purpose and brand
 
@@ -43,7 +44,7 @@ shows who controls mutations. The owner's explicit Take control action revokes
 agent work. View-only remains useful while the agent works. Recording starts only
 with owner control; a persistent recording bar returns to review/save. The saved
 skill lists missing parameters and supports a reviewed `SKILL.md` download.
-**Use with agent** prepares a plan or task request with supplied inputs, pinned to
+**Try with new inputs** prepares a plan or task request with supplied inputs, pinned to
 the saved review and owning computer/workspace. The owner previews/copies it into
 their existing harness. Inputs clear when the panel closes or the owner leaves
 Skills; preparation does not start execution. A pending proposal blocks use.
@@ -53,7 +54,7 @@ only to its owner session and are never exposed by agent credentials. No API
 keys appear in copy/download output. The console reports actual guest capabilities
 and lease state; it does not claim that a specific harness is connected.
 
-Connect agent follows three explicit steps: add the server, install the operator
+Connect agent follows three selectable steps: configure MCP, install the operator
 skill and verify a first task. Client selection provides the configuration format,
 local project skill path and official setup/skills guides for Claude Code, Cursor
 and Codex. Other stdio clients receive a neutral path placeholder. The request
@@ -62,6 +63,22 @@ named synthetic file and run `pwd`, while read checks observe without a lease.
 Existing different file contents must not be overwritten. Control/recording
 state tells the owner when to release, save Teach or wait. Nothing is marked
 connected or completed merely because configuration/skill/request was copied.
+Only one setup stage is visible at a time, with the exact configuration behind a
+disclosure and local next/back step selection. Stage navigation records no
+installation or task completion; it changes only the open owner view.
+
+Skills highlights Demonstrate → Understand → Review → Try new inputs from its
+current recording, selected saved skill, pending proposal, stale revision and
+open review. A persistent **Finish demonstration** saves through the existing
+Teach endpoint and returns to the saved skill. Evidence is expandable so the
+procedure and expected result lead the review. Proposal uncertainties and discard
+remain visible outside the collapsed evidence. Selecting a different saved skill
+focuses the next-action heading, including on compact screens; refreshing the same
+skill preserves the evidence disclosure. Finish requires the current owner's
+control and is disabled during guarded requests. **Reviewed** is separate from
+task verification. The guide says when a connected agent must receive an analysis
+request; consent/copy is never presented as analysis in progress. It preserves
+zero-step, deleted-video, interruption and unsaved-edit restrictions.
 
 ## Visual and interaction rules
 
@@ -108,7 +125,9 @@ input delivery is not task success. Drag, clipboard, automatic blind replay,
 skill imports and archives remain future work. See [Teach](TEACH.md) and
 [desktop tools](DESKTOP.md).
 
-Activity connects operational evidence to the same computer: declared client,
+The current-computer sidebar control opens Your computers; it never switches a
+running connection. Activity's title describes sessions, rather than implying
+verified people. Activity connects operational evidence to the same computer: declared client,
 authenticated access, observation session, tool outcomes and control intervals.
 The owner can filter and export metadata for later evaluation without exposing
 commands, file data or video. Identity and time are deliberately described as

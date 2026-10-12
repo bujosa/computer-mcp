@@ -1,8 +1,15 @@
 # Sendtry Computer: design review and next slices
 
 11 October 2026. Product source reviewed: `e4a04f3`. This document records
-observations and proposed work; it does not implement the proposed interface,
-task records, installers or Skills over MCP extension.
+observations and proposed work. The implementation follow-up below identifies
+the delivered slice; task records, installers and Skills over MCP remain proposals.
+
+Implementation follow-up: the first slice now adds the Teach progress/next-action
+guide, direct finish/save, expandable evidence, Reviewed/trial wording, three
+selectable connection stages, accurate Activity identity copy and a current-PC
+link. The findings below retain the original review context. Task-result records,
+automatic skill discovery, installers and remaining contextual-control/compact
+recovery work are still proposals; see [current product behavior](PRODUCT.md).
 
 ## Evidence and limits
 
