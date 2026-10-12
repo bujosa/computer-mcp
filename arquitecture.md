@@ -27,6 +27,13 @@ remote adapters are design seams, not advertised implementations.
 | `runtime/store.js`, `teach.js`                                          | Atomic versioned identity/workflow persistence, event sanitization and reusable Markdown                                              |
 | `ui/`                                                                   | Human desktop, file explorer/editor, bounded terminal and teaching controls; no model features                                        |
 
+`src/diagnostics.js` supplies read-only owner prerequisites and capacity checks.
+It accepts no-computer setup diagnostics, checks the saved context for selected
+PCs, and verifies ownership before reading a running guest's filesystem capacity.
+Stopped guests remain stopped. Host free space and unmeasured guest capacity stay
+distinct; results never imply runtime, harness or task readiness. The command has
+no MCP exposure, resource cleanup or schema/state writes.
+
 Host lifecycle is not exposed as an MCP tool. An agent using these tools cannot
 ask the bridge to start another computer, change Docker context, bind a host path
 or grant native screen/accessibility permissions. The CLI is a trusted owner

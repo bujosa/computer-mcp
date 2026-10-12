@@ -1,11 +1,17 @@
 # Review this workspace locally
 
-The 11 October forward test found the local Docker guest filesystem at 100%
-capacity (0 available). Host APFS still had space. `review-mvp` is running the
-previous connection-polish image, not the latest storage/Teach/terminal fixes;
-it was not rebuilt on the full daemon. Inspect capacity before writes, recording
-or rebuilds. No Docker pruning, volume deletion or unrelated cleanup was performed.
-The new source fixes are validated separately in [the validation record](VALIDATION.md).
+On 12 October the owned `review-mvp` was rebuilt with the current runtime/UI and
+left running, idle with no control lease or active Teach recording. The rebuild
+reused unchanged dependency layers and retained computer/workspace UUIDs, its
+private volume, skills and history. Real MCP integration passed on this image:
+`sha256:fcb580a40fdce3763158dad797e3273902aa2cbac661393f094173cc8fc7c49f`.
+
+The earlier physical ENOSPC failure remains in [the validation record](VALIDATION.md).
+Current doctor still warns: the Docker guest filesystem was 99% used, with
+2,005,852,160 bytes available at 18:55 UTC. Host APFS free space is a separate
+measurement. Inspect capacity before larger writes, recordings or builds; a
+successful cached rebuild does not establish cold-build capacity. No Docker
+pruning, volume deletion or unrelated cleanup was performed.
 
 The implementation worktree has an ignored, independent review catalog at
 `.computer-mcp/review-catalog`. This is local QA state, not state distributed by
@@ -13,19 +19,23 @@ the repository. Run the following from this checkout:
 
 ```sh
 node src/cli.js list --root .computer-mcp/review-catalog
+node src/cli.js doctor --root .computer-mcp/review-catalog
+node src/cli.js open --root .computer-mcp/review-catalog
 node src/cli.js start --root .computer-mcp/review-catalog --open
 node src/cli.js config --root .computer-mcp/review-catalog --client codex
 ```
 
-The saved review default is **review-mvp**, with its owner console on
-`http://127.0.0.1:17670`. `start --open` is the supported authorization flow;
+The saved review default is **review-mvp**, computer
+`a70f163f-1e9a-4604-b62b-cce24ddf4be0`, workspace
+`6af2848e-2c28-4d84-826e-7e7111bf1ec8`, with its owner console on
+`http://127.0.0.1:17670`. `open` or `start --open` is the supported authorization flow;
 the bare URL does not authorize an owner. The guest stays running for review, idle with frame sharing revoked. The saved
 video example includes a reviewed proposed practice procedure; its new supplied
 values were executed and verified through real MCP. See [Teach](TEACH.md).
 
 All three owned review guests received the earlier security/lifecycle fixes.
-The running review-mvp additionally has the new Teach/video/analysis, Activity
-and bounded guest desktop-input runtime;
+The running review-mvp additionally has the current Teach/video/analysis, Activity,
+guided setup/Teach, authorization recovery and bounded guest desktop-input runtime;
 rebuild the other stopped guests before using these new capabilities. Their private work/owner credentials were rotated without changing their
 UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
 previous owner sessions are invalid. Configuration output still contains only
@@ -86,3 +96,23 @@ never target the user's remote machine or Piblo QA containers.
 For a new clone/computer, follow [setup](SETUP.md) and `init`; this ignored catalog
 will not exist there. No global MCP settings, skill folders or desktop permissions
 were changed by this review.
+
+## Independent Mac mini review computers
+
+The authorized Mac mini at `bujosa@10.0.0.14` also retains two independent owned
+QA PCs running and idle after the 12 October checks. They are separate from this
+Mac's catalog/default; their credentials and private state remain on that host.
+Current scoped source, 73 contracts and one real read/work SDK acceptance passed.
+The isolated PC preserved its reviewed video-derived procedure and exact prior
+trial result. See [the validation record](VALIDATION.md) for snapshot boundaries.
+
+| Mac mini computer | Loopback console               | Network  | Handoff state |
+| ----------------- | ------------------------------ | -------- | ------------- |
+| `qa-offline`      | `http://127.0.0.1:17671` there | Isolated | Running; idle |
+| `qa-internet`     | `http://127.0.0.1:17670` there | Internet | Running; idle |
+
+These URLs refer to the Mac mini when used on that host. No public listener or
+new remote adapter was created. An alternate local-port SSH forward does not
+meet the console's exact Host/Origin contract. The current local review console
+above is the available owner UI on David's current Mac. Running the CLI on the
+Mac mini remains host-local Docker control; it does not provide a macOS guest.

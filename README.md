@@ -27,6 +27,7 @@ reuse the image and data. Run these commands inside this private checkout:
 
 ```sh
 npm ci
+node src/cli.js doctor --context desktop-linux
 node src/cli.js init --name my-computer --context desktop-linux
 node src/cli.js start --open
 node src/cli.js list
@@ -37,6 +38,12 @@ The CLI always supplies the saved context explicitly and never changes your
 Docker default. Remote SSH/TCP contexts are refused. When the machine’s default
 context points at another computer, it is not used automatically on macOS or
 Windows.
+
+`doctor` works before the first computer exists. It checks prerequisites without
+creating state or starting a guest. After setup it checks the selected computer's
+ownership and, if running, its actual guest disk space. Host free space and guest
+free space are reported separately; warnings are not a guarantee that a build or
+recording will fit. [Diagnostic output and recovery](docs/SETUP.md).
 
 The CLI prints the loopback console URL (the first free port starts at 17670).
 The first computer becomes the CLI default. Take control to use the live

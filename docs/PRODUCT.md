@@ -41,7 +41,10 @@ optional agent video analysis → review → reuse**. MCP tools are capabilities
 A taught skill depends on those capabilities and its owning computer; exporting
 it does not create a new permission, install anything, or blindly replay actions.
 
-Control is always visible. No lease means ready to work; an agent/human lease
+Control status is always visible. The actions are open on Computer, Files,
+Terminal and Skills; on connection/history/catalog views they use an accessible
+Computer control disclosure. Own control or an active recording keeps the
+actions open when navigating. No lease means ready to work; an agent/human lease
 shows who controls mutations. The owner's explicit Take control action revokes
 agent work. View-only remains useful while the agent works. Recording starts only
 with owner control; a persistent recording bar returns to review/save. The saved
@@ -94,6 +97,10 @@ configuration and instructions wrap, and keyboard focus remains visible. Polling
 preserves skill search and focused list items when data is unchanged. Connection,
 authorization, recording and interrupted states derive from the runtime. Owner
 access failures explain the CLI recovery without exposing the existing host PC.
+An unauthorized response locks the console, clears prepared requests/owner
+metadata and focuses one recovery panel with generic host CLI instructions.
+Late responses from the previous owner session cannot restore authorized views.
+This presentation safeguard complements the runtime's authorization checks.
 Running a terminal command makes cancellation reachable by keyboard and returns
 focus to the command after completion/cancellation, unless the owner moved focus
 elsewhere. Unsaved review errors also appear beside skill actions on compact
@@ -102,6 +109,12 @@ editable even without structured steps.
 Action buttons use a darker Sendtry salmon for legible light text; decorative
 marks and selected surfaces retain the original brand palette. Advanced tool
 names sit behind an accessible disclosure so first connection remains focused.
+
+The host's read-only `doctor` supports pre-creation prerequisite checks and
+reports host space separately from measured space in an owned running guest.
+It does not create computers, change the default Docker context, start stopped
+guests or clean resources. Diagnostics are not an agent capability or proof of
+successful client registration/task execution.
 
 The practice task is a local form in the real guest browser, styled with the same
 Sendtry palette. It demonstrates Teach and profile persistence offline; its

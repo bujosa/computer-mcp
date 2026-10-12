@@ -73,9 +73,9 @@ async function request(path, body, options = {}) {
   });
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401) clearSkillUse();
     const error = new Error(data.error || 'Request failed.');
     error.status = response.status;
+    if (response.status === 401) disconnected(error);
     throw error;
   }
   return data;
@@ -181,6 +181,15 @@ async function showView(next) {
   $('page-eyebrow').textContent = eyebrow;
   $('page-title').textContent = title;
   $('page-description').textContent = description;
+  const controls = $('control-actions');
+  controls.open =
+    ['desktop', 'files', 'terminal', 'teach'].includes(view) ||
+    own() ||
+    !!info?.teach.active;
+  $('take').classList.toggle(
+    'primary',
+    ['desktop', 'files', 'terminal', 'teach'].includes(view),
+  );
   stream();
   if (info && view === 'files') await browse();
   if (info && view === 'teach') await recording();
@@ -337,12 +346,16 @@ function renderTeachGuide() {
 }
 async function refresh() {
   if (!actor || refreshing) return;
+  const ownerAtStart = actor;
   refreshing = true;
   try {
-    info = await request('/api/info');
+    const currentInfo = await request('/api/info');
+    if (locked || actor !== ownerAtStart) return;
+    info = currentInfo;
     $('connection').textContent = 'Computer online';
     $('connection').classList.add('online');
     $('access-state').hidden = true;
+    document.body.classList.remove('owner-access-required');
     $('identity').textContent =
       `Computer ${info.computerId.slice(0, 8)} · Workspace ${info.workspaceId.slice(0, 8)}`;
     $('owner').textContent = own()
@@ -1442,6 +1455,7 @@ $('agent-copy').onclick = guarded(async () => {
 });
 $('connect-activity').onclick = guarded(() => showView('activity'));
 function disconnected(error) {
+  const hadOwner = !!actor;
   info = undefined;
   const currentComputer = document.querySelector('[data-current-computer]');
   if (currentComputer)
@@ -1467,12 +1481,15 @@ function disconnected(error) {
     ownerConfig = undefined;
     actor = undefined;
     locked = true;
+    clearSkillUse();
     $('access-state').hidden = false;
+    document.body.classList.add('owner-access-required');
+    if (hadOwner) $('access-title').focus();
   }
   renderConfig();
   notice(
     error.status === 401
-      ? 'Owner access required. Open the console again from your host CLI.'
+      ? ''
       : 'Could not reach the computer. Check its status on the host; this page will reconnect.',
     true,
   );
@@ -1488,9 +1505,14 @@ async function connect() {
       actor = session.actor;
       delete window.__computerUITicket;
     }
+    const ownerAtStart = actor;
     await refresh();
-    if (ownerConfig === undefined)
-      ownerConfig = (await request('/api/ui/connection')).connection;
+    if (locked || actor !== ownerAtStart) return;
+    if (ownerConfig === undefined) {
+      const connection = (await request('/api/ui/connection')).connection;
+      if (locked || actor !== ownerAtStart) return;
+      ownerConfig = connection;
+    }
     if (reconnecting) {
       notice('');
       renderConfig();

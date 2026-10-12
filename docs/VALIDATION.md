@@ -1,8 +1,98 @@
 # Validation record
 
-Private Sendtry Computer MVP reviewed on 10–11 October 2026.
+Private Sendtry Computer MVP reviewed on 10–12 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
+
+## MVP closure: diagnostics, current runtime and contextual control
+
+On 12 October, the trusted host CLI gained read-only `doctor` before computer
+creation, Node/local Linux engine/Compose checks, explicit saved-context
+protection and separate host/owned-running-guest disk measurements. It never
+starts stopped guests, creates state or cleans resources. Nine new contracts
+cover prerequisite failures, redacted errors, ownership, stopped guests,
+critical/malformed capacity, old Node and explicit-state operation with a corrupt
+catalog. Full local format, lint, build (**51 modules** plus UI/noVNC/shared)
+and `npm test` (**73 pass, zero failures/skips**) passed on the final code.
+Dependency versions and guest API/schema/tool contracts did not change.
+
+The owner console now collapses control actions on connection/history/catalog
+views when free, retains them during own control/recording and gives one focused
+recovery panel after unauthorized access. It clears prepared requests and owner
+metadata; late info/connection responses cannot restore the old owner session.
+Independent static review identified four issues: duplicate recovery notices,
+late authorized responses, host-zero-space severity and explicit-state doctor
+reading a corrupt catalog. All four were fixed and statically re-reviewed.
+
+PASS current local manual T3 review at **1440×1000** and **390×844**: real shared
+desktop, Connect's collapsed control disclosure, take/release and Activity while
+holding control, keyboard Enter to release, compact Connect/Teach layout and
+keyboard Enter to open the native disclosure. Document width remained 390 at 390. T3 became explicitly unavailable during the next skill-selection check.
+Manual review continued through the connected Chrome UI: selecting the current
+reviewed skill focused the next-action heading and correctly stated that a trial
+was not verified. Restarting only the idle owned review PC invalidated its old
+owner session. PASS one recovery panel, focus on `access-title`, hidden duplicate
+notice/unavailable views and disabled control actions; refreshing did not unlock
+it. Reauthorization through the private single-use review helper restored the
+same pinned PC and live view. CLI `open` also completed, but a distinct fresh
+OS-default-browser authorization was not independently observed. Delayed-response
+fault injection remains **not manually exercised**; its fix received static review.
+Existing Teach/review trial proof remains below. The
+upstream VideoFrame diagnostic persisted; no console-clean claim or generated
+UI appearance/E2E harness is made. Private screenshots are recorded under
+`artifacts/final-delivery-20261012/REVIEW.md`.
+
+The local owned `review-mvp` was rebuilt using cached, unchanged dependency
+layers. Image `sha256:fcb580a40fdce3763158dad797e3273902aa2cbac661393f094173cc8fc7c49f`
+served the current UI and retained computer/workspace UUIDs and volume.
+PASS `npm run test:integration -- .computer-mcp/review-mvp artifacts/final-local-mcp-20261012`:
+real modern/legacy stdio and 16 tools, scopes/auth/Host/Origin, owner-only
+credential-free metadata, identity/review pins, contained files, unprivileged
+terminal bounds/cancellation/takeover, Chromium, PNG, Teach reuse and authenticated
+RFB handshake. Workflow `a955019b-5a49-4772-876a-8694eca33a11` was retained.
+Read-only info initially confirmed the same boot, null lease and inactive Teach;
+the later owner-session recovery check deliberately restarted the same image.
+Doctor still warned at 99% disk use: 2,005,852,160 bytes available at 18:55 UTC.
+That cached rebuild/integration does not resolve earlier ENOSPC or prove cold-build
+capacity. No prune, shared-daemon restart or unrelated cleanup occurred.
+
+PASS independent Mac mini scoped format/lint, build 51 and all 73 contracts.
+Only six authorized source files were copied: CLI, new diagnostics/test and three
+UI files. Of the original 83-file `6ab1c3a` archive, four changed and 79 stayed
+byte-identical; two new files make the 85-file snapshot. Its fingerprint is
+`ed5c178cac46dd2a6e9182e44d2d80d738e945f6419e6cfec0e7b16b75a6d339`.
+Updated documentation was not copied; this is not a whole-head or fresh 17/17
+lifecycle claim. Host macOS 15.5 ARM64/Node 25.6.1, local `desktop-linux`, Docker
+29.2.1 Linux ARM64; guest Node 22.
+
+Both existing owned Mac mini PCs were rebuilt with retained identities/volumes
+and left running at their same loopback ports. Doctor measured approximately
+366.9 GiB available/15% used inside each guest. The isolated PC retained seven
+workflows, the approved `7dd64399` revision without a draft and the previous
+trial's exact saved project/note. One bounded independent official SDK read/work
+acceptance passed pinned identity, read restrictions, a new synthetic file with
+exact readback, `pwd`, browser snapshot, real PNG, read-disconnect preserving the
+work lease and own release. Both stdio clients closed. No whole-suite replay or
+new network provisioning was performed. Existing 32 network identities,
+unrelated containers and default context were preserved. Evidence:
+`artifacts/remote-qa/39be4d64-aefa-49d5-91d8-5a5f76a44a28/`.
+
+Final remote read-only check at **19:09 UTC** confirmed both same images/UUIDs,
+HTTP 200, 16 capabilities, null leases and inactive Teach. Both measured
+393,925,730,304 bytes available/15% used. The 85-file snapshot stayed exact;
+35 unrelated containers and 32 network identities were unchanged across this
+final probe, default context preserved and helper socket absent. The earlier
+round's raw unrelated-resource inventory was not persisted for a temporal
+comparison; its existing preservation result stays separate. The probe initially
+used an invalid declared client source and correctly received `invalid_client`
+400; correcting only QA metadata to `api` allowed the reads. No control or
+lifecycle operation occurred. See the private `final-state.json` in that directory.
+
+This closure intentionally leaves the local review PC and the two owned Mac mini
+QA PCs running idle; it supersedes the earlier rounds' stopped handoff state.
+Remote browser forwarding through alternate authorities was not implemented:
+exact Host/Origin guards remain intact. No credentials/config/catalog/env files,
+public release, visibility change, merge or native-host permissions were involved.
 
 ## Guided Teach and connection: real recording, review and new-input trial
 

@@ -16,6 +16,7 @@ import {
 } from './docker.js';
 import { RuntimeClient } from './client.js';
 import { serveMCP } from './mcp.js';
+import { diagnostics } from './diagnostics.js';
 import {
   connectionEntry,
   formatConnection,
@@ -43,7 +44,8 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   register --state /private/path Add an existing computer without copying data
   start [--open] [--rebuild]      Start selected PC; ready PCs keep their sessions
   status                         Report availability, control and identity (JSON)
-  doctor | stop | open           Check Docker, stop with data retained, open console
+  doctor [--context local]      Read-only setup/Compose/capacity checks; no PC required
+  stop | open                   Stop with data retained, or authorize owner console
   config [--client generic|codex] Print pinned, credential-free MCP configuration
          [--access work|read]
   mcp [--access work|read]        Serve stdio to a harness; stdout is protocol only
@@ -80,7 +82,7 @@ const allowedOptions = {
   register: ['state'],
   start: ['name', 'state', 'open', 'rebuild'],
   status: ['name', 'state'],
-  doctor: ['name', 'state'],
+  doctor: ['name', 'state', 'context'],
   stop: ['name', 'state'],
   open: ['name', 'state'],
   config: ['name', 'state', 'client', 'access'],
@@ -233,25 +235,34 @@ async function main() {
     );
     return;
   }
-  const { state, config } = await resolveComputer(root, values);
-  const client = new RuntimeClient(config);
   if (command === 'doctor') {
-    process.stdout.write(
-      JSON.stringify(
-        {
-          node: process.version,
-          hostOS: process.platform,
-          computer: config.name,
-          state,
-          ...(await checkDocker(config)),
-          nativeHostControl: false,
-        },
-        null,
-        2,
-      ) + '\n',
-    );
+    const explicit = values.name || values.state;
+    const registry = explicit ? undefined : await readRegistry(root);
+    const selected =
+      explicit || registry?.defaultComputerId
+        ? await resolveComputer(root, values)
+        : undefined;
+    if (
+      selected &&
+      values.context &&
+      values.context !== selected.config.context
+    )
+      throw new Error(
+        'Doctor cannot override a selected computer’s saved context. Use its saved context or a separate empty --root for setup diagnostics.',
+      );
+    const context =
+      selected?.config.context ||
+      values.context ||
+      (['darwin', 'win32'].includes(process.platform)
+        ? 'desktop-linux'
+        : 'default');
+    const report = await diagnostics({ root, context, ...selected });
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    if (report.result === 'blocked') process.exitCode = 1;
     return;
   }
+  const { state, config } = await resolveComputer(root, values);
+  const client = new RuntimeClient(config);
   if (command === 'start') {
     await lifecycleLock(state, async () => {
       await checkDocker(config);

@@ -38,6 +38,27 @@ sharing. A new owned named volume is used; there is no project/volume reuse.
 
 ## Computers, availability and default selection
 
+Run `node src/cli.js doctor --context desktop-linux` before setup when no
+computer is registered. It performs read-only Node, local Linux Engine 28+ and
+Compose v2+ checks, with no catalog/state creation or guest startup. On Linux,
+pass the explicit local engine context. For a selected/default computer, doctor
+uses its saved context; a conflicting `--context` is rejected. Use an empty
+`--root` for a separate prerequisite check rather than retargeting a saved PC.
+
+Doctor returns JSON `result: ok|warning|blocked`; blocked checks exit 1, warnings
+exit 0. Host filesystem space is separate from Docker guest capacity. Only an
+owned running guest is measured, through bounded `df -Pk /data/workspace`;
+stopped/uncreated guests remain unmeasured. Guest free space under 256 MiB is critical; under
+2 GiB free or 98% used warns before recording/rebuild. Host zero available is
+blocked; under 256 MiB warns. These diagnostic thresholds do not guarantee build
+or task capacity. Output omits raw Docker errors,
+credentials and environment dumps. No resource is pruned or removed.
+
+```sh
+node src/cli.js doctor --context desktop-linux
+node src/cli.js doctor --name coding
+```
+
 The catalog is `~/.computer-mcp/registry.json`. It stores only names, computer
 UUIDs, absolute state pointers and the default UUID. Computer credentials remain
 in each private `computer.json`; files, browser profile and Teach procedures
@@ -56,18 +77,19 @@ node src/cli.js config --client codex
 node src/cli.js stop
 ```
 
-| Command                   | Behavior                                                                                            |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
-| `init --name <name>`      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`   |
-| `list` / `list --json`    | Probe registered identities without claiming control; mark default with `*` / `isDefault`           |
-| `use <name>`              | Persist selection for future CLI invocations; can select a currently stopped PC                     |
-| `register --state <path>` | Register existing version-1 state without copying its data or overwriting credentials               |
-| `start`                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases |
-| `start --open`            | Start, then authorize/open the same owner's console                                                 |
-| `start --rebuild`         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions   |
-| `status`                  | JSON availability, pinned identity, network, context and active controller kind                     |
-| `config`                  | Generate stdio configuration fixed to the selected absolute state                                   |
-| `mcp`                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                   |
+| Command                   | Behavior                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `init --name <name>`      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`       |
+| `list` / `list --json`    | Probe registered identities without claiming control; mark default with `*` / `isDefault`               |
+| `use <name>`              | Persist selection for future CLI invocations; can select a currently stopped PC                         |
+| `register --state <path>` | Register existing version-1 state without copying its data or overwriting credentials                   |
+| `start`                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases     |
+| `start --open`            | Start, then authorize/open the same owner's console                                                     |
+| `start --rebuild`         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions       |
+| `status`                  | JSON availability, pinned identity, network, context and active controller kind                         |
+| `doctor`                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards |
+| `config`                  | Generate stdio configuration fixed to the selected absolute state                                       |
+| `mcp`                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                       |
 
 `list` reports **ready** (reachable, pinned, no lease), **busy** (reachable with
 an exclusive lease), **starting** (runtime's authenticated `not_ready` response),

@@ -310,6 +310,29 @@ h3 {
   font-weight: 500;
   display: block;
 }
+.control-card summary {
+  font-size: 11px;
+  color: var(--soft);
+  padding: 6px 0;
+  cursor: pointer;
+}
+.owner-access-required .heading,
+.owner-access-required .view,
+.owner-access-required #notice {
+  display: none !important;
+}
+.access-help {
+  margin-top: 16px;
+}
+.access-help summary {
+  color: var(--soft);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 0;
+}
+.access-state code {
+  overflow-wrap: anywhere;
+}
 .actions {
   display: flex;
   align-items: center;

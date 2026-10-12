@@ -123,23 +123,43 @@
           </div>
           <div class="control-card">
             <span id="owner">Checking control…</span>
-            <div class="actions">
-              <button id="take" class="primary" disabled>Take control</button
-              ><button id="release" disabled>Release</button>
-            </div>
+            <details id="control-actions" open>
+              <summary>Computer control</summary>
+              <div class="actions">
+                <button id="take" class="primary" disabled>Take control</button
+                ><button id="release" disabled>Release</button>
+              </div>
+            </details>
           </div>
         </div>
         <div id="notice" role="status" aria-live="polite"></div>
         <div id="access-state" class="access-state" hidden>
           <svg class="icon"><use href="#i-connect" /></svg>
           <div>
-            <h2>Open your computer from the CLI.</h2>
+            <h2 id="access-title" tabindex="-1">
+              Open your computer from the CLI.
+            </h2>
             <p>
               From the source checkout, run
               <code>node src/cli.js open --name &lt;your-computer&gt;</code> on
               the host to authorize this owner console. Refreshing this page
               cannot unlock it.
             </p>
+            <details class="access-help">
+              <summary>Find your computer or recover a stopped guest</summary>
+              <p>
+                Run <code>node src/cli.js list</code> to find its name, then use
+                <code
+                  >node src/cli.js start --name &lt;your-computer&gt;
+                  --open</code
+                >
+                if it is stopped. Include the same <code>--root</code> or
+                <code>--state</code> used at setup.
+                <code>node src/cli.js doctor --context desktop-linux</code>
+                checks a local Docker Desktop engine before setup. On Linux,
+                choose your explicit local context.
+              </p>
+            </details>
           </div>
         </div>
         <div id="record-banner" class="record-banner" hidden>

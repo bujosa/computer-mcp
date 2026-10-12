@@ -8,8 +8,16 @@ Implementation follow-up: the first slice now adds the Teach progress/next-actio
 guide, direct finish/save, expandable evidence, Reviewed/trial wording, three
 selectable connection stages, accurate Activity identity copy and a current-PC
 link. The findings below retain the original review context. Task-result records,
-automatic skill discovery, installers and remaining contextual-control/compact
-recovery work are still proposals; see [current product behavior](PRODUCT.md).
+automatic skill discovery and installers are still proposals.
+
+12 October closure: contextual control now uses a native disclosure on setup,
+history and catalog views, and remains open on mutation surfaces/during own
+control or recording. Unauthorized access presents one focused recovery panel
+and discards responses belonging to the previous owner session. Current desktop,
+390px/keyboard and real owner-session invalidation/recovery received manual
+review; the delayed-response race received static review, not a manual fault
+injection. A read-only pre-creation/owned-capacity doctor also shipped. See
+[current product behavior](PRODUCT.md) and [validation](VALIDATION.md).
 
 ## Evidence and limits
 
