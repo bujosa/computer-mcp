@@ -1,0 +1,8 @@
+node_modules/
+.computer-mcp/
+artifacts/
+*.log
+.env
+.DS_Store
+coverage/
+ui/vendor/

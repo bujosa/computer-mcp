@@ -1,0 +1,106 @@
+{
+  "observedAt": "2026-10-12T02:09:08.501411+00:00",
+  "method": "Read-only GitHub REST repository and default-branch commit endpoints via gh; fixed ten public repositories. Stars are not active users, market share or demand. License labels are metadata, not a component license audit.",
+  "repositories": [
+    {
+      "repo": "trycua/cua",
+      "url": "https://github.com/trycua/cua",
+      "stars": 29398,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "c9a607993875d341f70124c7d7f4398297317016",
+      "defaultCommitDate": "2026-10-12T00:30:25Z",
+      "licenseLabel": "MIT"
+    },
+    {
+      "repo": "e2b-dev/desktop",
+      "url": "https://github.com/e2b-dev/desktop",
+      "stars": 1523,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "1ff98a36306989d155ce5eceab2a2d38c9a8d6d2",
+      "defaultCommitDate": "2026-09-30T11:05:26Z",
+      "licenseLabel": "Apache-2.0"
+    },
+    {
+      "repo": "bytebot-ai/bytebot",
+      "url": "https://github.com/bytebot-ai/bytebot",
+      "stars": 11077,
+      "archived": true,
+      "defaultBranch": "main",
+      "defaultHead": "3d37894ce07ef8d8b40adc7fd309ad96c2a71313",
+      "defaultCommitDate": "2025-09-11T15:36:50Z",
+      "licenseLabel": "Apache-2.0"
+    },
+    {
+      "repo": "microsoft/playwright-mcp",
+      "url": "https://github.com/microsoft/playwright-mcp",
+      "stars": 38034,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "b8b4183e099f136cbec0388a6088d4aa2f6b9685",
+      "defaultCommitDate": "2026-10-08T17:51:55Z",
+      "licenseLabel": "Apache-2.0"
+    },
+    {
+      "repo": "browser-use/browser-use",
+      "url": "https://github.com/browser-use/browser-use",
+      "stars": 117662,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "c75e8476e26d18b7617643bc2ae082fae8eae431",
+      "defaultCommitDate": "2026-10-07T16:39:05Z",
+      "licenseLabel": "MIT"
+    },
+    {
+      "repo": "Skyvern-AI/skyvern",
+      "url": "https://github.com/Skyvern-AI/skyvern",
+      "stars": 23182,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "f5f3f28a9ce0021a1db24286928a7bff6582a1eb",
+      "defaultCommitDate": "2026-10-09T21:21:45Z",
+      "licenseLabel": "AGPL-3.0"
+    },
+    {
+      "repo": "OpenAdaptAI/openadapt-flow",
+      "url": "https://github.com/OpenAdaptAI/openadapt-flow",
+      "stars": 10,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "6e4e4ed0fe4addedd7c38ced44176b42bc40165a",
+      "defaultCommitDate": "2026-09-22T02:33:20Z",
+      "licenseLabel": "MIT"
+    },
+    {
+      "repo": "OpenAdaptAI/OpenAdapt",
+      "url": "https://github.com/OpenAdaptAI/OpenAdapt",
+      "stars": 1772,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "7ae7ebc02048f41dd820ad826d3e78c4dcce2cd2",
+      "defaultCommitDate": "2026-09-14T22:04:59Z",
+      "licenseLabel": "MIT"
+    },
+    {
+      "repo": "CursorTouch/Windows-MCP",
+      "url": "https://github.com/CursorTouch/Windows-MCP",
+      "stars": 8689,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "b74c507d9e709223a0904cf08019edf55f2a75bb",
+      "defaultCommitDate": "2026-10-10T01:32:37Z",
+      "licenseLabel": "MIT"
+    },
+    {
+      "repo": "agent-sh/computer-use-linux",
+      "url": "https://github.com/agent-sh/computer-use-linux",
+      "stars": 680,
+      "archived": false,
+      "defaultBranch": "main",
+      "defaultHead": "7b9ddd0ba81590376c661904456efaa65d9224bc",
+      "defaultCommitDate": "2026-10-10T17:21:54Z",
+      "licenseLabel": "MIT"
+    }
+  ]
+}

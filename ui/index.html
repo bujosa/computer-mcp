@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f8f7f5" />
+    <title>Sendtry Computer</title>
+    <link rel="icon" href="/assets/brand-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body data-view="desktop">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <svg
+      class="icon-definitions"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <symbol id="i-computer" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="13" rx="2" />
+        <path d="M8 21h8m-4-4v4" />
+      </symbol>
+      <symbol id="i-files" viewBox="0 0 24 24">
+        <path
+          d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"
+        />
+      </symbol>
+      <symbol id="i-computers" viewBox="0 0 24 24">
+        <rect x="3" y="8" width="14" height="11" rx="2" />
+        <path d="M8 5V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v10h-1M7 22h6m-3-3v3" />
+      </symbol>
+      <symbol id="i-terminal" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="m7 9 3 3-3 3m6 0h4" />
+      </symbol>
+      <symbol id="i-skill" viewBox="0 0 24 24">
+        <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" />
+      </symbol>
+      <symbol id="i-connect" viewBox="0 0 24 24">
+        <path
+          d="m10 13 4-4m-6 6-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m4 2 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"
+          transform="translate(1 0)"
+        />
+      </symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14m-5-5 5 5-5 5" />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4" />
+      </symbol>
+      <symbol id="i-record" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="7" />
+      </symbol>
+      <symbol id="i-activity" viewBox="0 0 24 24">
+        <path d="M4 5h16M4 12h7m5 0h4M4 19h16" />
+        <circle cx="13" cy="12" r="2" />
+      </symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </symbol>
+    </svg>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a class="brand" href="/" aria-label="Sendtry Computer home"
+          ><img
+            src="/assets/sendtry.svg"
+            alt="sendtry"
+            width="148"
+            height="32"
+          /><span>Computer</span></a
+        >
+        <button
+          id="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="workspace-navigation"
+        >
+          <svg class="icon"><use href="#i-menu" /></svg>Menu
+        </button>
+      </div>
+      <nav id="workspace-navigation" aria-label="Computer views">
+        <div class="nav-group">
+          <p class="nav-label">Workspace</p>
+          <button class="tab active" data-view="desktop" aria-current="page">
+            <svg class="icon"><use href="#i-computer" /></svg>Screen
+          </button>
+          <button class="tab" data-view="teach">
+            <svg class="icon"><use href="#i-skill" /></svg>Teach &amp;
+            skills<span id="record-dot" class="record-dot" hidden></span>
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">Tools</p>
+          <button class="tab" data-view="files">
+            <svg class="icon"><use href="#i-files" /></svg>Files
+          </button>
+          <button class="tab" data-view="terminal">
+            <svg class="icon"><use href="#i-terminal" /></svg>Terminal
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">Setup &amp; history</p>
+          <button class="tab" data-view="connect">
+            <svg class="icon"><use href="#i-connect" /></svg>Connect agent
+          </button>
+          <button class="tab" data-view="activity">
+            <svg class="icon"><use href="#i-activity" /></svg>Activity
+          </button>
+          <button class="tab" data-view="computers">
+            <svg class="icon"><use href="#i-computers" /></svg>Computers
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-note">
+        <span class="preview-label">Private preview</span>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar" aria-label="Computer session">
+        <div class="session-line">
+          <h1 id="page-title" tabindex="-1">Screen</h1>
+          <div class="session-meta">
+            <strong id="computer-name">Your computer</strong>
+            <span class="pill" id="connection" aria-label="Computer connection"
+              >Connecting…</span
+            >
+          </div>
+          <div class="session-control">
+            <span id="owner">Checking control…</span>
+            <div class="actions">
+              <button id="take" class="primary" disabled>Take control</button>
+              <button id="release" disabled hidden>Release</button>
+            </div>
+          </div>
+        </div>
+        <div id="record-banner" class="record-banner" hidden>
+          <span class="record-dot"></span
+          ><span id="record-summary">Recording your task…</span
+          ><button id="record-review">
+            Finish demonstration <svg class="icon"><use href="#i-arrow" /></svg>
+          </button>
+        </div>
+        <div id="notice" role="status" aria-live="polite"></div>
+      </header>
+      <main id="main" tabindex="-1">
+        <div id="access-state" class="access-state" hidden>
+          <svg class="icon"><use href="#i-connect" /></svg>
+          <div>
+            <h2 id="access-title" tabindex="-1">
+              Open your computer from the CLI.
+            </h2>
+            <p>
+              From the source checkout, run
+              <code>node src/cli.js open --name &lt;your-computer&gt;</code> on
+              the host to authorize this owner console. Refreshing this page
+              cannot unlock it.
+            </p>
+            <details class="access-help">
+              <summary>Find your computer or recover a stopped guest</summary>
+              <p>
+                Run <code>node src/cli.js list</code> to find its name, then use
+                <code
+                  >node src/cli.js start --name &lt;your-computer&gt;
+                  --open</code
+                >
+                if it is stopped. Include the same <code>--root</code> or
+                <code>--state</code> used at setup.
+                <code>node src/cli.js doctor --context desktop-linux</code>
+                checks a local Docker Desktop engine before setup. On Linux,
+                choose your explicit local context.
+              </p>
+            </details>
+          </div>
+        </div>
+        <section id="desktop" class="view">
+          <div class="panel desktop-panel">
+            <div class="section-bar">
+              <div class="panel-title">
+                <svg class="icon"><use href="#i-computer" /></svg>
+                <div>
+                  <strong>Desktop</strong>
+                  <p id="desktop-mode">View only · take control to interact</p>
+                </div>
+              </div>
+              <button id="demo" disabled>
+                Practice task
+                <svg class="icon"><use href="#i-arrow" /></svg>
+              </button>
+            </div>
+            <div class="screen-shell">
+              <div id="screen" aria-label="Live isolated Linux desktop"></div>
+              <div id="screen-status">Connecting to the desktop…</div>
+            </div>
+            <div class="screen-footer">
+              <span>Linux guest · desktop, browser, files &amp; terminal</span
+              ><span>Your host stays separate</span>
+            </div>
+          </div>
+          <div class="desktop-shortcuts">
+            <span>Get started</span>
+            <button id="desktop-teach" class="quiet">
+              <svg class="icon"><use href="#i-skill" /></svg>Teach a task
+            </button>
+            <button id="desktop-connect" class="quiet">
+              <svg class="icon"><use href="#i-connect" /></svg>Connect an agent
+            </button>
+          </div>
+        </section>
+        <section id="files" class="view" hidden>
+          <div class="panel">
+            <div class="section-bar">
+              <div>
+                <strong>Workspace explorer</strong>
+                <p>Open or create a text file in this computer.</p>
+              </div>
+              <form id="browse-form">
+                <label class="sr-only" for="directory">Directory</label
+                ><input
+                  id="directory"
+                  value="."
+                  placeholder="Directory"
+                /><button id="browse" disabled>Browse</button>
+              </form>
+            </div>
+            <div class="file-layout">
+              <div
+                id="entries"
+                class="file-list"
+                aria-label="Directory contents"
+              ></div>
+              <form id="file-form" class="editor">
+                <label for="file-path">File path</label
+                ><input id="file-path" placeholder="notes.txt" required /><label
+                  for="file-text"
+                  >Contents</label
+                ><textarea
+                  id="file-text"
+                  rows="14"
+                  spellcheck="false"
+                  placeholder="Choose a file, or start writing something new."
+                ></textarea>
+                <div class="editor-footer">
+                  <span>UTF-8 · up to 256 KiB</span>
+                  <div class="actions">
+                    <button id="file-read" type="button">Read file</button
+                    ><button class="primary" id="file-save" disabled>
+                      Save file
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+        <section id="terminal" class="view" hidden>
+          <div class="panel">
+            <div class="section-bar">
+              <div class="panel-title">
+                <svg class="icon"><use href="#i-terminal" /></svg>
+                <div>
+                  <strong>Guest terminal</strong>
+                  <p>Run a command in your computer’s workspace.</p>
+                </div>
+              </div>
+              <span id="terminal-status" class="small-badge" role="status"
+                >Ready · 30s maximum</span
+              >
+            </div>
+            <form id="terminal-form">
+              <label for="command">Command</label>
+              <div class="command-line">
+                <span aria-hidden="true">$</span
+                ><input
+                  id="command"
+                  placeholder="printf 'Hello from my computer\n'"
+                  autocomplete="off"
+                  required
+                /><button class="primary" id="run" disabled>Run command</button>
+                <button type="button" id="terminal-cancel" hidden>
+                  Cancel command
+                </button>
+              </div>
+              <div class="terminal-options">
+                <div>
+                  <label for="cwd">Working directory</label
+                  ><input id="cwd" value="." />
+                </div>
+                <div>
+                  <label for="timeout">Timeout (seconds)</label
+                  ><input
+                    id="timeout"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value="10"
+                  />
+                </div>
+              </div>
+            </form>
+            <div class="output-heading">
+              <span>OUTPUT</span><span>Guest process · no host access</span>
+            </div>
+            <pre id="terminal-output" tabindex="0" aria-label="Command output">
+Ready. Your command output will appear here.</pre
+            >
+          </div>
+        </section>
+        <section id="teach" class="view" data-skill-view="library" hidden>
+          <button id="skill-back" type="button">
+            <svg class="icon"><use href="#i-arrow" /></svg>Back to skills
+          </button>
+          <section class="teach-journey" aria-labelledby="teach-next-title">
+            <ol class="journey-route" aria-label="Teaching stages">
+              <li data-teach-stage="1">
+                <span class="step-number">1</span>Demonstrate
+              </li>
+              <li data-teach-stage="2">
+                <span class="step-number">2</span>Understand
+              </li>
+              <li data-teach-stage="3">
+                <span class="step-number">3</span>Review
+              </li>
+              <li data-teach-stage="4">
+                <span class="step-number">4</span>Try new inputs
+              </li>
+            </ol>
+            <div class="journey-next">
+              <div>
+                <h2 id="teach-next-title" tabindex="-1">
+                  Show your agent a small task.
+                </h2>
+                <p id="teach-next-description">
+                  Record a demonstration, review the procedure and try it with
+                  new inputs.
+                </p>
+              </div>
+              <div class="actions">
+                <button id="teach-next" class="primary" disabled>
+                  Set up a demonstration</button
+                ><button id="teach-alternative" hidden>Review manually</button>
+              </div>
+            </div>
+          </section>
+          <div class="section-bar library-bar">
+            <div>
+              <strong>Your skill library</strong>
+              <p id="skill-count">Saved on this computer.</p>
+            </div>
+            <button id="new-skill">
+              <svg class="icon"><use href="#i-record" /></svg>Teach a task
+            </button>
+          </div>
+          <div id="teach-builder" class="panel" hidden>
+            <div class="section-bar">
+              <div>
+                <h2>Record a task</h2>
+                <p>
+                  Give the task a name, show the steps, then review the
+                  instructions.
+                </p>
+              </div>
+              <button id="close-builder" aria-label="Close recording setup">
+                Close
+              </button>
+            </div>
+            <div class="teach-grid">
+              <div>
+                <form id="teach-form">
+                  <label for="teach-name">Skill name</label
+                  ><input
+                    id="teach-name"
+                    placeholder="Create a project note"
+                    maxlength="80"
+                    required
+                  /><label for="teach-goal"
+                    >What should the agent accomplish?</label
+                  ><textarea
+                    id="teach-goal"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Describe a clear result, without secrets."
+                  ></textarea
+                  ><label class="capture-option" for="teach-video"
+                    ><input id="teach-video" type="checkbox" /><span
+                      ><strong>Include a demonstration video</strong
+                      ><small
+                        >Record only this Linux desktop, without audio. Up to 5
+                        minutes. Visible text and secrets are included; keep the
+                        demo free of private information.</small
+                      ></span
+                    ></label
+                  ><button id="teach-start" class="primary" disabled>
+                    Start recording
+                    <svg class="icon"><use href="#i-arrow" /></svg>
+                  </button>
+                </form>
+                <button id="teach-stop" class="primary" hidden>
+                  Finish demonstration
+                </button>
+                <p id="teach-status" role="status">
+                  Take control before starting a recording.
+                </p>
+                <ol id="steps"></ol>
+              </div>
+              <p class="caption">
+                Your connected agent can review the demonstration. Recording
+                does not train a model.
+              </p>
+            </div>
+          </div>
+          <div class="skill-layout">
+            <div class="panel saved">
+              <label class="sr-only" for="skill-search">Search skills</label
+              ><input
+                id="skill-search"
+                type="search"
+                placeholder="Search your skills…"
+              />
+              <div id="workflows">
+                <p class="caption">Loading your library…</p>
+              </div>
+            </div>
+            <div id="skill-detail" class="panel skill-detail">
+              <div id="skill-empty">
+                <span class="large-icon"
+                  ><svg class="icon"><use href="#i-skill" /></svg
+                ></span>
+                <h2>Choose a skill to review</h2>
+                <p>
+                  Your saved instructions appear here. To make a new skill,
+                  start with a short demonstration.
+                </p>
+              </div>
+              <div id="skill-selected" hidden>
+                <div class="section-bar">
+                  <div>
+                    <h2 id="skill-title"></h2>
+                  </div>
+                  <div class="actions">
+                    <button id="skill-refresh">Refresh saved skill</button
+                    ><span id="skill-state" class="small-badge"></span>
+                  </div>
+                </div>
+                <p id="skill-goal" class="subtitle"></p>
+                <div class="skill-facts">
+                  <span id="skill-step-count"></span
+                  ><span id="skill-capture-kind"></span>
+                </div>
+                <div id="skill-proposal" class="review-panel" hidden>
+                  <h3>Agent proposal · needs your review</h3>
+                  <button id="skill-proposal-discard">Discard proposal</button>
+                  <p
+                    id="skill-proposal-uncertainties"
+                    class="proposal-note"
+                  ></p>
+                  <p class="caption">
+                    Check and edit the proposed procedure below. Sampled frames
+                    can miss actions; this proposal has not been executed or
+                    verified.
+                  </p>
+                </div>
+                <form id="skill-review-form" class="review-panel">
+                  <div class="section-bar">
+                    <div>
+                      <h3>Make it useful for your agent.</h3>
+                      <p>
+                        Correct the procedure, supply missing parameters and
+                        define a result the agent can verify.
+                      </p>
+                    </div>
+                    <span id="skill-review-state" class="small-badge"></span>
+                  </div>
+                  <label for="skill-procedure">Procedure for the agent</label
+                  ><textarea
+                    id="skill-procedure"
+                    rows="8"
+                    maxlength="12000"
+                    required
+                    placeholder="Review the captured steps or edit the agent’s proposal. Use named parameters for inputs and commands."
+                  ></textarea>
+                  <label for="skill-expected-result"
+                    >How should the agent verify success?</label
+                  ><textarea
+                    id="skill-expected-result"
+                    rows="3"
+                    maxlength="1000"
+                    required
+                    placeholder="For example: read the saved file and check the requested project name and next step."
+                  ></textarea
+                  ><label for="skill-notes"
+                    >Clarifications for the agent (optional)</label
+                  ><textarea
+                    id="skill-notes"
+                    rows="3"
+                    maxlength="5000"
+                    placeholder="Explain missing steps, selectors, prerequisites or failed attempts. Avoid secrets."
+                  ></textarea
+                  ><button id="skill-review-save" class="primary">
+                    Confirm review
+                  </button>
+                  <p class="caption">
+                    The action trace omits typed values. Video analysis can
+                    include visible values; remove secrets and parameterize
+                    inputs before approving. Review publishes these instructions
+                    to connected agents; it does not prove the task will succeed
+                    automatically.
+                  </p>
+                </form>
+                <details id="skill-evidence" class="evidence-details">
+                  <summary>Review the demonstration evidence</summary>
+                  <section
+                    id="skill-video-panel"
+                    class="video-panel"
+                    hidden
+                    aria-labelledby="skill-video-title"
+                  >
+                    <div class="section-bar">
+                      <div>
+                        <h3 id="skill-video-title">Your demonstration</h3>
+                        <p id="skill-video-status"></p>
+                      </div>
+                      <a id="skill-video-download" class="button" download
+                        >Download video</a
+                      >
+                    </div>
+                    <video
+                      id="skill-video-player"
+                      controls
+                      preload="metadata"
+                      aria-label="Recorded guest desktop demonstration"
+                    ></video>
+                    <p class="caption">
+                      Saved privately on this computer. Frames are shared only
+                      after you allow agent analysis. The video is not bundled
+                      in SKILL.md.
+                    </p>
+                    <div class="actions">
+                      <button id="skill-video-remove">Delete video</button
+                      ><button
+                        id="skill-video-remove-confirm"
+                        class="danger"
+                        hidden
+                      >
+                        Confirm delete video
+                      </button>
+                    </div>
+                  </section>
+                  <section
+                    id="skill-analysis-panel"
+                    class="review-panel"
+                    hidden
+                    aria-labelledby="skill-analysis-title"
+                  >
+                    <div class="section-bar">
+                      <div>
+                        <h3 id="skill-analysis-title">
+                          Prepare analysis with your agent.
+                        </h3>
+                        <p id="skill-analysis-status"></p>
+                      </div>
+                      <span class="small-badge">Your agent · your model</span>
+                    </div>
+                    <p class="caption">
+                      Allow connected agents with work access to inspect sampled
+                      frames. Visible content, including secrets, may reach your
+                      agent’s configured model provider. Review the video first.
+                      This server adds no AI service or automatic training.
+                    </p>
+                    <div class="actions">
+                      <button id="skill-analysis-toggle">
+                        Allow agent analysis</button
+                      ><button id="skill-analysis-copy" hidden>
+                        Copy analysis request
+                      </button>
+                    </div>
+                  </section>
+                  <h3>Captured action trace</h3>
+                  <p id="skill-trace-empty" class="caption" hidden>
+                    No structured events were captured. Review the video or
+                    proposed procedure; a trace count is not a task result.
+                  </p>
+                  <ol id="skill-timeline" class="skill-timeline"></ol>
+                </details>
+                <div class="actions">
+                  <button id="skill-use-open">Try with new inputs</button>
+                  <button id="skill-download">
+                    <svg class="icon"><use href="#i-download" /></svg>Export
+                    SKILL.md</button
+                  ><button id="skill-copy">Copy instructions</button>
+                </div>
+                <p
+                  id="skill-export-hint"
+                  class="caption"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Review the steps and parameters before use.
+                </p>
+                <section
+                  id="skill-use-panel"
+                  class="use-panel"
+                  hidden
+                  aria-labelledby="skill-use-title"
+                >
+                  <div class="section-bar">
+                    <div>
+                      <h3 id="skill-use-title">
+                        Prepare a trial with new inputs.
+                      </h3>
+                      <p>
+                        Prepare a request for the agent already connected to
+                        this computer.
+                      </p>
+                    </div>
+                    <button id="skill-use-close">Close</button>
+                  </div>
+                  <p id="skill-use-reference" class="caption"></p>
+                  <label for="skill-use-intent">Ask your agent to</label>
+                  <select id="skill-use-intent">
+                    <option value="plan">Prepare a plan first</option>
+                    <option value="execute">Do the reviewed task</option>
+                  </select>
+                  <div id="skill-use-inputs" class="use-inputs"></div>
+                  <p id="skill-use-no-inputs" class="caption" hidden>
+                    No input names were captured. Your agent will check for
+                    other required values.
+                  </p>
+                  <p class="caption">
+                    Values stay in this open form until you copy the request.
+                    Closing, refreshing the skill or leaving Skills clears them.
+                    Keep credentials and secrets out; send the copied request
+                    only to your chosen agent.
+                  </p>
+                  <p id="skill-use-status" class="caption" role="status"></p>
+                  <details class="instruction-preview">
+                    <summary>Preview request</summary>
+                    <pre id="skill-use-request" tabindex="0"></pre>
+                  </details>
+                  <div class="actions">
+                    <button id="skill-use-copy" class="primary" disabled>
+                      Copy agent request
+                    </button>
+                  </div>
+                  <p class="caption">
+                    Copying does not run the task. The agent checks this saved
+                    revision and computer, uses its existing permissions and
+                    verifies the result. You can observe or take control in
+                    Screen.
+                  </p>
+                </section>
+                <details class="instruction-preview">
+                  <summary>Preview agent instructions</summary>
+                  <pre id="workflow-text" tabindex="0"></pre>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="connect" class="view" hidden>
+          <ol class="connect-route" aria-label="Connection steps">
+            <li>
+              <button
+                type="button"
+                data-connect-step="1"
+                aria-current="step"
+                aria-label="1 Configure MCP"
+              >
+                <span class="step-number">1</span>MCP
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-connect-step="2"
+                aria-label="2 Add the skill"
+              >
+                <span class="step-number">2</span>Skill
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-connect-step="3"
+                aria-label="3 Verify a task"
+              >
+                <span class="step-number">3</span>First task
+              </button>
+            </li>
+          </ol>
+          <div class="connect-grid">
+            <div id="connect-setup" class="panel">
+              <h2>Add the MCP server.</h2>
+              <div class="config-options">
+                <div>
+                  <label for="client-format">Your agent</label
+                  ><select id="client-format">
+                    <option value="claude">Claude Code · JSON</option>
+                    <option value="cursor">Cursor · JSON</option>
+                    <option value="codex">Codex · TOML</option>
+                    <option value="generic">Other stdio client · JSON</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="client-access">Agent access</label
+                  ><select id="client-access">
+                    <option value="work">Work · view and operate</option>
+                    <option value="read">Read · inspect only</option>
+                  </select>
+                </div>
+              </div>
+              <p id="config-status" class="caption">
+                Loading host configuration…
+              </p>
+              <p id="config-guide" class="setup-guide"></p>
+              <a
+                id="config-docs"
+                class="text-link"
+                hidden
+                target="_blank"
+                rel="noreferrer noopener"
+                >Official setup guide
+                <svg class="icon"><use href="#i-arrow" /></svg
+              ></a>
+              <details id="config-preview" class="instruction-preview">
+                <summary>Inspect exact MCP configuration</summary>
+                <pre
+                  id="client-config"
+                  tabindex="0"
+                  aria-label="MCP configuration"
+                ></pre>
+              </details>
+              <div class="actions">
+                <button id="config-copy" class="primary" disabled>
+                  Copy configuration</button
+                ><button id="config-download" disabled>Download</button>
+              </div>
+              <p class="caption">
+                Copying does not install or connect the server. Keep your other
+                MCP servers. This configuration runs over stdio and includes no
+                API key; private credentials stay in the host state file.
+              </p>
+              <div class="wizard-footer">
+                <span>Added it in your agent? Reconnect its MCP server.</span
+                ><button id="connect-to-skill" type="button">
+                  Next: add the skill
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+              </div>
+            </div>
+            <div id="connect-skill" class="connect-side" hidden>
+              <div class="panel operator-card">
+                <h2>Add the operator skill.</h2>
+                <p>
+                  Give your agent the instructions for this computer: discover
+                  tools, work within its permissions, verify results and release
+                  control.
+                </p>
+                <a
+                  id="operator-download"
+                  class="button"
+                  href="/skills/sendtry-computer/SKILL.md"
+                  download="SKILL.md"
+                  >Download operator skill
+                  <svg class="icon"><use href="#i-download" /></svg
+                ></a>
+                <p class="setup-guide">
+                  Save the downloaded file in your local project:
+                </p>
+                <code id="operator-path" class="install-path"
+                  >sendtry-computer/SKILL.md</code
+                >
+                <a
+                  id="operator-docs"
+                  class="text-link"
+                  hidden
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  >Official skills guide
+                  <svg class="icon"><use href="#i-arrow" /></svg
+                ></a>
+                <p class="caption">
+                  The skill supplies instructions; the MCP connection supplies
+                  tools. Downloading installs neither.
+                </p>
+              </div>
+              <div class="wizard-footer">
+                <span
+                  >Saved the skill in your project? Ask the agent to load
+                  it.</span
+                ><button id="connect-to-task" type="button" class="primary">
+                  Next: verify a task
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <section
+            id="connect-check"
+            class="panel first-task-panel"
+            aria-labelledby="first-task-title"
+            hidden
+          >
+            <div class="first-task-intro">
+              <h2 id="first-task-title">Try a first task.</h2>
+              <p id="agent-step"></p>
+              <p id="agent-control-hint" class="caption" role="status"></p>
+              <div class="actions">
+                <button id="agent-copy" class="primary" disabled>
+                  Copy first task
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+                <button id="connect-activity">View activity</button>
+              </div>
+              <p class="caption">
+                Send this request to your agent after reconnecting its MCP
+                server. Copying starts no execution.
+              </p>
+            </div>
+            <div>
+              <span class="preview-label">REQUEST PREVIEW</span>
+              <pre
+                id="agent-request"
+                tabindex="0"
+                aria-label="First agent task"
+              >
+Authorize this console to prepare a task for its computer.</pre
+              >
+            </div>
+          </section>
+          <div class="panel capability-panel">
+            <div class="section-bar">
+              <div>
+                <strong>Available on this computer</strong>
+                <p id="capability-summary">
+                  Capabilities will appear after owner authorization.
+                </p>
+              </div>
+              <span class="small-badge">Docker Linux guest</span>
+            </div>
+            <details class="capability-details">
+              <summary>View available tool names</summary>
+              <div id="capabilities" class="capabilities"></div>
+            </details>
+          </div>
+        </section>
+        <section id="activity" class="view" hidden>
+          <div class="activity-toolbar">
+            <div class="activity-filters">
+              <div>
+                <label for="activity-range">Time range</label
+                ><select id="activity-range">
+                  <option value="1">Last 24 hours</option>
+                  <option value="7" selected>Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </div>
+              <div>
+                <label for="activity-session">Session</label
+                ><select id="activity-session">
+                  <option value="">All sessions</option>
+                </select>
+              </div>
+            </div>
+            <div class="actions">
+              <button id="activity-refresh">Refresh</button
+              ><button id="activity-export">
+                <svg class="icon"><use href="#i-download" /></svg>Export JSON
+              </button>
+            </div>
+          </div>
+          <div class="activity-metrics" aria-label="Usage in selected range">
+            <div>
+              <span>Actions</span><strong id="activity-actions">—</strong
+              ><small id="activity-results">Recorded outcomes</small>
+            </div>
+            <div>
+              <span>Computer control</span
+              ><strong id="activity-control">—</strong
+              ><small>Time holding exclusive control</small>
+            </div>
+            <div>
+              <span>Tool execution</span><strong id="activity-tools">—</strong
+              ><small>Cumulative completed tool time</small>
+            </div>
+            <div>
+              <span>Sessions</span><strong id="activity-count">—</strong
+              ><small>Owner and agent sessions</small>
+            </div>
+          </div>
+          <div class="activity-grid">
+            <div class="panel activity-history">
+              <div class="section-bar">
+                <div>
+                  <strong>What happened</strong>
+                  <p id="activity-updated">
+                    Load activity to see recent actions.
+                  </p>
+                </div>
+                <span class="small-badge">Local history</span>
+              </div>
+              <ol id="activity-events" class="activity-events"></ol>
+              <div id="activity-empty" class="activity-empty" hidden>
+                <svg class="icon"><use href="#i-activity" /></svg>
+                <h3>A fresh start.</h3>
+                <p>
+                  Actions will appear here when you or an agent use this
+                  computer.
+                </p>
+              </div>
+              <button id="activity-more" hidden>Load earlier actions</button>
+            </div>
+            <aside class="activity-side">
+              <div class="panel">
+                <div class="section-bar">
+                  <div>
+                    <strong>Who used this computer</strong>
+                    <p id="activity-sessions-hint">
+                      Sessions in the selected range.
+                    </p>
+                  </div>
+                </div>
+                <ol id="activity-sessions" class="activity-sessions"></ol>
+              </div>
+              <div class="panel activity-privacy">
+                <svg class="icon"><use href="#i-computer" /></svg>
+                <h3>Your history stays here.</h3>
+                <p>
+                  Activity records times, access, actions and outcomes.
+                  Commands, file content and screen content are excluded.
+                </p>
+                <p>
+                  Client names are declared by the connected agent. They do not
+                  verify a person or model. Sharing a credential also shares its
+                  authority.
+                </p>
+                <p id="activity-retention"></p>
+                <p>
+                  Control time and tool time help evaluate usage. They are not
+                  billable hours or proof a task succeeded.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+        <section id="computers" class="view" hidden>
+          <div class="panel computers-overview">
+            <div>
+              <p class="eyebrow">LOCAL COMPUTER CATALOG</p>
+              <h2 id="catalog-default">Choose where work happens.</h2>
+              <p class="subtitle">
+                Each computer keeps its own files, browser and skills.
+              </p>
+            </div>
+            <button id="computers-list-copy" disabled>
+              Copy status command
+            </button>
+          </div>
+          <p class="caption catalog-note">
+            This list was loaded when you opened the console. Run the status
+            command on your host to check which computers are ready or occupied.
+            Reopen this console after catalog changes.
+          </p>
+          <div id="computer-catalog" class="computer-catalog"></div>
+          <div class="panel catalog-create">
+            <p class="eyebrow">ROOM FOR ANOTHER TASK</p>
+            <h2>Create a dedicated computer.</h2>
+            <p class="subtitle">
+              Choose a unique name. A free console port is selected for you. The
+              guest starts offline; enable internet only when your task needs
+              it.
+            </p>
+            <pre
+              id="computer-create-command"
+              tabindex="0"
+              aria-label="Create computer command"
+            >
+Run the CLI on your host to create a computer.</pre
+            >
+            <button id="computer-create-copy" disabled>
+              Copy create command
+            </button>
+            <p class="caption">
+              Run the command on your host, then follow the printed start
+              command. Selecting a default affects future CLI commands; saved
+              MCP connections keep their own computer.
+            </p>
+          </div>
+          <div class="reopen">
+            <span>Need to open this console again?</span
+            ><code id="open-command"
+              >node src/cli.js open --name &lt;your-computer&gt;</code
+            >
+          </div>
+        </section>
+        <footer>
+          <span id="identity">Loading computer identity…</span>
+        </footer>
+      </main>
+    </div>
+    <script src="/auth.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

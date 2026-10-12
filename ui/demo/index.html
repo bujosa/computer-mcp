@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sendtry Computer · Practice task</title>
+    <link rel="stylesheet" href="/demo/demo.css" />
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">SENDTRY COMPUTER / PRACTICE TASK</p>
+      <h1>Make a project note.</h1>
+      <p>
+        A small, local task to teach your agent. This form stays inside the
+        guest browser.
+      </p>
+      <form id="note-form">
+        <label for="project">Project name</label
+        ><input
+          id="project"
+          autocomplete="off"
+          required
+          placeholder="Garden plan"
+        /><label for="note">Next step</label
+        ><textarea
+          id="note"
+          required
+          placeholder="Choose three plants for the balcony."
+        ></textarea
+        ><button id="save-note">Save note</button>
+      </form>
+      <article id="result" hidden>
+        <h2 id="result-project"></h2>
+        <p id="result-note"></p>
+        <span>Saved in this browser</span>
+      </article>
+    </main>
+    <script src="/demo/demo.js"></script>
+  </body>
+</html>
