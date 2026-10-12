@@ -1,10 +1,11 @@
 # Review this workspace locally
 
-On 12 October the owned `review-mvp` was rebuilt with the current runtime/UI and
+On 12 October the owned `review-mvp` was rebuilt with the current runtime and screen-first UI and
 left running, idle with no control lease or active Teach recording. The rebuild
 reused unchanged dependency layers and retained computer/workspace UUIDs, its
-private volume, skills and history. Real MCP integration passed on this image:
-`sha256:fcb580a40fdce3763158dad797e3273902aa2cbac661393f094173cc8fc7c49f`.
+private volume, skills and history. The prior closure passed real MCP integration; the UI-only design follow-up was
+reviewed through actual owner control, recording, files and terminal on this image:
+`sha256:8fe898321c0e0943db53395edaf46354daab35618030f64b6c5f73f5d5e0065d`.
 
 The earlier physical ENOSPC failure remains in [the validation record](VALIDATION.md).
 Current doctor still warns: the Docker guest filesystem was 99% used, with
@@ -35,7 +36,7 @@ values were executed and verified through real MCP. See [Teach](TEACH.md).
 
 All three owned review guests received the earlier security/lifecycle fixes.
 The running review-mvp additionally has the current Teach/video/analysis, Activity,
-guided setup/Teach, authorization recovery and bounded guest desktop-input runtime;
+guided setup/Teach, sticky session control, compact navigation, authorization recovery and bounded guest desktop-input runtime;
 rebuild the other stopped guests before using these new capabilities. Their private work/owner credentials were rotated without changing their
 UUIDs or data volumes. Reconnect any existing MCP bridge and use `open` again;
 previous owner sessions are invalid. Configuration output still contains only

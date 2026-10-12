@@ -2,51 +2,17 @@ import RFB from '/vendor/rfb.js';
 import { formatSkillUse } from '/vendor/skill-use.js';
 const $ = (id) => document.getElementById(id);
 const pages = {
-  desktop: [
-    'Computer',
-    'YOUR AGENT’S OWN COMPUTER',
-    'A shared screen. A dedicated space.',
-    'Let your agent work. Step in whenever you need to.',
-  ],
-  files: [
-    'Files',
-    'EVERYTHING IN ITS PLACE',
-    'Your workspace, within reach.',
-    'Read, edit and save files in this computer.',
-  ],
-  terminal: [
-    'Terminal',
-    'A DIRECT LINE TO YOUR COMPUTER',
-    'A little command goes a long way.',
-    'Run focused commands and inspect what happened.',
-  ],
-  teach: [
-    'Skills',
-    'SHOW IT ONCE. USE IT AGAIN.',
-    'Teach the way you work.',
-    'Turn a task you demonstrate into instructions your agent can use.',
-  ],
-  connect: [
-    'Connect agent',
-    'TOOLS FOR YOUR AGENT',
-    'Give your agent a place to work.',
-    'Connect its tools, add the know-how, then verify a real task.',
-  ],
-  computers: [
-    'Your computers',
-    'A SPACE FOR EVERY TASK',
-    'Your computers, in one place.',
-    'Choose a default, start a workspace and connect your agent.',
-  ],
-  activity: [
-    'Activity',
-    'A CLEAR RECORD OF THE WORK',
-    'Review sessions. See what happened.',
-    'Review sessions, computer control and tool outcomes in one place.',
-  ],
+  desktop: 'Screen',
+  files: 'Files',
+  terminal: 'Terminal',
+  teach: 'Teach & skills',
+  connect: 'Connect agent',
+  computers: 'Computers',
+  activity: 'Activity',
 };
 let actor, info, ownerConfig, selectedSkill, exportedSkill, rfb, mode;
 let skillUse;
+let pendingControlFocus;
 let terminalRun;
 let reviewingSkillId, teachNextAction, teachAlternativeAction;
 const firstTaskPath = `sendtry-check-${crypto.randomUUID().slice(0, 8)}.txt`;
@@ -143,6 +109,7 @@ function stream() {
   if (rfb && mode === next) return;
   rfb?.disconnect();
   mode = next;
+  $('screen-status').hidden = false;
   $('screen-status').textContent = 'Connecting to the desktop…';
   const connection = new RFB(
     $('screen'),
@@ -153,21 +120,24 @@ function stream() {
   rfb.resizeSession = false;
   rfb.viewOnly = next === 'view';
   rfb.addEventListener('connect', () => {
-    if (rfb === connection)
-      $('screen-status').textContent =
-        next === 'control' ? 'You’re in control' : 'Live view · view only';
+    if (rfb === connection) $('screen-status').hidden = true;
   });
   rfb.addEventListener('disconnect', () => {
     if (rfb !== connection) return;
+    $('screen-status').hidden = false;
     $('screen-status').textContent = 'Desktop disconnected · reconnecting…';
     rfb = null;
     mode = null;
   });
 }
 async function showView(next) {
+  const fromMenu = document.body.classList.contains('nav-open');
+  document.body.classList.remove('nav-open');
+  $('nav-toggle').setAttribute('aria-expanded', 'false');
   if (next !== 'teach') clearSkillUse();
   if (next !== 'teach') $('skill-video-player').pause();
   view = next;
+  document.body.dataset.view = view;
   for (const el of document.querySelectorAll('.view'))
     el.hidden = el.id !== view;
   for (const tab of document.querySelectorAll('.tab')) {
@@ -176,19 +146,12 @@ async function showView(next) {
     if (active) tab.setAttribute('aria-current', 'page');
     else tab.removeAttribute('aria-current');
   }
-  const [label, eyebrow, title, description] = pages[view];
-  $('breadcrumb').textContent = label;
-  $('page-eyebrow').textContent = eyebrow;
-  $('page-title').textContent = title;
-  $('page-description').textContent = description;
-  const controls = $('control-actions');
-  controls.open =
-    ['desktop', 'files', 'terminal', 'teach'].includes(view) ||
-    own() ||
-    !!info?.teach.active;
+  $('page-title').textContent = pages[view];
+  if (fromMenu) $('page-title').focus();
+  $('main').scrollIntoView({ block: 'start' });
   $('take').classList.toggle(
     'primary',
-    ['desktop', 'files', 'terminal', 'teach'].includes(view),
+    ['desktop', 'files', 'terminal'].includes(view),
   );
   stream();
   if (info && view === 'files') await browse();
@@ -197,12 +160,29 @@ async function showView(next) {
   if (info && view === 'activity') await loadActivity();
 }
 function mutationState() {
+  if (document.activeElement === $('take') && own())
+    pendingControlFocus = 'release';
+  if (document.activeElement === $('release') && !own())
+    pendingControlFocus = 'take';
   for (const id of ['run', 'file-save', 'demo', 'teach-start', 'teach-stop'])
     $(id).disabled = !own() || busy;
   for (const id of ['file-read', 'browse']) $(id).disabled = !info || busy;
   $('agent-copy').disabled = !ownerConfig || !info || busy;
   $('take').disabled = !info || own() || busy;
   $('release').disabled = !own() || busy || !!info?.teach.active;
+  $('take').hidden = !info || own();
+  $('release').hidden = !own() || !!info?.teach.active;
+  $('take').textContent = info?.lease ? 'Take over' : 'Take control';
+  if (!busy && pendingControlFocus) {
+    const target = $(pendingControlFocus);
+    if (
+      document.activeElement === document.body &&
+      !target.hidden &&
+      !target.disabled
+    )
+      target.focus({ preventScroll: true });
+    pendingControlFocus = undefined;
+  }
   $('teach-start').disabled ||= !!info?.teach.active;
   activityState();
   renderTeachGuide();
@@ -232,6 +212,9 @@ function reviewChanged() {
   );
 }
 function renderTeachGuide() {
+  const settingUp = !$('teach-builder').hidden;
+  document.querySelector('.skill-layout').hidden = settingUp;
+  document.querySelector('.library-bar').hidden = settingUp;
   $('record-review').disabled = !own() || busy;
   let stage = 1;
   let title = 'Show your agent a small task.';
@@ -334,7 +317,15 @@ function renderTeachGuide() {
   $('teach-next-title').textContent = title;
   $('teach-next-description').textContent = description;
   $('teach-next').textContent = label;
-  $('teach-next').classList.toggle('primary', teachNextAction !== 'setup');
+  $('teach-next').hidden = teachNextAction === 'finish';
+  $('teach-next').classList.toggle(
+    'primary',
+    !['setup', 'review'].includes(teachNextAction) && !skillUse,
+  );
+  $('skill-review-save').classList.toggle(
+    'primary',
+    !skill?.review || reviewChanged() || !!skill?.draft,
+  );
   $('teach-next').disabled =
     !info || busy || (teachNextAction === 'finish' && !own());
   $('teach-alternative').hidden = !teachAlternativeAction;
@@ -352,7 +343,7 @@ async function refresh() {
     const currentInfo = await request('/api/info');
     if (locked || actor !== ownerAtStart) return;
     info = currentInfo;
-    $('connection').textContent = 'Computer online';
+    $('connection').textContent = 'Online';
     $('connection').classList.add('online');
     $('access-state').hidden = true;
     document.body.classList.remove('owner-access-required');
@@ -364,11 +355,11 @@ async function refresh() {
         ? info.lease.kind === 'agent'
           ? 'Agent is in control'
           : 'Another owner is in control'
-        : 'Ready to work';
+        : 'Control is free';
     mutationState();
     renderFirstTask();
     const active = info.teach.active;
-    $('teach-stop').hidden = !active;
+    $('teach-stop').hidden = true;
     $('teach-form').hidden = active;
     $('record-dot').hidden = !active;
     $('record-banner').hidden = !active;
@@ -1164,7 +1155,29 @@ for (const button of document.querySelectorAll('[data-connect-step]'))
   button.onclick = () => setConnectStep(Number(button.dataset.connectStep));
 $('connect-to-skill').onclick = () => setConnectStep(2);
 $('connect-to-task').onclick = () => setConnectStep(3);
-$('computer-nav').onclick = guarded(() => showView('computers'));
+$('nav-toggle').onclick = () => {
+  const open = document.body.classList.toggle('nav-open');
+  $('nav-toggle').setAttribute('aria-expanded', String(open));
+  if (open) document.querySelector('.tab.active').focus();
+};
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.body.classList.contains('nav-open')) {
+    document.body.classList.remove('nav-open');
+    $('nav-toggle').setAttribute('aria-expanded', 'false');
+    $('nav-toggle').focus();
+  }
+});
+const sessionLayout = new ResizeObserver(() => {
+  const navigationHeight = matchMedia('(max-width: 760px)').matches
+    ? document.querySelector('.sidebar').offsetHeight
+    : 0;
+  document.documentElement.style.setProperty(
+    '--session-offset',
+    `${document.querySelector('.topbar').offsetHeight + navigationHeight + 12}px`,
+  );
+});
+sessionLayout.observe(document.querySelector('.topbar'));
+sessionLayout.observe(document.querySelector('.sidebar'));
 for (const tab of document.querySelectorAll('.tab'))
   tab.onclick = guarded(() => showView(tab.dataset.view));
 $('activity-range').onchange = guarded(() => loadActivity());
@@ -1476,6 +1489,7 @@ function disconnected(error) {
     error.status === 401
       ? 'Open this console from the CLI'
       : 'Waiting for your computer…';
+  $('screen-status').hidden = false;
   $('record-banner').hidden = true;
   if (error.status === 401) {
     ownerConfig = undefined;

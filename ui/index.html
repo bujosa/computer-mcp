@@ -8,7 +8,8 @@
     <link rel="icon" href="/assets/brand-mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body>
+  <body data-view="desktop">
+    <a class="skip-link" href="#main">Skip to content</a>
     <svg
       class="icon-definitions"
       aria-hidden="true"
@@ -49,90 +50,94 @@
         <path d="M4 5h16M4 12h7m5 0h4M4 19h16" />
         <circle cx="13" cy="12" r="2" />
       </symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </symbol>
     </svg>
     <aside class="sidebar">
-      <a class="brand" href="/" aria-label="Sendtry Computer home"
-        ><img
-          src="/assets/sendtry.svg"
-          alt="sendtry"
-          width="148"
-          height="32"
-        /><span>Computer</span></a
-      >
-      <button
-        id="computer-nav"
-        class="computer-switch"
-        type="button"
-        aria-label="View your registered computers"
-      >
-        <img src="/assets/brand-mark.svg" alt="" width="32" height="32" />
-        <div>
-          <strong id="computer-name">Your computer</strong
-          ><span>Current computer · view all</span>
+      <div class="sidebar-header">
+        <a class="brand" href="/" aria-label="Sendtry Computer home"
+          ><img
+            src="/assets/sendtry.svg"
+            alt="sendtry"
+            width="148"
+            height="32"
+          /><span>Computer</span></a
+        >
+        <button
+          id="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="workspace-navigation"
+        >
+          <svg class="icon"><use href="#i-menu" /></svg>Menu
+        </button>
+      </div>
+      <nav id="workspace-navigation" aria-label="Computer views">
+        <div class="nav-group">
+          <p class="nav-label">Workspace</p>
+          <button class="tab active" data-view="desktop" aria-current="page">
+            <svg class="icon"><use href="#i-computer" /></svg>Screen
+          </button>
+          <button class="tab" data-view="teach">
+            <svg class="icon"><use href="#i-skill" /></svg>Teach &amp;
+            skills<span id="record-dot" class="record-dot" hidden></span>
+          </button>
         </div>
-      </button>
-      <p class="nav-label">WORKSPACE</p>
-      <nav aria-label="Computer views">
-        <button class="tab active" data-view="desktop" aria-current="page">
-          <svg class="icon"><use href="#i-computer" /></svg>Computer
-        </button>
-        <button class="tab" data-view="files">
-          <svg class="icon"><use href="#i-files" /></svg>Files
-        </button>
-        <button class="tab" data-view="terminal">
-          <svg class="icon"><use href="#i-terminal" /></svg>Terminal
-        </button>
-        <button class="tab" data-view="teach">
-          <svg class="icon"><use href="#i-skill" /></svg>Skills<span
-            id="record-dot"
-            class="record-dot"
-            hidden
-          ></span>
-        </button>
-        <button class="tab" data-view="connect">
-          <svg class="icon"><use href="#i-connect" /></svg>Connect agent
-        </button>
-        <button class="tab" data-view="activity">
-          <svg class="icon"><use href="#i-activity" /></svg>Activity
-        </button>
-        <button class="tab" data-view="computers">
-          <svg class="icon"><use href="#i-computer" /></svg>Your computers
-        </button>
+        <div class="nav-group">
+          <p class="nav-label">Tools</p>
+          <button class="tab" data-view="files">
+            <svg class="icon"><use href="#i-files" /></svg>Files
+          </button>
+          <button class="tab" data-view="terminal">
+            <svg class="icon"><use href="#i-terminal" /></svg>Terminal
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">Setup &amp; history</p>
+          <button class="tab" data-view="connect">
+            <svg class="icon"><use href="#i-connect" /></svg>Connect agent
+          </button>
+          <button class="tab" data-view="activity">
+            <svg class="icon"><use href="#i-activity" /></svg>Activity
+          </button>
+          <button class="tab" data-view="computers">
+            <svg class="icon"><use href="#i-computer" /></svg>Computers
+          </button>
+        </div>
       </nav>
       <div class="sidebar-note">
-        <span class="preview-label">PRIVATE PREVIEW</span>
-        <p>A computer to work in.<br />Skills to work with.</p>
-        <span>Built by Sendtry</span>
+        <span class="preview-label">Private preview</span>
       </div>
     </aside>
     <div class="workspace">
-      <header class="topbar">
-        <span class="breadcrumb"
-          >Workspace <span>/</span>
-          <strong id="breadcrumb">Computer</strong></span
-        ><span class="pill" id="connection">Connecting…</span>
-      </header>
-      <main>
-        <div class="heading">
-          <div>
-            <p class="eyebrow" id="page-eyebrow">YOUR AGENT’S OWN COMPUTER</p>
-            <h1 id="page-title">A shared screen. A dedicated space.</h1>
-            <p class="subtitle" id="page-description">
-              Let your agent work. Step in whenever you need to.
-            </p>
+      <header class="topbar" aria-label="Computer session">
+        <div class="session-line">
+          <h1 id="page-title" tabindex="-1">Screen</h1>
+          <div class="session-meta">
+            <strong id="computer-name">Your computer</strong>
+            <span class="pill" id="connection" aria-label="Computer connection"
+              >Connecting…</span
+            >
           </div>
-          <div class="control-card">
+          <div class="session-control">
             <span id="owner">Checking control…</span>
-            <details id="control-actions" open>
-              <summary>Computer control</summary>
-              <div class="actions">
-                <button id="take" class="primary" disabled>Take control</button
-                ><button id="release" disabled>Release</button>
-              </div>
-            </details>
+            <div class="actions">
+              <button id="take" class="primary" disabled>Take control</button>
+              <button id="release" disabled hidden>Release</button>
+            </div>
           </div>
         </div>
+        <div id="record-banner" class="record-banner" hidden>
+          <span class="record-dot"></span
+          ><span id="record-summary">Recording your task…</span
+          ><button id="record-review">
+            Finish demonstration <svg class="icon"><use href="#i-arrow" /></svg>
+          </button>
+        </div>
         <div id="notice" role="status" aria-live="polite"></div>
+      </header>
+      <main id="main" tabindex="-1">
         <div id="access-state" class="access-state" hidden>
           <svg class="icon"><use href="#i-connect" /></svg>
           <div>
@@ -162,25 +167,18 @@
             </details>
           </div>
         </div>
-        <div id="record-banner" class="record-banner" hidden>
-          <span class="record-dot"></span
-          ><span id="record-summary">Recording your task…</span
-          ><button id="record-review">
-            Finish demonstration <svg class="icon"><use href="#i-arrow" /></svg>
-          </button>
-        </div>
         <section id="desktop" class="view">
           <div class="panel desktop-panel">
             <div class="section-bar">
               <div class="panel-title">
                 <svg class="icon"><use href="#i-computer" /></svg>
                 <div>
-                  <strong>Live desktop</strong>
+                  <strong>Desktop</strong>
                   <p id="desktop-mode">View only · take control to interact</p>
                 </div>
               </div>
               <button id="demo" disabled>
-                Open practice task
+                Practice task
                 <svg class="icon"><use href="#i-arrow" /></svg>
               </button>
             </div>
@@ -193,23 +191,13 @@
               ><span>Your host stays separate</span>
             </div>
           </div>
-          <div class="next-grid">
-            <button id="desktop-teach" class="next-card">
-              <span class="card-icon"
-                ><svg class="icon"><use href="#i-skill" /></svg></span
-              ><span
-                ><strong>Show your agent how</strong
-                ><span
-                  >Record a task. Turn it into a reusable skill.</span
-                ></span
-              ><svg class="icon arrow"><use href="#i-arrow" /></svg></button
-            ><button id="desktop-connect" class="next-card">
-              <span class="card-icon"
-                ><svg class="icon"><use href="#i-connect" /></svg></span
-              ><span
-                ><strong>Bring your agent</strong
-                ><span>Connect this computer through MCP.</span></span
-              ><svg class="icon arrow"><use href="#i-arrow" /></svg>
+          <div class="desktop-shortcuts">
+            <span>Get started</span>
+            <button id="desktop-teach" class="quiet">
+              <svg class="icon"><use href="#i-skill" /></svg>Teach a task
+            </button>
+            <button id="desktop-connect" class="quiet">
+              <svg class="icon"><use href="#i-connect" /></svg>Connect an agent
             </button>
           </div>
         </section>
@@ -357,7 +345,7 @@ Ready. Your command output will appear here.</pre
           <div id="teach-builder" class="panel" hidden>
             <div class="section-bar">
               <div>
-                <h2>Teach it by doing it.</h2>
+                <h2>Record a task</h2>
                 <p>
                   Give the task a name, show the steps, then review the
                   instructions.
@@ -406,25 +394,10 @@ Ready. Your command output will appear here.</pre
                 </p>
                 <ol id="steps"></ol>
               </div>
-              <div class="teach-guide">
-                <span class="step-number">1</span><strong>Show the task</strong>
-                <p>
-                  Use the live desktop or workspace tools. Browser navigation,
-                  clicks and form inputs become steps.
-                </p>
-                <span class="step-number">2</span
-                ><strong>Review &amp; reuse</strong>
-                <p>
-                  Review captured steps, define how to verify success and supply
-                  the missing values. Then export a SKILL.md for your agent.
-                </p>
-                <p class="caption">
-                  Steps cover main-frame browser actions and workspace tools.
-                  Video is local reference evidence. Your connected agent can
-                  propose browser, workspace and guest desktop steps for review;
-                  recording does not train a model.
-                </p>
-              </div>
+              <p class="caption">
+                Your connected agent can review the demonstration. Recording
+                does not train a model.
+              </p>
             </div>
           </div>
           <div class="skill-layout">
@@ -444,11 +417,10 @@ Ready. Your command output will appear here.</pre
                 <span class="large-icon"
                   ><svg class="icon"><use href="#i-skill" /></svg
                 ></span>
-                <h2>Knowledge your agent can use.</h2>
+                <h2>Choose a skill to review</h2>
                 <p>
-                  Choose a saved skill to review it, or teach your first task.
-                  Skills carry instructions; MCP provides the tools to carry
-                  them out.
+                  Your saved instructions appear here. To make a new skill,
+                  start with a short demonstration.
                 </p>
               </div>
               <div id="skill-selected" hidden>
@@ -467,6 +439,66 @@ Ready. Your command output will appear here.</pre
                   <span id="skill-step-count"></span
                   ><span id="skill-capture-kind"></span>
                 </div>
+                <div id="skill-proposal" class="review-panel" hidden>
+                  <h3>Agent proposal · needs your review</h3>
+                  <button id="skill-proposal-discard">Discard proposal</button>
+                  <p
+                    id="skill-proposal-uncertainties"
+                    class="proposal-note"
+                  ></p>
+                  <p class="caption">
+                    Check and edit the proposed procedure below. Sampled frames
+                    can miss actions; this proposal has not been executed or
+                    verified.
+                  </p>
+                </div>
+                <form id="skill-review-form" class="review-panel">
+                  <div class="section-bar">
+                    <div>
+                      <h3>Make it useful for your agent.</h3>
+                      <p>
+                        Correct the procedure, supply missing parameters and
+                        define a result the agent can verify.
+                      </p>
+                    </div>
+                    <span id="skill-review-state" class="small-badge"></span>
+                  </div>
+                  <label for="skill-procedure">Procedure for the agent</label
+                  ><textarea
+                    id="skill-procedure"
+                    rows="8"
+                    maxlength="12000"
+                    required
+                    placeholder="Review the captured steps or edit the agent’s proposal. Use named parameters for inputs and commands."
+                  ></textarea>
+                  <label for="skill-expected-result"
+                    >How should the agent verify success?</label
+                  ><textarea
+                    id="skill-expected-result"
+                    rows="3"
+                    maxlength="1000"
+                    required
+                    placeholder="For example: read the saved file and check the requested project name and next step."
+                  ></textarea
+                  ><label for="skill-notes"
+                    >Clarifications for the agent (optional)</label
+                  ><textarea
+                    id="skill-notes"
+                    rows="3"
+                    maxlength="5000"
+                    placeholder="Explain missing steps, selectors, prerequisites or failed attempts. Avoid secrets."
+                  ></textarea
+                  ><button id="skill-review-save" class="primary">
+                    Confirm review
+                  </button>
+                  <p class="caption">
+                    The action trace omits typed values. Video analysis can
+                    include visible values; remove secrets and parameterize
+                    inputs before approving. Review publishes these instructions
+                    to connected agents; it does not prove the task will succeed
+                    automatically.
+                  </p>
+                </form>
                 <details id="skill-evidence" class="evidence-details">
                   <summary>Review the demonstration evidence</summary>
                   <section
@@ -542,70 +574,8 @@ Ready. Your command output will appear here.</pre
                   </p>
                   <ol id="skill-timeline" class="skill-timeline"></ol>
                 </details>
-                <div id="skill-proposal" class="review-panel" hidden>
-                  <h3>Agent proposal · needs your review</h3>
-                  <button id="skill-proposal-discard">Discard proposal</button>
-                  <p
-                    id="skill-proposal-uncertainties"
-                    class="proposal-note"
-                  ></p>
-                  <p class="caption">
-                    Check and edit the proposed procedure below. Sampled frames
-                    can miss actions; this proposal has not been executed or
-                    verified.
-                  </p>
-                </div>
-                <form id="skill-review-form" class="review-panel">
-                  <div class="section-bar">
-                    <div>
-                      <h3>Make it useful for your agent.</h3>
-                      <p>
-                        Correct the procedure, supply missing parameters and
-                        define a result the agent can verify.
-                      </p>
-                    </div>
-                    <span id="skill-review-state" class="small-badge"></span>
-                  </div>
-                  <label for="skill-procedure">Procedure for the agent</label
-                  ><textarea
-                    id="skill-procedure"
-                    rows="8"
-                    maxlength="12000"
-                    required
-                    placeholder="Review the captured steps or edit the agent’s proposal. Use named parameters for inputs and commands."
-                  ></textarea>
-                  <label for="skill-expected-result"
-                    >How should the agent verify success?</label
-                  ><textarea
-                    id="skill-expected-result"
-                    rows="3"
-                    maxlength="1000"
-                    required
-                    placeholder="For example: read the saved file and check the requested project name and next step."
-                  ></textarea
-                  ><label for="skill-notes"
-                    >Clarifications for the agent (optional)</label
-                  ><textarea
-                    id="skill-notes"
-                    rows="3"
-                    maxlength="5000"
-                    placeholder="Explain missing steps, selectors, prerequisites or failed attempts. Avoid secrets."
-                  ></textarea
-                  ><button id="skill-review-save" class="primary">
-                    Confirm review
-                  </button>
-                  <p class="caption">
-                    The action trace omits typed values. Video analysis can
-                    include visible values; remove secrets and parameterize
-                    inputs before approving. Review publishes these instructions
-                    to connected agents; it does not prove the task will succeed
-                    automatically.
-                  </p>
-                </form>
                 <div class="actions">
-                  <button id="skill-use-open" class="primary">
-                    Try with new inputs
-                  </button>
+                  <button id="skill-use-open">Try with new inputs</button>
                   <button id="skill-download">
                     <svg class="icon"><use href="#i-download" /></svg>Export
                     SKILL.md</button
@@ -668,7 +638,7 @@ Ready. Your command output will appear here.</pre
                     Copying does not run the task. The agent checks this saved
                     revision and computer, uses its existing permissions and
                     verifies the result. You can observe or take control in
-                    Computer.
+                    Screen.
                   </p>
                 </section>
                 <details class="instruction-preview">
@@ -682,33 +652,37 @@ Ready. Your command output will appear here.</pre
         <section id="connect" class="view" hidden>
           <ol class="connect-route" aria-label="Connection steps">
             <li>
-              <button type="button" data-connect-step="1" aria-current="step">
-                <span class="step-number">1</span>Configure MCP
+              <button
+                type="button"
+                data-connect-step="1"
+                aria-current="step"
+                aria-label="1 Configure MCP"
+              >
+                <span class="step-number">1</span>MCP
               </button>
             </li>
             <li>
-              <button type="button" data-connect-step="2">
-                <span class="step-number">2</span>Add the skill
+              <button
+                type="button"
+                data-connect-step="2"
+                aria-label="2 Add the skill"
+              >
+                <span class="step-number">2</span>Skill
               </button>
             </li>
             <li>
-              <button type="button" data-connect-step="3">
-                <span class="step-number">3</span>Verify a task
+              <button
+                type="button"
+                data-connect-step="3"
+                aria-label="3 Verify a task"
+              >
+                <span class="step-number">3</span>First task
               </button>
             </li>
           </ol>
-          <p class="caption connect-explanation">
-            Follow these steps in your chosen agent. Copying configuration or
-            downloading a skill does not install it or confirm a connection.
-          </p>
           <div class="connect-grid">
             <div id="connect-setup" class="panel">
-              <p class="eyebrow">STEP 1 · THE TOOLS</p>
-              <h2>Connect this computer.</h2>
-              <p class="subtitle">
-                Choose your local agent and the access it needs. Keep your
-                existing MCP servers when adding this one.
-              </p>
+              <h2>Add the MCP server.</h2>
               <div class="config-options">
                 <div>
                   <label for="client-format">Your agent</label
@@ -754,8 +728,9 @@ Ready. Your command output will appear here.</pre
                 ><button id="config-download" disabled>Download</button>
               </div>
               <p class="caption">
-                Runs locally over stdio. No API key is included. The host’s
-                private state file holds the computer credentials.
+                Copying does not install or connect the server. Keep your other
+                MCP servers. This configuration runs over stdio and includes no
+                API key; private credentials stay in the host state file.
               </p>
               <div class="wizard-footer">
                 <span>Added it in your agent? Reconnect its MCP server.</span
@@ -767,7 +742,6 @@ Ready. Your command output will appear here.</pre
             </div>
             <div id="connect-skill" class="connect-side" hidden>
               <div class="panel operator-card">
-                <p class="eyebrow">STEP 2 · THE KNOW-HOW</p>
                 <h2>Add the operator skill.</h2>
                 <p>
                   Give your agent the instructions for this computer: discover
@@ -802,18 +776,6 @@ Ready. Your command output will appear here.</pre
                   tools. Downloading installs neither.
                 </p>
               </div>
-              <div class="panel connection-note">
-                <svg class="icon"><use href="#i-computer" /></svg>
-                <h3>One dedicated space.</h3>
-                <p>
-                  Your agent uses this Linux computer. You see the same screen
-                  and can take control whenever you need to.
-                </p>
-                <p class="caption">
-                  A running computer is not proof that your agent is connected.
-                  Verify it with the task below.
-                </p>
-              </div>
               <div class="wizard-footer">
                 <span
                   >Saved the skill in your project? Ask the agent to load
@@ -832,8 +794,7 @@ Ready. Your command output will appear here.</pre
             hidden
           >
             <div class="first-task-intro">
-              <p class="eyebrow">STEP 3 · THE PROOF</p>
-              <h2 id="first-task-title">Verify the connection with a task.</h2>
+              <h2 id="first-task-title">Try a first task.</h2>
               <p id="agent-step"></p>
               <p id="agent-control-hint" class="caption" role="status"></p>
               <div class="actions">
@@ -873,12 +834,6 @@ Authorize this console to prepare a task for its computer.</pre
               <summary>View available tool names</summary>
               <div id="capabilities" class="capabilities"></div>
             </details>
-          </div>
-          <div class="reopen">
-            <span>Need to open this console again?</span
-            ><code id="open-command"
-              >node src/cli.js open --name &lt;your-computer&gt;</code
-            >
           </div>
         </section>
         <section id="activity" class="view" hidden>
@@ -1024,10 +979,15 @@ Run the CLI on your host to create a computer.</pre
               MCP connections keep their own computer.
             </p>
           </div>
+          <div class="reopen">
+            <span>Need to open this console again?</span
+            ><code id="open-command"
+              >node src/cli.js open --name &lt;your-computer&gt;</code
+            >
+          </div>
         </section>
         <footer>
-          <span id="identity">Loading computer identity…</span
-          ><span>Sendtry Computer · Private preview</span>
+          <span id="identity">Loading computer identity…</span>
         </footer>
       </main>
     </div>

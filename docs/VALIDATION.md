@@ -4,6 +4,57 @@ Private Sendtry Computer MVP reviewed on 10–12 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Screen-first design and manual working flows
+
+12 October UI-only follow-up: Opus 5.5 xhigh completed a read-only design review
+of `c6e1129` and three actual captures. The parent implemented a bounded first
+slice in the three UI files: sticky session/control/recording/notices, grouped
+navigation and compact Menu, direct Screen/Computers labels, enlarged text,
+review before evidence, focused recording setup and calmer connection stages.
+The [direction record](DESIGN-DIRECTION.md) separates delivered work from advice
+and follow-ups. Backend, MCP/catalog/operator, dependencies and schemas are unchanged.
+
+PASS scoped Prettier, `npx eslint ui/app.js`, `npm run build` (51 modules and
+UI/noVNC/shared), static DOM-ID inspection and diff checks. Existing 73 backend
+contracts and integration evidence at `c6e1129` were not repeated for presentation.
+No UI unit/snapshot/E2E harness or competitor runtime was generated.
+
+PASS real T3/connected-Chrome manual review at 1280×800 and 390×844: initial
+401 recovery hides the private name/control, owned authorization/live desktop,
+compact Menu/Escape/selection focus and contained layouts; Codex TOML/read scope,
+three stages/next focus and truthful first-task preview; saved review before
+evidence, plan-first trial, cleared inputs after close and a sticky unsaved-review
+error. API-held work lease displayed Agent is in control/Take over; owner takeover,
+Release and keyboard focus swaps passed. That lease used a bounded API client,
+not a model or newly installed named harness, and its session closed.
+
+The owner UI saved a new trace-only **Session bar recording check**, one retained
+step/Ready to review. Setup hid the library without discarding its fields;
+recording navigated to Screen, exposed one Finish action and hid Release. Enter
+on Finish saved and returned to Skills; final library/control state was confirmed
+after the asynchronous response. A new synthetic file had exact UI save/readback;
+terminal `pwd` returned `/data/workspace`, exit 0 and Command focus. Activity
+filters/catalog/reopen metadata and skip-link focus passed. A temporary unsaved
+procedure check was restored from the saved review, with no review write.
+
+The T3 surface became explicitly unavailable mid-review; Chrome CUA continued
+manual validation. Two read-only DOM inspection helpers used APIs absent from
+CUA's restricted scope and were corrected; they were inspection failures, not
+runtime failures. T3 capture duplication/softening persisted. No pixel-perfect
+or full accessibility certification is claimed. Compact Connect's observed
+minimum text was 11 px; the 120/300 px advisor targets were not fully reached.
+
+Final served UI hashes matched local source exactly: app
+`78fa7e006282f111ba67a0069876add3aa5929dd256919ee3ea38254dd9eec01`,
+style `278df61bfb5ffee91f0086b862e2a02b280150a6b8304e0f61cea3ee0379e48b`,
+index `2aae6b183c41eb3be6bd002c8b34fa9826765c2d8979910b9770f9a6c694944f`.
+Owned current image `sha256:8fe898321c0e0943db53395edaf46354daab35618030f64b6c5f73f5d5e0065d`
+reused cached dependency layers and retained UUIDs/volume/history. Normal viewport
+was restored and Chrome left at Screen/free control. Private evidence is in
+`artifacts/design-direction-20261012/`. Mac mini was not mutated/revalidated for
+this UI slice; its earlier running state/snapshot belongs to the prior record.
+Local low Docker space and hosted account restrictions remain unresolved.
+
 ## MVP closure: diagnostics, current runtime and contextual control
 
 On 12 October, the trusted host CLI gained read-only `doctor` before computer

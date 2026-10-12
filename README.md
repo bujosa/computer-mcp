@@ -16,7 +16,8 @@ backend dependency.
 
 Current product assessment, GitHub comparison and what remains before a public
 preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
-[executed validation](docs/VALIDATION.md). Licensing/publication remains pending.
+[executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
+keeps work, teaching and setup clear. Licensing/publication remains pending.
 
 ## Start your first computer
 
@@ -81,7 +82,7 @@ existing agent: generated MCP configurations remain fixed to their computer.
 Existing state can be added with `register --state /private/existing/path`.
 Selection is `--state` → `--name` → saved default. `--root /private/catalog`
 isolates development/test catalogs. See [the local review workspace](docs/LOCAL-REVIEW.md)
-for the existing demo computers. The **Your computers** console view shows
+for the existing demo computers. The **Computers** console view shows
 registered PCs and copies exact owner commands. [Full command reference](docs/SETUP.md#computers-availability-and-default-selection).
 
 ## Connect an agent
@@ -120,7 +121,7 @@ resource, `taught-workflow` and `analyze-demonstration` prompts.
 ## Give the agent skills
 
 MCP supplies tools; a skill supplies a reviewed procedure using those tools.
-In **Skills**, **Try with new inputs** prepares a plan or execution request pinned to
+In **Teach & skills**, **Try with new inputs** prepares a plan or execution request pinned to
 the saved review and owning computer/workspace. Supply task parameters, inspect
 the request and send it to your connected agent. Inputs remain in the open form
 until copy and clear on close/navigation; preparation does not start execution.
@@ -128,7 +129,7 @@ until copy and clear on close/navigation; preparation does not start execution.
 [Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md). Downloads do not
 install settings or change your existing host computer.
 
-In **Skills**, take control, name the task and start recording. Demonstrate it
+In **Teach & skills**, take control, name the task and start recording. Demonstrate it
 on the shared Linux guest, then choose **Finish demonstration** to save its evidence
 and return to Skills. The guide shows the next step for the current recording or
 selected saved skill. **Reviewed** means approved instructions, not a verified
@@ -180,8 +181,8 @@ success. See [the activity contract](docs/ACTIVITY.md).
 
 ## Try the offline practice task
 
-1. In **Computer**, take control and open the practice task.
-2. In **Skills**, start a named recording, optionally with guest video.
+1. In **Screen**, take control and open the practice task.
+2. In **Teach & skills**, start a named recording, optionally with guest video.
 3. Complete the form on the live guest screen.
 4. Choose **Finish demonstration** to save and return to Skills. Review the trace, or
    allow your connected agent to analyze sampled video and propose instructions.

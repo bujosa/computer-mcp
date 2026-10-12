@@ -1,7 +1,7 @@
 # Teach a task, understand it, reuse it
 
 1. Start/open your selected computer. Take control in the owner console.
-2. In **Skills**, choose **Teach a task**, name the outcome and optionally include
+2. In **Teach & skills**, choose **Teach a task**, name the outcome and optionally include
    guest video. Keep credentials/customer data out of the demonstration.
 3. Demonstrate in the live guest, Files or Terminal. The action trace omits typed
    values/commands/content and preserves parameters, cwd and command outcomes.

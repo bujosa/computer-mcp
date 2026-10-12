@@ -1,5 +1,10 @@
 # Sendtry Computer: design review and next slices
 
+The [12 October screen-first direction](DESIGN-DIRECTION.md) is now implemented
+as a first slice following David's new request and Opus 5.5 xhigh advice.
+It supersedes the earlier control disclosure, sidebar selector card and marketing
+headers. The original observations below remain historical evidence.
+
 11 October 2026. Product source reviewed: `e4a04f3`. This document records
 observations and proposed work. The implementation follow-up below identifies
 the delivered slice; task records, installers and Skills over MCP remain proposals.

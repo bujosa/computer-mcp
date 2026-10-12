@@ -123,7 +123,8 @@ remains procedural guidance.
 ## Design and distribution work
 
 Keep the established Sendtry visual system. The guided Teach/connection and
-contextual-control slices are implemented. Owner-access recovery also clears
+screen-first session/control and grouped-navigation slices are implemented; see
+[the current direction](DESIGN-DIRECTION.md). Owner-access recovery also clears
 late responses from the old session. Follow-up manual validation should exercise
 delayed responses. Actual session invalidation and recovery passed after an owned
 guest restart; the delayed-response scenario was not manually exercised.

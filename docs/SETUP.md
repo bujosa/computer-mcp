@@ -180,7 +180,7 @@ not public anonymous access.
 
 ## Console connection and skills
 
-In the authorized owner console, **Your computers** shows the host catalog loaded
+In the authorized owner console, **Computers** shows the host catalog loaded
 by `open`, its default and current computer, plus copyable create/start/open/use
 commands. Run those on the host; the guest UI cannot run Docker or change the
 catalog. Other PCs are labelled registered, not assumed online. Reopen after
@@ -215,7 +215,7 @@ remote agent needs a separately implemented and authorized adapter. No global
 skills directory or existing client configuration is modified by download.
 
 For taught skills,
-**Skills** → select a completed recording → correct the procedure and expected result → **Confirm review** → **Export SKILL.md**; use the exact
+**Teach & skills** → select a completed recording → correct the procedure and expected result → **Confirm review** → **Export SKILL.md**; use the exact
 folder name displayed below the export button. Review the URLs, selectors,
 computer identity and missing parameters before installation/use. Interrupted
 recordings need a new completed demonstration before export. The action trace omits typed values and recorded terminal commands. Video and

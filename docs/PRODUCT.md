@@ -6,6 +6,8 @@ Teach/connection slice is now implemented below; task-result records, new adapte
 and Skills over MCP remain proposals.
 The [readiness review](READINESS.md) prioritizes installation, measured resources,
 repeated Teach usefulness, result attribution and public distribution gates.
+The current [screen-first direction](DESIGN-DIRECTION.md), informed by an Opus 5.5
+xhigh review, replaces the earlier marketing headers and control disclosure.
 
 ## Purpose and brand
 
@@ -28,11 +30,11 @@ The console has seven working views:
 
 | View           | Owner's job                                                                             |
 | -------------- | --------------------------------------------------------------------------------------- |
-| Computer       | Watch the real guest screen, take/release control and open the offline practice task    |
+| Screen         | Watch the real guest screen, take/release control and open the offline practice task    |
 | Files          | Browse the contained workspace and read/save bounded text files                         |
 | Terminal       | Execute/cancel a focused guest command and inspect exit status, deadline and truncation |
-| Skills         | Teach, search, review, prepare an agent request and export a completed procedure        |
-| Your computers | Inspect the registered catalog/default and copy owner create/start/open/use commands    |
+| Teach & skills | Teach, search, review, prepare an agent request and export a completed procedure        |
+| Computers      | Inspect the registered catalog/default and copy owner create/start/open/use commands    |
 | Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill   |
 | Activity       | Inspect sessions, control/tool time, outcomes and private local history exports         |
 
@@ -41,10 +43,11 @@ optional agent video analysis → review → reuse**. MCP tools are capabilities
 A taught skill depends on those capabilities and its owning computer; exporting
 it does not create a new permission, install anything, or blindly replay actions.
 
-Control status is always visible. The actions are open on Computer, Files,
-Terminal and Skills; on connection/history/catalog views they use an accessible
-Computer control disclosure. Own control or an active recording keeps the
-actions open when navigating. No lease means ready to work; an agent/human lease
+Control lives in one sticky session bar with the current computer and connection.
+The available action follows runtime state: Take control, Take over or Release.
+Keyboard focus follows a replaced control. Recording and Finish remain reachable
+when scrolling; Release stays unavailable until the demonstration is saved.
+No lease means control is free; an agent/human lease
 shows who controls mutations. The owner's explicit Take control action revokes
 agent work. View-only remains useful while the agent works. Recording starts only
 with owner control; a persistent recording bar returns to review/save. The saved
@@ -92,7 +95,9 @@ salmon is action/selection, and compact SVG icons identify the views. The
 live Linux desktop retains its actual browser/OS appearance. No remote font,
 analytics, cloud account, provider OAuth or model/chat UI is required.
 
-The sidebar becomes horizontal navigation on narrow screens. Panels stack,
+The sidebar groups daily work, tools and setup/history. On narrow screens a
+keyboard-accessible Menu exposes all views, closes with Escape and returns focus
+to its trigger or the selected view heading. Panels stack,
 configuration and instructions wrap, and keyboard focus remains visible. Polling
 preserves skill search and focused list items when data is unchanged. Connection,
 authorization, recording and interrupted states derive from the runtime. Owner
@@ -140,8 +145,9 @@ input delivery is not task success. Drag, clipboard, automatic blind replay,
 skill imports and archives remain future work. See [Teach](TEACH.md) and
 [desktop tools](DESKTOP.md).
 
-The current-computer sidebar control opens Your computers; it never switches a
-running connection. Activity's title describes sessions, rather than implying
+The computer name is session context; Computers is the catalog route. Selecting
+a CLI default never switches a running connection. Activity describes sessions,
+rather than implying
 verified people. Activity connects operational evidence to the same computer: declared client,
 authenticated access, observation session, tool outcomes and control intervals.
 The owner can filter and export metadata for later evaluation without exposing
