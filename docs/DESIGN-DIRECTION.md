@@ -57,9 +57,10 @@ recording/Finish, file save/readback, terminal `pwd`, Activity, catalog and owne
 access recovery. Visible text checked on compact Connect had an 11 px minimum;
 this is not a whole-application WCAG audit. The recording used no video/inference.
 
-Files/Terminal beside the screen, compact Skills list-to-detail navigation,
-better parameter labels, deeper notice deduplication and measured user testing
-remain follow-ups. Horizontal guest letterboxing remains: the Linux desktop's
+Files/Terminal beside the screen, better parameter labels, deeper notice
+deduplication and measured user testing remain follow-ups. Compact Skills
+list-to-detail navigation is delivered in the brand-polish follow-up below.
+Horizontal guest letterboxing remains: the Linux desktop's
 fixed native geometry is preserved. Named-harness installation and additional
 host/guest OS claims still require their own validation.
 
@@ -67,3 +68,36 @@ See [product behavior](PRODUCT.md) and [exact validation](VALIDATION.md). Privat
 advisor output and real captures remain in ignored
 `artifacts/design-direction-20261012/`; no customer recordings or credentials
 are distributed. Publication/code/Sendtry brand licensing remains pending.
+
+## Brand polish before the authorized private merge
+
+David subsequently requested a more polished design and explicitly authorized
+merging the feature PR. This permits a private source merge, not public release
+or a license/visibility change. The product stays focused on an agent-owned
+computer, shared control and reusable reviewed skills.
+
+Read-only inspection confirmed the current Sendtry app/frontend use decorative
+coral `#d06a54`, warm canvas `#f6f1ed` and the same loop mark. The console's quieter
+`#f8f7f5` canvas and white panels adapt that identity to a work surface. Open source
+does not dictate a palette. Brand provenance and pending redistribution terms
+remain in [asset notes](../ui/assets/README.md) and [reuse](REUSE.md).
+
+The follow-up adds a distinct Computers icon, restrained selected edges, neutral
+preview/review badges, subtle panel boundaries and neutral disabled controls.
+Compact Take/Release targets are 44 px high. Skills uses library → detail with
+Back to skills; search/card focus and local review edits survive returning to
+the same unchanged revision. Trial inputs clear and video pauses on return;
+changed revisions still load current saved data. Desktop keeps the split layout.
+
+Manual review found Finish could lose keyboard focus when the guide rendered
+before the updated recording state. The completion handler now refreshes state
+before restoring focus. A new real trace demonstration saved successfully;
+Review manually received focus and Enter moved to Procedure for the agent.
+This is observed ordinary completion, not delayed-response fault injection.
+
+Actual compact review showed the search near 240 CSS px, no horizontal overflow,
+search/empty results, pressed selection and retained review fields. Plan remains
+default; a temporary trial value disappeared on return. No review write, video
+analysis, new model account or permission grant was performed. See
+[validation](VALIDATION.md) for final gates and image/source evidence. Private
+captures live under `artifacts/brand-polish-20261012/`.

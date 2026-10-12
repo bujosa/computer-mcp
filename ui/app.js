@@ -79,6 +79,7 @@ function guarded(fn) {
       busy = false;
       activityState();
       renderTeachGuide();
+      await refresh().catch(() => {});
       if (
         guideFocus &&
         view === 'teach' &&
@@ -94,7 +95,6 @@ function guarded(fn) {
         !activityFocus.disabled
       )
         activityFocus.focus({ preventScroll: true });
-      await refresh().catch(() => {});
     }
   };
 }
@@ -213,6 +213,7 @@ function reviewChanged() {
 }
 function renderTeachGuide() {
   const settingUp = !$('teach-builder').hidden;
+  $('teach').toggleAttribute('data-recording-setup', settingUp);
   document.querySelector('.skill-layout').hidden = settingUp;
   document.querySelector('.library-bar').hidden = settingUp;
   $('record-review').disabled = !own() || busy;
@@ -599,19 +600,24 @@ function renderLibrary() {
   const filtered = library.filter((item) =>
     item.name.toLowerCase().includes(search),
   );
+  $('skill-count').textContent = search
+    ? `${filtered.length} of ${library.length} skills`
+    : `${library.length} ${library.length === 1 ? 'skill' : 'skills'} · saved on this computer`;
   const key = JSON.stringify([filtered, selectedSkill?.id]);
   if (libraryKey === key) return;
   libraryKey = key;
   const children = filtered.map((item) => {
     const button = document.createElement('button');
     button.className = 'workflow-card';
+    button.dataset.skillId = item.id;
+    button.setAttribute('aria-pressed', String(item.id === selectedSkill?.id));
     button.classList.toggle('selected', item.id === selectedSkill?.id);
     const title = document.createElement('strong');
     title.textContent = item.name;
     const meta = document.createElement('span');
     meta.textContent = `${item.stepCount} ${item.stepCount === 1 ? 'step' : 'steps'} · ${item.proposed ? 'Agent proposal' : skillStatus(item.status, item.reviewed)}`;
     button.append(title, meta);
-    button.onclick = guarded(() => selectSkill(item.id));
+    button.onclick = guarded(() => openLibrarySkill(item.id));
     return button;
   });
   if (!children.length) {
@@ -634,6 +640,16 @@ function skillStatus(status, reviewed = false) {
       interrupted: 'Interrupted',
     }[status] || 'Needs review'
   );
+}
+async function openLibrarySkill(id) {
+  const latest = library.find((item) => item.id === id);
+  if (selectedSkill?.id === id && latest?.revision === selectedSkill.revision) {
+    $('teach').dataset.skillView = 'detail';
+    renderTeachGuide();
+    $('teach-next-title').focus();
+    return;
+  }
+  await selectSkill(id);
 }
 async function selectSkill(id) {
   const changedSelection = selectedSkill?.id !== id;
@@ -696,7 +712,18 @@ async function selectSkill(id) {
         : 'This recording was interrupted. Review it and teach the task again before exporting.';
   renderLibrary();
   renderTeachGuide();
+  $('teach').dataset.skillView = 'detail';
   if (changedSelection && view === 'teach') $('teach-next-title').focus();
+}
+function showSkillLibrary() {
+  if (busy) return;
+  clearSkillUse();
+  $('skill-video-player').pause();
+  $('teach').dataset.skillView = 'library';
+  const selected = [...$('workflows').children].find(
+    (item) => item.dataset.skillId === selectedSkill?.id,
+  );
+  (selected || $('skill-search')).focus();
 }
 function clearSkillUse() {
   skillUseGeneration++;
@@ -1202,6 +1229,7 @@ $('desktop-teach').onclick = guarded(async () => {
   startTeaching();
 });
 $('new-skill').onclick = startTeaching;
+$('skill-back').onclick = showSkillLibrary;
 $('close-builder').onclick = () => {
   if (!info?.teach.active) $('teach-builder').hidden = true;
   renderTeachGuide();

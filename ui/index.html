@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#f6f1ed" />
+    <meta name="theme-color" content="#f8f7f5" />
     <title>Sendtry Computer</title>
     <link rel="icon" href="/assets/brand-mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/style.css" />
@@ -23,6 +23,10 @@
         <path
           d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"
         />
+      </symbol>
+      <symbol id="i-computers" viewBox="0 0 24 24">
+        <rect x="3" y="8" width="14" height="11" rx="2" />
+        <path d="M8 5V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v10h-1M7 22h6m-3-3v3" />
       </symbol>
       <symbol id="i-terminal" viewBox="0 0 24 24">
         <rect x="3" y="4" width="18" height="16" rx="2" />
@@ -102,7 +106,7 @@
             <svg class="icon"><use href="#i-activity" /></svg>Activity
           </button>
           <button class="tab" data-view="computers">
-            <svg class="icon"><use href="#i-computer" /></svg>Computers
+            <svg class="icon"><use href="#i-computers" /></svg>Computers
           </button>
         </div>
       </nav>
@@ -300,7 +304,10 @@ Ready. Your command output will appear here.</pre
             >
           </div>
         </section>
-        <section id="teach" class="view" hidden>
+        <section id="teach" class="view" data-skill-view="library" hidden>
+          <button id="skill-back" type="button">
+            <svg class="icon"><use href="#i-arrow" /></svg>Back to skills
+          </button>
           <section class="teach-journey" aria-labelledby="teach-next-title">
             <ol class="journey-route" aria-label="Teaching stages">
               <li data-teach-stage="1">
@@ -336,7 +343,7 @@ Ready. Your command output will appear here.</pre
           <div class="section-bar library-bar">
             <div>
               <strong>Your skill library</strong>
-              <p>Demonstrations and reviewed procedures for this computer.</p>
+              <p id="skill-count">Saved on this computer.</p>
             </div>
             <button id="new-skill">
               <svg class="icon"><use href="#i-record" /></svg>Teach a task
@@ -426,7 +433,6 @@ Ready. Your command output will appear here.</pre
               <div id="skill-selected" hidden>
                 <div class="section-bar">
                   <div>
-                    <p class="eyebrow">RECORDED PROCEDURE</p>
                     <h2 id="skill-title"></h2>
                   </div>
                   <div class="actions">

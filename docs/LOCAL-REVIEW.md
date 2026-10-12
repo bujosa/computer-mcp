@@ -5,7 +5,11 @@ left running, idle with no control lease or active Teach recording. The rebuild
 reused unchanged dependency layers and retained computer/workspace UUIDs, its
 private volume, skills and history. The prior closure passed real MCP integration; the UI-only design follow-up was
 reviewed through actual owner control, recording, files and terminal on this image:
-`sha256:8fe898321c0e0943db53395edaf46354daab35618030f64b6c5f73f5d5e0065d`.
+`sha256:f4c3c088a2e74593e87af79ffe2d1d032cceb0e7e1c2f46272f8062600bee324`.
+The latest brand-polish follow-up adds compact Skills library/detail navigation,
+preserved local review fields, cleared trial inputs and refreshed Finish focus.
+The earlier `8fe8983` image belongs to the initial screen-first review;
+Mac mini's earlier snapshot was not updated by these local UI slices.
 
 The earlier physical ENOSPC failure remains in [the validation record](VALIDATION.md).
 Current doctor still warns: the Docker guest filesystem was 99% used, with

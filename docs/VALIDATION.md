@@ -4,6 +4,69 @@ Private Sendtry Computer MVP reviewed on 10–12 October 2026.
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Brand polish and private merge validation
+
+12 October follow-up after `1f76f00`: David explicitly authorized a private PR
+merge and requested further visual polish. Sendtry's existing coral/token/mark
+provenance was checked read-only. The three UI files add quieter state styling,
+44 px compact control targets, a distinct Computers icon and compact Skills
+library/detail navigation. Same-revision return preserves local review edits;
+Back clears trial inputs, pauses video, retains search and focuses the selected
+card. No backend/dependency/schema/operator/permission contract changed.
+
+PASS fresh pre-merge `npm run lint`, `npm run build` (51 modules plus
+UI/noVNC/shared), `npm test` (73 pass, zero failures/skips) and real
+`npm run test:integration -- .computer-mcp/review-mvp artifacts/brand-polish-20261012/mcp`.
+The broader backend suite here validates the complete MVP before the requested
+merge; no UI appearance/E2E harness was generated. Real MCP accepted modern and
+legacy stdio, 16 tools, scopes/auth/Host/Origin, pins, takeover/cancellation,
+contained files/symlinks, terminal bounds, Chromium/PNG, Teach reuse, disconnect
+cleanup and authenticated RFB. Workflow `12e5f737-baf3-491e-91f3-3f8e980e238f`
+was saved; final control was released.
+
+PASS manual actual owner-console review at 1280×800 and 390×844: compact library,
+search/count/empty result, detail/back, pressed selection, retained search and
+unsaved review fields, cleared trial inputs and paused video. Same-revision
+reopening kept a temporary notes edit; Refresh restored the original saved notes
+without a review write. Desktop displayed the adjacent 280/711 px library/detail
+at the measured layout. Document width did not exceed its available client width;
+compact control measured 44 px. The new recording setup remained usable while
+library/detail were hidden.
+
+Real trace-only demonstrations saved and returned to compact detail. Initial
+Finish review found focus on BODY after completion; refreshing runtime state
+before focus restoration corrected the observed sequence. A final keyboard
+Finish completion waited for Review manually to appear, then confirmed focus on
+`teach-next`; Enter focused `skill-procedure`. Take/Release returned focus to the
+replacement control. An earlier immediate post-Enter inspection was still in
+flight; a subsequent repeated Release locator found no target because control
+was already free. No double-release or runtime failure is claimed. These are
+ordinary completion observations; delayed-response fault injection was not run.
+
+T3 initially provided the real page, then two snapshot attempts returned
+`Preview automation snapshot timed out after 15000ms.` Connected Chrome continued
+manual review. One stale browser binding in the new REPL was corrected. T3's
+earlier soft capture remained a diagnostic. Captures/logs are private ignored
+artifacts under `artifacts/brand-polish-20261012/`; this is not pixel-perfect,
+whole-application WCAG, 200% zoom or all-device certification. This follow-up did
+not re-run video analysis, model/harness installation, Mac mini or other hosts.
+
+Final source/served UI hashes match: app
+`25eea2e9fc495285d05e563e8979f409fe41d5527f9badb909625a174c62cf23`,
+style `f6d1cb9ad79bea9f409e198e4a0cb1ec9ae4e74f8cf074cb91c816c43d3337ec`,
+index `2278658171d0491687163c03c53c1c59b8122083c22910669249fbd34b367a74`.
+Current image `sha256:f4c3c088a2e74593e87af79ffe2d1d032cceb0e7e1c2f46272f8062600bee324`
+reused unchanged cached dependency/runtime layers and retained UUIDs/volume.
+Read-only proof at 23:21:29 UTC confirmed null lease/inactive Teach; doctor
+reported 99% use and 1,997,549,568 guest bytes free. Default context stayed `ser9`;
+only the owned guest used explicit saved `desktop-linux`. No cleanup occurred.
+
+The prior head's hosted jobs executed zero steps because of account payment/
+spending restrictions. They are not contract failures or proof of the platform
+matrix. Normal private PR merge is authorized, without protected pushes, admin
+bypass, visibility/license changes or deployment. Fresh hosted status is recorded
+in the PR rather than inferred from local validation.
+
 ## Screen-first design and manual working flows
 
 12 October UI-only follow-up: Opus 5.5 xhigh completed a read-only design review

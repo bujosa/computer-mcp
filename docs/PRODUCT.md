@@ -88,6 +88,14 @@ task verification. The guide says when a connected agent must receive an analysi
 request; consent/copy is never presented as analysis in progress. It preserves
 zero-step, deleted-video, interruption and unsaved-edit restrictions.
 
+On compact screens Skills opens as a searchable library; selecting a saved task
+opens its detail instead of stacking the library above a long review. **Back to
+skills** retains the search and focuses the selected card. Reopening that same
+unchanged revision preserves local review edits; choosing another skill,
+refreshing or selecting a changed revision loads the saved data. Returning clears
+prepared trial inputs and pauses the video. Desktop retains the adjacent library
+and detail. Finish restores keyboard focus after the runtime state refresh.
+
 ## Visual and interaction rules
 
 Use light, quiet surfaces and one primary action per local task. Ink is text,
@@ -114,6 +122,12 @@ editable even without structured steps.
 Action buttons use a darker Sendtry salmon for legible light text; decorative
 marks and selected surfaces retain the original brand palette. Advanced tool
 names sit behind an accessible disclosure so first connection remains focused.
+Selected navigation/skills use a restrained coral edge; neutral badges, subtle
+panel boundaries and neutral disabled controls keep state distinct from actions.
+Compact control targets are at least 44 px high. The decorative coral
+`#d06a54` comes from Sendtry's existing tokens/mark, while darker `#b95440`
+supports light button text. Open-source distribution does not prescribe these
+colors; branding and future code/asset licensing remain separate decisions.
 
 The host's read-only `doctor` supports pre-creation prerequisite checks and
 reports host space separately from measured space in an owned running guest.

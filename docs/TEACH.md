@@ -33,6 +33,13 @@
 
 ## Use a reviewed skill
 
+On a compact screen, choose a task from the searchable library to open its
+detail. **Back to skills** preserves the search, focuses that card, pauses video
+and clears prepared trial inputs. Returning to the same unchanged revision keeps
+your unsaved review fields. Selecting another task, selecting a changed revision
+or **Refresh saved skill** loads saved data instead. Unsaved review changes still
+block preparing/exporting instructions; navigation never saves them implicitly.
+
 The teaching guide highlights Demonstrate, Understand, Review or Try new inputs
 from the current recording, selected skill and open review. Its next action opens
 the relevant existing control. Frame consent and copied requests do not start an
@@ -72,6 +79,7 @@ total; larger inputs need a separate authorized handoff. Values are literal JSON
 data in the copied request. They stay in the open owner form, are never sent to
 the preparation endpoint or persisted in Teach/Activity, and clear on close,
 leaving Skills, refreshing the skill, authorization loss or page unload. The
+**Back to skills** action also closes the trial and clears its values. The
 clipboard and any harness you send the request to receive the copied values;
 keep credentials and secrets out.
 
