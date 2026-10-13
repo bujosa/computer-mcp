@@ -6,17 +6,20 @@ recording. The rebuild reused unchanged dependency layers and retained
 computer/workspace UUIDs, its
 private volume, skills and history. Fresh real MCP integration and manual owner
 control/Teach checks passed on this image:
-`sha256:2df17d2ff592d2f4e81c9c1914e703b48fb84f9d9c2a0612d0815c94ab4fc4e6`.
+`sha256:617f4534086dbe345bb5745a7adfd772ab2da388c9d2e817bcbd59ec1ac42629`.
 The latest correction prevents old metadata responses from replacing Take/Finish
 results and fixes pending recording settings. A new video demonstration produced
 a model-proposed, owner-reviewed procedure that succeeded with new supplied
 values after a real page reload. The earlier `f4c3c08` image belongs to the
 12 October brand review; Mac mini's earlier snapshot was not updated by these
-local UI slices.
+local UI slices. Real Claude Code and Codex CLI runs also passed work/read/busy
+paths, analyzed separate private video demonstrations and reused their own
+owner-reviewed proposals. The served operator is version 7, clarifying
+post-acquisition revision-check ordering. See [harness validation](HARNESS-VALIDATION.md).
 
 The earlier physical ENOSPC failure remains in [the validation record](VALIDATION.md).
 At 03:14 UTC on 13 October, available guest capacity was below 1 GB. A later
-read-only doctor at 04:24 UTC measured 66,411,851,776 bytes available and 62% use;
+read-only doctor at 04:57 UTC measured 66,333,708,288 bytes available and 62% use;
 it returned `ok`. Host APFS free space is a separate measurement. Inspect current
 capacity before larger writes, recordings or builds; a successful cached rebuild
 does not establish cold-build capacity. No Docker

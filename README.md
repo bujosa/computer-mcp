@@ -97,8 +97,10 @@ node src/cli.js config --name my-computer --client codex
 Copy the JSON `mcpServers.computer` entry into your harness’s MCP settings (Claude
 Code, Cursor or another stdio client). The second command emits a Codex TOML
 entry. Both use absolute Node/CLI/state paths, so harness working directories do
-not matter. See [setup and harness notes](docs/SETUP.md). Harness-specific UX has
-not been validated merely because the standard MCP client works.
+not matter. See [setup and harness notes](docs/SETUP.md). Real Claude Code and
+Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
+see [harness validation](docs/HARNESS-VALIDATION.md) for versions and evidence.
+Cursor and persistent desktop/IDE registration remain untested.
 
 For observation-only access, generate configuration with `--access read`. The
 bridge uses a distinct derived credential; the guest enforces that scope as well

@@ -163,15 +163,19 @@ these absolute machine-specific paths local. Keep credentials out of harness
 config and restart/reload its MCP connection after changing entries. Do not use
 `npm start` as the MCP command: npm emits informational stdout; invoke Node
 and `src/cli.js mcp` directly. Standard SDK stdio interoperability is tested;
-Claude Code/Cursor UI registration is not tested in this MVP.
+Actual Claude Code CLI loading and model-driven work/read/busy paths passed with
+temporary explicit configuration; Cursor and Claude Desktop UI registration are
+not tested. See [real harness validation](HARNESS-VALIDATION.md).
 
 ## Codex
 
 `node src/cli.js config --name coding --client codex` emits a TOML
 `[mcp_servers.computer]` entry with absolute command/args. Add it using your
 Codex installation’s [documented MCP configuration flow](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Do not overwrite other
-servers. Codex harness registration itself is pending manual validation; the
-server protocol does not depend on an OpenAI API key or SDK.
+servers. Actual Codex CLI loading and model-driven work/read/busy paths passed
+with per-invocation MCP configuration. Persistent TUI/IDE setup is not tested;
+see [real harness validation](HARNESS-VALIDATION.md). The server protocol does not
+depend on an OpenAI API key or SDK.
 
 For read access, add `--access read` to the generator. The server exposes only
 read tools and uses a scoped credential enforced at the guest API. Read mode

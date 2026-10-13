@@ -4,7 +4,7 @@ description: Operate an assigned Sendtry Computer through MCP, analyze an owner-
 metadata:
   requires: Sendtry Computer MCP; changes require work access
   author: Sendtry
-  version: '6'
+  version: '7'
 ---
 
 # Sendtry Computer operator
@@ -78,6 +78,11 @@ require a new completed demonstration. A prepared request also requires its
 exact supplied revision. For direct selection, pin the returned revision for
 this task and recheck it immediately before execution. Stop on a changed review
 instead of silently switching versions. Report the workflow ID/revision used.
+After acquiring control, call `workflow_get` again and wait for its successful
+ready/reviewed/exact-revision response before the first mutation, including
+navigation. Do not run this check in parallel with an action. Pin the top-level
+`revision`; `review.sourceRevision` identifies proposal provenance and can differ
+from the published revision.
 
 These checks are agent instructions. General browser/file/terminal tools enforce
 access and leases, but do not bind each effect to a workflow review.
