@@ -1,8 +1,78 @@
 # Validation record
 
-Private Sendtry Computer MVP reviewed on 10–12 October 2026.
+Private Sendtry Computer MVP reviewed on 10–13 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
+
+## Control and Teach completion correction
+
+13 October follow-up on merged `4752166`: a manual delayed-response check found
+a real UI race. An old `/api/info` poll could keep **Control is free** visible
+after successful Take while the actual human lease was active. The UI now
+cancels the older read, waits for fresh state before enabling actions and ignores
+superseded results/errors. Metadata has an eight-second deadline. Pending Teach
+start captures and disables its settings; builder/library navigation is disabled
+during guarded actions. Runtime/API/schema/dependency contracts are unchanged.
+
+PASS `npm run format:check`, `npm run lint`, `npm run build` (**51 JavaScript
+modules** plus UI/noVNC/shared) and `git diff --check`. The served app source
+matches local SHA-256
+`be4c319063c948ae950dc6e7bdc2a193b23658c4a9e5c1794c882d38f2832740`.
+
+PASS `npm test`: **73 pass**, zero failures/skips. PASS fresh real
+`npm run test:integration -- .computer-mcp/review-mvp artifacts/control-teach-20261013/mcp`:
+modern/legacy stdio, 16 tools, credential/Host/Origin enforcement, identity pins,
+exclusive leases/human takeover, bounded terminal and cancellation/cleanup,
+contained files/symlinks, actual Chromium/PNG, Teach parameterized reuse,
+stdio-close cleanup and authenticated RFB. Saved contract workflow
+`60e1b68a-de5c-4502-ba4f-c6809ba22329`; final lease was released.
+
+PASS actual T3 owner-console checks at 1280×800 and 390×844, with no generated UI
+test harness. One-off page hooks delayed real responses without substituting
+payloads. Take cancelled the older info signal, showed **You're in control**
+and focused enabled Release while that packet remained held. A held Take reply
+kept mutation actions disabled. An eight-second info timeout showed unavailable
+state; restoring the request recovered the online desktop/free state. Finish
+with an old info packet held saved a trace-only task, hid the recording banner
+and focused `teach-next`. Hooks were restored after review.
+
+PASS a real SDK stdio agent lease followed by UI **Take over**: the probe observed
+the human lease, did not release another owner's lease and closed. Actual mouse
+and keyboard through the live noVNC canvas typed `QA` in the owned Linux guest;
+a settled guest PNG confirmed it. The first connection capture was black before
+the frame arrived; subsequent canvas pixels and screenshots showed the desktop.
+No native host desktop control or OS permissions were used.
+
+PASS optional guest video → multimodal proposal → owner review → reuse for
+**Verified video project note**, workflow `a80e347a-b4c8-414e-b1f5-9e331da66ef8`.
+The silent WebM was ready (7,180,287 bytes; 281,777 ms; 2,247 encoded frames).
+Authenticated owner browser actions supplied four captured steps. With explicit
+frame consent, a real MCP client obtained three PNG samples; the parent agent
+inspected those actual images and trace and submitted a revision-checked draft.
+The owner corrected and confirmed it in the real UI. After revoking frame access,
+the agent re-read reviewed revision `04a91777-d20b-4b58-b117-17a7ac0ac4f4`, acquired
+control, performed the task with **Beacon reuse 20261013** and a new note, reloaded
+the page and verified both saved values, then rechecked the revision and released
+control. Full video remains private; frame consent is revoked. This verifies one
+synthetic task with a connected reasoning agent, not automatic model training.
+
+QA orchestration also had failed attempts: a late restored start-response hook
+and an incorrect demo button selector were corrected before saving. Revoking
+consent before the first reuse completed changed its pinned revision; that
+attempt correctly stopped before acquiring control or performing effects. The
+sequential retry above passed against the current revision. Delayed unauthorized
+response recovery, a new named harness installation and other host platforms
+were not exercised in this follow-up. Mac mini retains its earlier snapshot.
+
+Current owned image is
+`sha256:2df17d2ff592d2f4e81c9c1914e703b48fb84f9d9c2a0612d0815c94ab4fc4e6`.
+Cached rebuilds retained UUIDs, volume, skills and history. Default context stayed
+`ser9`; all guest work used saved `desktop-linux`. Doctor at 04:24 UTC measured
+66,411,851,776 guest bytes free (62% use), after an earlier sub-1-GB measurement;
+no pruning, volume deletion or unrelated cleanup was performed by this work.
+Evidence remains private under `artifacts/control-teach-20261013/`. Hosted CI
+limitations are reported separately in the PR; local validation does not prove
+the Windows/macOS/Linux host matrix or isolated non-Linux guests.
 
 ## Brand polish and private merge validation
 

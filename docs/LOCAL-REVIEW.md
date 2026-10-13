@@ -1,21 +1,25 @@
 # Review this workspace locally
 
-On 12 October the owned `review-mvp` was rebuilt with the current runtime and screen-first UI and
-left running, idle with no control lease or active Teach recording. The rebuild
-reused unchanged dependency layers and retained computer/workspace UUIDs, its
-private volume, skills and history. The prior closure passed real MCP integration; the UI-only design follow-up was
-reviewed through actual owner control, recording, files and terminal on this image:
-`sha256:f4c3c088a2e74593e87af79ffe2d1d032cceb0e7e1c2f46272f8062600bee324`.
-The latest brand-polish follow-up adds compact Skills library/detail navigation,
-preserved local review fields, cleared trial inputs and refreshed Finish focus.
-The earlier `8fe8983` image belongs to the initial screen-first review;
-Mac mini's earlier snapshot was not updated by these local UI slices.
+On 13 October UTC the owned `review-mvp` was rebuilt with the current runtime and
+screen-first UI and left running, idle with no control lease or active Teach
+recording. The rebuild reused unchanged dependency layers and retained
+computer/workspace UUIDs, its
+private volume, skills and history. Fresh real MCP integration and manual owner
+control/Teach checks passed on this image:
+`sha256:2df17d2ff592d2f4e81c9c1914e703b48fb84f9d9c2a0612d0815c94ab4fc4e6`.
+The latest correction prevents old metadata responses from replacing Take/Finish
+results and fixes pending recording settings. A new video demonstration produced
+a model-proposed, owner-reviewed procedure that succeeded with new supplied
+values after a real page reload. The earlier `f4c3c08` image belongs to the
+12 October brand review; Mac mini's earlier snapshot was not updated by these
+local UI slices.
 
 The earlier physical ENOSPC failure remains in [the validation record](VALIDATION.md).
-Current doctor still warns: the Docker guest filesystem was 99% used, with
-2,005,852,160 bytes available at 18:55 UTC. Host APFS free space is a separate
-measurement. Inspect capacity before larger writes, recordings or builds; a
-successful cached rebuild does not establish cold-build capacity. No Docker
+At 03:14 UTC on 13 October, available guest capacity was below 1 GB. A later
+read-only doctor at 04:24 UTC measured 66,411,851,776 bytes available and 62% use;
+it returned `ok`. Host APFS free space is a separate measurement. Inspect current
+capacity before larger writes, recordings or builds; a successful cached rebuild
+does not establish cold-build capacity. No Docker
 pruning, volume deletion or unrelated cleanup was performed.
 
 The implementation worktree has an ignored, independent review catalog at

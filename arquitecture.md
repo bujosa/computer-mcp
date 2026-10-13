@@ -96,6 +96,16 @@ existing stop/save handler, which returns to the saved skill. Review readiness,
 frame consent, proposal availability and prepared handoff remain distinct. The
 console never infers an analysis job or verified task from a click/download.
 
+`ui/app.js` coordinates metadata reads with one current refresh task, its owner
+identity and an eight-second abort deadline. Ordinary polls share that task;
+completion of a guarded action cancels the older read and requests fresh state
+before enabling another action. Only the current task can apply info and Teach
+metadata; superseded failures cannot mark a newer state offline. Teach builder
+and library navigation is disabled during guarded actions, and settings are captured and
+disabled while start is pending. These are presentation safeguards. Runtime
+credentials, lease checks, workflow revisions and cancellation still determine
+authority; a fresh UI read never creates or extends a lease.
+
 `runtime/skill.js` converts a completed workflow into an Agent Skills `SKILL.md`.
 It generates a bounded kebab-case folder name with a workflow-ID suffix,
 YAML name/description/metadata, owning computer/workspace identities, reviewed

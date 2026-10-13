@@ -31,6 +31,12 @@
    request and send it to your chosen agent. You can also export `SKILL.md` into
    your harness's supported skills directory.
 
+Recording settings stay fixed while Start is pending. Take, Release and Finish
+wait for fresh computer state before enabling the next action. If that metadata
+read exceeds eight seconds, the console shows the computer as unavailable and
+retries; inspect the recovered state before continuing. This does not extend the
+runtime's control lease or change its execution deadlines.
+
 ## Use a reviewed skill
 
 On a compact screen, choose a task from the searchable library to open its
@@ -63,6 +69,8 @@ saved revision. A changed skill, pending proposal or wrong computer needs a fres
 review/request. The owner endpoint checks again before copy; a change detected
 while Skills is open clears the prepared request. Unsaved edits must be saved
 before preparing it. The server returns instructions, not an execution runner.
+Consent changes also update the workflow revision. Prepare a fresh request after
+revoking frame access rather than reusing a request pinned before revocation.
 
 Exported `SKILL.md` files carry the same computer/workspace and exact revision
 pins. They require fetching the current saved workflow, including after a wait
