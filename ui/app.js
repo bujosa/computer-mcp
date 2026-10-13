@@ -19,8 +19,8 @@ const firstTaskPath = `sendtry-check-${crypto.randomUUID().slice(0, 8)}.txt`;
 let skillUseGeneration = 0;
 let view = 'desktop',
   locked = false,
-  busy = false,
-  refreshing = false;
+  busy = false;
+let refreshTask;
 let library = [],
   libraryKey = '';
 function notice(text, error = false) {
@@ -67,23 +67,24 @@ function guarded(fn) {
         'record-review',
         'teach-stop',
       ].includes(event?.currentTarget?.id || document.activeElement.id);
+    if (['take', 'release'].includes(document.activeElement.id))
+      pendingControlFocus = true;
     busy = true;
-    activityState();
-    renderTeachGuide();
+    mutationState();
     notice('');
     try {
       await fn(event);
     } catch (error) {
       notice(error.message, true);
     } finally {
+      await refresh({ force: true }).catch(disconnected);
       busy = false;
-      activityState();
-      renderTeachGuide();
-      await refresh().catch(() => {});
+      mutationState();
       if (
         guideFocus &&
         view === 'teach' &&
         document.activeElement === document.body &&
+        !$('teach-next').hidden &&
         !$('teach-next').disabled
       )
         $('teach-next').focus({ preventScroll: true });
@@ -173,8 +174,10 @@ function mutationState() {
   $('take').hidden = !info || own();
   $('release').hidden = !own() || !!info?.teach.active;
   $('take').textContent = info?.lease ? 'Take over' : 'Take control';
+  for (const id of ['skill-back', 'new-skill', 'close-builder'])
+    $(id).disabled = !info || busy;
   if (!busy && pendingControlFocus) {
-    const target = $(pendingControlFocus);
+    const target = $(own() ? 'release' : 'take');
     if (
       document.activeElement === document.body &&
       !target.hidden &&
@@ -336,13 +339,26 @@ function renderTeachGuide() {
       : 'Review manually';
   $('teach-alternative').disabled = !info || busy;
 }
-async function refresh() {
-  if (!actor || refreshing) return;
-  const ownerAtStart = actor;
-  refreshing = true;
+function refresh({ force = false } = {}) {
+  if (!actor) return Promise.resolve();
+  if (refreshTask && !force) return refreshTask.promise;
+  refreshTask?.controller.abort();
+  const task = { owner: actor, controller: new AbortController() };
+  refreshTask = task;
+  const timer = setTimeout(() => task.controller.abort(), 8000);
+  task.promise = refreshComputer(task).finally(() => {
+    clearTimeout(timer);
+    if (refreshTask === task) refreshTask = undefined;
+  });
+  return task.promise;
+}
+async function refreshComputer(task) {
+  const current = () => !locked && actor === task.owner && refreshTask === task;
   try {
-    const currentInfo = await request('/api/info');
-    if (locked || actor !== ownerAtStart) return;
+    const currentInfo = await request('/api/info', undefined, {
+      signal: task.controller.signal,
+    });
+    if (!current()) return;
     info = currentInfo;
     $('connection').textContent = 'Online';
     $('connection').classList.add('online');
@@ -376,9 +392,11 @@ async function refresh() {
     const currentComputer = document.querySelector('[data-current-computer]');
     if (currentComputer)
       currentComputer.textContent = `${currentComputer.dataset.default === 'true' ? 'Default for the CLI' : 'Select by name in the CLI'} · ${info.lease ? 'Control occupied' : 'Ready for an agent'}`;
-    if (view === 'teach') await recording();
-  } finally {
-    refreshing = false;
+    if (view === 'teach')
+      await recording({ current, signal: task.controller.signal });
+  } catch (error) {
+    // A superseded read cannot mark the newer owner/control state offline.
+    if (current()) throw error;
   }
 }
 let activityCursor,
@@ -556,8 +574,18 @@ async function loadActivity(more = false) {
     );
   }
 }
-async function recording() {
-  const data = await request('/api/teach');
+async function recording({ current = () => true, signal } = {}) {
+  const ownerAtStart = actor;
+  const valid = () =>
+    current() &&
+    !locked &&
+    actor === ownerAtStart &&
+    view === 'teach' &&
+    !!info;
+  const data = await request('/api/teach', undefined, { signal });
+  if (!valid()) return;
+  const workflows = (await call('workflow_list', {}, { signal })).workflows;
+  if (!valid()) return;
   $('teach-status').textContent = data.active
     ? `Recording “${data.name}” · ${data.stepCount} ${data.stepCount === 1 ? 'step' : 'steps'}${data.limitReached ? ' · limit reached, save this recording' : ''}`
     : own()
@@ -574,9 +602,7 @@ async function recording() {
       }),
     );
   }
-  library = (await call('workflow_list')).workflows.sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  );
+  library = workflows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   renderLibrary();
   const latest = library.find((item) => item.id === selectedSkill?.id);
   if (latest && latest.revision !== selectedSkill.revision) {
@@ -1346,17 +1372,24 @@ $('terminal-cancel').onclick = async () => {
   }
 };
 $('teach-form').onsubmit = guarded(async () => {
-  await request('/api/teach/start', {
+  const settings = {
     name: $('teach-name').value,
     goal: $('teach-goal').value,
     video: $('teach-video').checked,
-  });
-  await showView('desktop');
-  notice(
-    $('teach-video').checked
-      ? 'Recording steps and guest video. Keep visible secrets out of this demonstration.'
-      : 'Recording steps. Show the task, then choose Finish demonstration. Input values are omitted.',
-  );
+  };
+  const fields = ['teach-name', 'teach-goal', 'teach-video'].map($);
+  for (const field of fields) field.disabled = true;
+  try {
+    await request('/api/teach/start', settings);
+    await showView('desktop');
+    notice(
+      settings.video
+        ? 'Recording steps and guest video. Keep visible secrets out of this demonstration.'
+        : 'Recording steps. Show the task, then choose Finish demonstration. Input values are omitted.',
+    );
+  } finally {
+    for (const field of fields) field.disabled = false;
+  }
 });
 $('teach-stop').onclick = guarded(finishTeaching);
 $('skill-review-form').onsubmit = guarded(async () => {

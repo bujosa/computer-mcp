@@ -95,6 +95,10 @@ unchanged revision preserves local review edits; choosing another skill,
 refreshing or selecting a changed revision loads the saved data. Returning clears
 prepared trial inputs and pauses the video. Desktop retains the adjacent library
 and detail. Finish restores keyboard focus after the runtime state refresh.
+Guarded actions remain disabled until a fresh metadata read completes. Older
+poll responses cannot replace that state; an eight-second metadata deadline
+shows an unavailable state and allows the normal reconnect loop to recover.
+Recording name, goal and video choice stay fixed while Start is pending.
 
 ## Visual and interaction rules
 
