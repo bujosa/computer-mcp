@@ -4,6 +4,42 @@ Private Sendtry Computer MVP reviewed on 10–13 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Actual Claude Code and Codex agents
+
+13 October follow-up on `c36a235`: real Claude Code 2.1.296 / Opus 5.5 and Codex
+CLI 0.162.1 / GPT-6.1-Sol connected over stdio using temporary configuration and
+existing subscription auth. Both passed work/file/terminal/browser/image/reviewed
+task reuse, read-only refusal and human-held-control scenarios. Two new private
+videos supplied actual sampled PNGs/trace; each model submitted a draft, the
+parent reviewed/corrected it, revoked frame access, then the same harness reused
+its own published procedure with new values and verified the saved result after
+reload. Sessions closed with released leases. [The harness record](HARNESS-VALIDATION.md)
+contains versions, declared protocol/client attribution, timings, IDs and limits.
+
+Real behavior justified one narrow correction: operator version 7 and MCP server
+instructions explicitly require waiting for the post-acquisition revision check
+before any mutation. Claude's first reuse scheduled the check and navigation in
+one assistant message; after clarification they were separate turns. Codex also
+completed the check before starting navigation. No tool/API/schema/dependency
+or runtime enforcement contract changed; workflow pinning remains agent guidance.
+The distinction between published revision and proposal provenance is documented.
+
+PASS fresh lint, build (51 modules plus UI/noVNC/shared), 73 backend/security
+contracts and the skill frontmatter validator. The owned guest was rebuilt using
+cached dependency/runtime layers; image
+`sha256:617f4534086dbe345bb5745a7adfd772ab2da388c9d2e817bcbd59ec1ac42629`
+retained UUIDs, volume, videos, skills and Activity. The served operator matched
+the current source, SHA-256
+`105c9758d0d7d4bd96882dbc1df367a4cfd81e270343f9ad42799346c3b88a20`.
+Doctor at 04:57 UTC returned `ok`, 62% guest use and 66,333,708,288 bytes available.
+No other computer, host permissions, global harness configuration or Docker
+default context changed. Mac mini and other hosts were not revalidated here.
+No UI appearance/E2E test harness or external inference service was added.
+PASS final `npm run format:check`, `git diff --check` and real
+`npm run test:integration -- .computer-mcp/review-mvp artifacts/agent-harness-20261013/mcp-final`
+against the rebuilt owned guest: modern/legacy stdio and all 16 tools/contracts.
+Saved workflow `3ba9d727-0aeb-4eee-aa47-349a128da810`; final lease was released.
+
 ## Control and Teach completion correction
 
 13 October follow-up on merged `4752166`: a manual delayed-response check found

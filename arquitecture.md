@@ -117,6 +117,12 @@ as a fallback when the record changes or is unavailable. These are agent
 instructions, not a revision lock on general action tools. Legacy workflows
 without a revision use their workflow UUID, as the existing prompt does. No
 stored workflow migration is needed; old downloads need a fresh export.
+The version-7 operator and MCP server instructions make the acquisition boundary
+explicit: await another ready/reviewed/exact top-level revision check after
+acquiring control and before the first mutation, including navigation. This
+check must not be scheduled in parallel with the action. Proposal provenance in
+`review.sourceRevision` is distinct from the published `revision`. Neither
+instruction creates an atomic execution guard or binds general tools to a skill.
 Interrupted recordings cannot export (409). The
 read endpoint `/api/workflows/:id/skill` uses normal authenticated workflow
 observation authority. The static operator skill is public local UI content

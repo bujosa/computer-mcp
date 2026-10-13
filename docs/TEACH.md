@@ -71,6 +71,9 @@ while Skills is open clears the prepared request. Unsaved edits must be saved
 before preparing it. The server returns instructions, not an execution runner.
 Consent changes also update the workflow revision. Prepare a fresh request after
 revoking frame access rather than reusing a request pinned before revocation.
+Pin the workflow's top-level `revision`. An accepted proposal's
+`review.sourceRevision` is provenance for the analyzed source, so it can differ
+from the current published revision; owner review creates a new revision.
 
 Exported `SKILL.md` files carry the same computer/workspace and exact revision
 pins. They require fetching the current saved workflow, including after a wait
@@ -102,6 +105,10 @@ requested task, verifies the saved expected result with actual evidence and
 releases control on completion/failure. Preparing/copying is recorded as
 **Prepared a skill request**; it does not prove that a task ran or succeeded.
 There is no automatic replay, model invocation or new permission grant.
+After acquisition, the operator skill requires another workflow read whose
+ready/reviewed/exact-revision response completes before the first mutation,
+including navigation. It must not run the read in parallel with an action.
+This remains agent guidance, not an atomic runtime lock on workflow revisions.
 
 The MCP prompt `analyze-demonstration` supplies the analysis request. The tools
 return regular MCP text/PNG images rather than an invented WebM content block.
