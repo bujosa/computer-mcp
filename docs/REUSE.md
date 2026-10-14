@@ -45,6 +45,16 @@ The generated noVNC bundle includes a source/license pointer, and its unmodified
 package license is served at `/novnc/LICENSE.txt`. esbuild bundles that library
 only; the product UI remains plain browser modules/CSS.
 
+`scripts/build-ui.mjs` applies an explicit, build-only modification to noVNC's
+`core/util/browser.js`: close the test VideoFrame and release its decoder after
+the H.264 capability probe, including failed configure/decode/flush. The pinned
+upstream snippets must match once or the build fails for review. Installed source
+is unchanged; the MPL source header/license and generated bundle attribution are
+retained. The modified source is reproducible from the pinned archive plus that
+checked-in script. This does not change desktop codecs, permissions or Teach
+video storage. See the [upstream file](https://github.com/novnc/noVNC/blob/v1.6.0/core/util/browser.js)
+and [WebCodecs resource lifecycle](https://www.w3.org/TR/webcodecs/#dom-videoframe-close).
+
 This private code is `UNLICENSED`; dependency licenses still apply. Before any
 public/open-source distribution, decide this repository’s license, audit
 third-party source/notice requirements (including noVNC MPL-2.0 and Linux image
