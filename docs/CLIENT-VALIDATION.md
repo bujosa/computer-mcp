@@ -134,6 +134,26 @@ Evidence: `claude-disconnect-1791951289504/{result,termination}.json` and
 remain separate acceptance work; SDK cancellation contracts cover their recorded
 scope only.
 
+## Retained owner Activity
+
+Owner-only reads at 04:32:44 UTC retained the three repetition sessions and
+Claude disconnect, including real start/end observations and control intervals:
+
+| Session            | Declared MCP client/version/protocol    | Control time (ms) | Recorded terminal outcome | Closure reason |
+| ------------------ | --------------------------------------- | ----------------- | ------------------------- | -------------- |
+| Claude repetitions | claude-code / 2.1.299 / 2026-07-28      | 44428             | failed / timeout          | client_closed  |
+| Codex repetitions  | codex-mcp-client / 0.162.1 / 2025-06-18 | 61755             | failed / timeout          | client_closed  |
+| Cursor repetitions | Cursor / 1.0.0 / 2025-11-25             | 76934             | failed / timeout          | runtime_stop   |
+| Claude termination | claude-code / 2.1.299 / 2026-07-28      | 14778             | cancelled / lease_lost    | client_closed  |
+
+Cursor's declared MCP version differs from the independently observed CLI
+version. Its session had no observed explicit session-end before the owned
+rebuild, so the audit conservatively closed it at last-seen with `runtime_stop`;
+the read probe similarly ended as `inactive`. Own lease release succeeded, but
+we do not claim a clean session-end handshake for Cursor. These labels/intervals
+are protocol metadata, not verified person/model identity, total reasoning time
+or task verdicts. No prompts/commands/video/file contents were added to Activity.
+
 ## Independent Mac mini acceptance
 
 Authorized SSH `bujosa@10.0.0.14`, existing strict host key, no native permissions
