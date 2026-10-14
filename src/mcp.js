@@ -9,6 +9,7 @@ import { RuntimeClient } from './client.js';
 import { tools } from './catalog.js';
 import { declaredClient } from './audit-contract.js';
 import { prepareSkillUse, formatSkillUse } from './skill-use.js';
+import { prepareComputerTask, taskRequestLimits } from './task-request.js';
 
 export async function serveMCP(config) {
   if (config.access && !['work', 'read'].includes(config.access))
@@ -138,6 +139,43 @@ export async function serveMCP(config) {
         },
       ],
     }),
+  );
+  server.registerPrompt(
+    'computer-task',
+    {
+      title: 'Work on this computer',
+      description:
+        'Prepare a pinned task request with a goal and observable success. Defaults to planning; execution needs work access. Retrieval runs no task.',
+      argsSchema: z.strictObject({
+        goal: z
+          .string()
+          .max(taskRequestLimits.goal)
+          .describe('Requested outcome.'),
+        expectedResult: z
+          .string()
+          .max(taskRequestLimits.expectedResult)
+          .describe('Observable criterion for success.'),
+        scope: z
+          .string()
+          .max(taskRequestLimits.scope)
+          .optional()
+          .describe(
+            'Allowed paths, sites and actions; empty grants no extra authority.',
+          ),
+        intent: z.enum(['plan', 'execute']).optional(),
+      }),
+    },
+    async (args, ctx) => {
+      const identity = await client.info({ client: metadata(ctx) });
+      const packet = prepareComputerTask(identity, args, {
+        access: readOnly ? 'read' : 'work',
+      });
+      return {
+        messages: [
+          { role: 'user', content: { type: 'text', text: packet.request } },
+        ],
+      };
+    },
   );
   if (!readOnly)
     server.registerPrompt(

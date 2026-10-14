@@ -25,6 +25,37 @@ and limits enforce authority; prose cannot enforce arbitrary task boundaries
 or guarantee model behavior. Terminal access extends beyond the contained file
 workspace. Internet mode permits reachable LAN/host services as well.
 
+## Prepare a task directly through MCP
+
+Clients supporting MCP prompts can list `computer-task` and retrieve it with
+string arguments `goal`, `expectedResult`, optional `scope` and optional
+`intent` (`plan` by default, or `execute`). With an already connected SDK client:
+
+```js
+const prepared = await client.getPrompt({
+  name: 'computer-task',
+  arguments: {
+    goal: 'Read the supplied guest CSV and create a report in a new directory.',
+    expectedResult: 'Totals reconcile; source unchanged; report read back.',
+    scope:
+      'Only that source and a new output directory. No installs or external actions.',
+    intent: 'plan',
+  },
+});
+```
+
+Retrieval freshly verifies both connected IDs, uses the console's formatter and
+returns a user message. It acquires no lease, performs no requested work and
+persists no task text. Read credentials reject execute; unknown fields,
+invalid/oversized requirements and changed identity fail. The connection defines
+the binding; do not supply another PC's IDs.
+
+The host application decides how to show/use the prompt. SDK interoperability
+does not certify a Claude/Codex/Cursor prompt menu or automatic model invocation.
+Console copying remains available when a harness lacks prompt support.
+`taught-workflow` handles reviewed procedures, while `analyze-demonstration`
+prepares evidence analysis. None starts inference or execution.
+
 ## An advanced bounded example
 
 **Goal:** read a guest CSV, write/run a standard-library report generator in a

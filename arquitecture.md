@@ -98,6 +98,14 @@ harness receives the request and determines the tool sequence; existing runtime
 boundaries enforce authority. Activity records actual tools, not a copied task's
 success. See [task assignment](docs/TASKS.md).
 
+The additive `computer-task` MCP prompt shares this formatter and its limits.
+Its strict string argument schema accepts goal, expectedResult, scope and intent;
+the callback awaits a fresh pinned info read before returning one user message.
+Read access rejects execution. Retrieval performs no tool effect, workflow
+lookup, job/storage write, model call or control acquisition. Prompt rendering is
+owned by the harness; supported SDK retrieval is not automatic skill/model use.
+Existing tools/prompts remain compatible. See [tasks](docs/TASKS.md).
+
 UI connection-stage selection is local navigation, not installation/connection
 evidence. The Teach guide derives its next action from the current info response,
 saved workflow revision/draft/review and open form state; it adds no persisted

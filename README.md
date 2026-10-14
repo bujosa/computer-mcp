@@ -17,7 +17,8 @@ backend dependency.
 Current product assessment, GitHub comparison and what remains before a public
 preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 [executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
-keeps work, teaching and setup clear. Licensing/publication remains pending.
+keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
+maps computer/Teach behavior, practical use and truthful gaps. Licensing/publication remains pending.
 
 ## Start your first computer
 
@@ -125,7 +126,9 @@ Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 `browser_snapshot`, `browser_action`, `desktop_screenshot`, `desktop_action`, `terminal_run`,
 `files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`,
 `workflow_analyze`, `workflow_propose`. MCP also exposes a pinned identity
-resource, `taught-workflow` and `analyze-demonstration` prompts.
+resource and `computer-task`, `taught-workflow` and `analyze-demonstration` prompts.
+`computer-task` prepares the same pinned plan/task as the console for clients
+supporting prompts; retrieval performs no task. See [the prompt contract](docs/TASKS.md#prepare-a-task-directly-through-mcp).
 
 ## Give the agent skills
 

@@ -4,6 +4,44 @@ Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## General task prompt and Grok reference (14 October)
+
+The host stdio bridge adds `computer-task`, using the existing pure formatter.
+Fresh info pins the request to its connected computer/workspace; default plan,
+strict bounded string arguments and read/work policy match the console handoff.
+No new tool, runtime endpoint, state schema, permission or model dependency.
+Reconnect the bridge to discover it; no guest rebuild is needed for this slice.
+
+PASS `node --test test/task-prompt.test.js`: three real stdio/SDK contracts using
+an isolated loopback runtime double, including legacy/modern discovery and
+retrieval, plan/execute preparation without effects, read execution refusal,
+invalid/oversized/unknown arguments and fresh rejection of changed identities.
+An initial assertion counted modern negotiation's legitimate session-close POST
+as a prompt effect; inspection showed `/api/session/end`. The contract now
+isolates retrieval after negotiation and asserts only two info GETs. This was a
+test-boundary correction, not a product failure or suppression of task effects.
+
+PASS `npm test`: 80 contracts, zero failures/skips. PASS `npm run lint`,
+`npm run build` (54 JavaScript modules plus bundles), `npm run format:check` and
+`git diff --check`.
+PASS `npm run test:integration -- .computer-mcp/review-mvp artifacts/grok-reference-20261014/mcp`:
+the actual owned Linux guest passed 16-tool contracts plus general prompt
+discovery/retrieval through both negotiated protocols and read access. Execution
+preparation acquired no control; read execution was refused. Saved fixture
+workflow `3b2e7d8b-572f-4ee1-92a0-f5c34b5f0d6d`; final lease released.
+
+Read-only doctor at 03:40:25 UTC returned `ok`, 9% guest use and 157,605,421,056
+bytes available. Only the explicit owned `desktop-linux` guest was exercised;
+no lifecycle, context, native permissions or unrelated resources were changed.
+UI code was unchanged. New prompt menu/automatic use in named model harnesses,
+Windows/Linux host lifecycle and Mac mini's new host bridge remain untested.
+The earlier actual model runs are not counted as tests of this added prompt.
+
+[The Grok reference](GROK-COMPARISON.md) uses first-party public docs, distinguishing
+vendor descriptions from independently executed Sendtry paths. Grok's internal
+recording-analysis pipeline and its runtime were not inspected/tested. Future
+product priorities stay proposals; no public distribution or license change.
+
 ## Advanced task experience (14 October)
 
 The general task handoff adds a pure shared formatter and owner page-memory

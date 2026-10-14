@@ -260,6 +260,47 @@ try {
     JSON.parse(resource.contents[0].text).workspaceId,
     identity.workspaceId,
   );
+  for (const client of [a, b, read]) {
+    const prompts = await client.listPrompts();
+    assert.ok(prompts.prompts.some((p) => p.name === 'computer-task'));
+    const request = await client.getPrompt({
+      name: 'computer-task',
+      arguments: {
+        goal: 'Inspect this guest and propose a report.',
+        expectedResult:
+          'A concrete plan with current prerequisites and verification.',
+      },
+    });
+    assert.match(request.messages[0].content.text, /^Prepare a plan/);
+    assert.ok(request.messages[0].content.text.includes(config.computerId));
+    assert.ok(request.messages[0].content.text.includes(config.workspaceId));
+  }
+  const taskExecution = await a.getPrompt({
+    name: 'computer-task',
+    arguments: {
+      goal: 'Prepare a guest report.',
+      expectedResult: 'Read back the report.',
+      intent: 'execute',
+    },
+  });
+  assert.match(taskExecution.messages[0].content.text, /^Complete this/);
+  await assert.rejects(
+    () =>
+      read.getPrompt({
+        name: 'computer-task',
+        arguments: {
+          goal: 'Prepare a guest report.',
+          expectedResult: 'Read back the report.',
+          intent: 'execute',
+        },
+      }),
+    /Execution needs a work connection/,
+  );
+  assert.equal(
+    (await api.info()).lease,
+    null,
+    'Prompt retrieval must not take control.',
+  );
   await rejected(a, 'files_write', {
     path: 'integration.txt',
     text: 'should not write',
@@ -646,6 +687,7 @@ PY`,
           'owner-only credential-free host configuration',
           'taught Agent Skills export with identity+omitted parameters',
           'computer+workspace pinning',
+          'computer-task prompt discovery+read/work policy without control',
           'lease exclusion+human takeover',
           'unprivileged terminal+timeouts+output cap',
           'same-UID desktop credential isolation',

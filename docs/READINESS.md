@@ -11,6 +11,13 @@ observations from hypotheses and executed checks.
 
 ## Overall judgment
 
+14 October follow-up: actual Claude/Codex work/read/Teach/reuse and advanced
+report runs, separate project skill-loading probes and a Claude takeover are
+recorded in [harness validation](HARNESS-VALIDATION.md). These improve the evidence
+below; they do not establish repeated-task success rates or all-client/host
+support. The [official Grok comparison](GROK-COMPARISON.md) maps the intended
+computer-provider scope and remaining product gaps.
+
 The private developer MVP has a coherent working loop: a persistent dedicated
 Linux guest, an existing agent connected by stdio, a shared owner console,
 exclusive control, demonstration evidence, reviewed instructions and real reuse
