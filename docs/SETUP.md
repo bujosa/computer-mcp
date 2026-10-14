@@ -302,6 +302,20 @@ by download.
 - **Offline/startup failure**: run `doctor`; inspect only the container named
   `cmcp-<computer UUID>` using the saved explicit Docker context. Never dump its
   environment or config: Docker inspection can reveal the private credential.
+- **BuildKit rejects a non-ASCII source path**: some builders fail with
+  `x-docker-expose-session-sharedkey` / `non-printable ASCII`. `doctor` warns
+  about the source checkout; the CLI adds recovery guidance for that error.
+  Use a checkout path containing ASCII characters (spaces were exercised), then
+  start using the same explicit `--state /absolute/private/state`. Keep that
+  state/volume and generate a new MCP entry for the new CLI path; do not recreate
+  the PC or delete data. Moving the source alone does not move private state.
+  Unicode state/client paths are a separate boundary from Docker build paths.
+- **Windows SSH registry credential error**: Docker's credential helper may need
+  an interactive Windows login session even for public image builds. Preserve
+  the user's Docker configuration/credential store. Our SSH QA used its own
+  disposable config and anonymous public Docker Hub pulls; it did not copy,
+  unlock or disable the user's credentials. This does not establish private
+  registry authentication over SSH.
 - **Port already in use**: `init` automatically skips registered/in-use ports.
   Explicit `--port` must be free. A listener can still appear between the probe
   and start; choose a new name/port instead of stopping another user's listener.

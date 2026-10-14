@@ -2,18 +2,22 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Fault } from './errors.js';
 export class FileService {
-  constructor(root) {
+  constructor(root, { launch = spawn } = {}) {
     this.root = root;
+    this.launch = launch;
   }
   call(action, ...args) {
     return new Promise((resolve, reject) => {
-      const child = spawn(
+      const child = this.launch(
         process.execPath,
-        [fileURLToPath(new URL('./file-worker.js', import.meta.url))],
+        [
+          '--v8-pool-size=1',
+          fileURLToPath(new URL('./file-worker.js', import.meta.url)),
+        ],
         {
           uid: 1000,
           gid: 1000,
-          env: { PATH: '/usr/bin:/bin' },
+          env: { PATH: '/usr/bin:/bin', UV_THREADPOOL_SIZE: '1' },
           stdio: ['pipe', 'pipe', 'ignore'],
         },
       );

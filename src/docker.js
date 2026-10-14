@@ -4,6 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 export const root = fileURLToPath(new URL('../', import.meta.url));
 export const projectName = (config) => `cmcp-${config.computerId}`;
+export function buildPathAdvice(stderr) {
+  return /x-docker-expose-session-(?:sharedkey|name)/.test(stderr) &&
+    stderr.includes('non-printable ASCII')
+    ? 'BuildKit rejected the source checkout path. Use an ASCII-only checkout path (spaces are allowed), then retry with the same explicit private state. Do not delete or recreate the computer to recover.'
+    : '';
+}
 export function runDocker(
   config,
   args,
@@ -24,8 +30,8 @@ export function runDocker(
         .toString()
         .replaceAll(config.token || '\0', '[redacted]')
         .replaceAll(config.ownerToken || '\0', '[redacted]');
-      if (capture) errorOutput = (errorOutput + text).slice(-4000);
-      else process.stderr.write(text);
+      errorOutput = (errorOutput + text).slice(-4000);
+      if (!capture) process.stderr.write(text);
     });
     const timer = setTimeout(() => child.kill('SIGKILL'), timeoutMs);
     child.once('error', (error) => {
@@ -38,7 +44,7 @@ export function runDocker(
         ? resolve(output)
         : reject(
             new Error(
-              `Docker command failed (${code ?? 'timeout'}). ${errorOutput}`,
+              `Docker command failed (${code ?? 'timeout'}). ${capture ? errorOutput : ''} ${buildPathAdvice(errorOutput)}`.trim(),
             ),
           );
     });
@@ -118,7 +124,7 @@ export function compose(config) {
         security_opt: ['no-new-privileges:true'],
         cpus: 2,
         mem_limit: '1536m',
-        pids_limit: 192,
+        pids_limit: 256,
         shm_size: '256m',
         tmpfs: ['/tmp:size=256m,mode=1777'],
         ulimits: { nofile: { soft: 4096, hard: 4096 }, core: 0 },

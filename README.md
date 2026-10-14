@@ -214,18 +214,22 @@ success. See [the activity contract](docs/ACTIVITY.md).
 
 ## Platform support
 
-| Server/CLI host                         | Guest provided by this MVP                                                   | Validation                                                                           |
-| --------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| macOS ARM64 + Docker Desktop            | Linux ARM64 desktop                                                          | Full CLI/MCP lifecycle passed locally and independently on a Mac mini via SSH        |
-| Linux + local Docker Engine             | Linux desktop matching image architecture                                    | Guest runtime exercised; Linux host lifecycle pending                                |
-| Windows + Docker Desktop, Linux engine  | Linux desktop                                                                | Portable CLI/core contracts targeted; Windows lifecycle pending                      |
-| macOS/Windows/Linux native host control | Existing host desktop                                                        | Not implemented; requires explicit OS permissions and gives no agent-owned isolation |
-| macOS guest VM                          | Isolated macOS only with appropriate Apple hardware/licensing and VM adapter | Not implemented/tested                                                               |
-| Windows guest VM                        | Windows VM with its own agent service and hypervisor adapter                 | Not implemented/tested                                                               |
-| Remote owned computer                   | Authenticated adapter plus private transport and ownership verification      | Not implemented/tested                                                               |
+| Server/CLI host                         | Guest provided by this MVP                                                   | Validation                                                                                                            |
+| --------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| macOS ARM64 + Docker Desktop            | Linux ARM64 desktop                                                          | Full CLI/MCP lifecycle passed locally and independently on a Mac mini via SSH                                         |
+| Linux ARM64 + local Docker Engine       | Linux ARM64 desktop                                                          | Full 17-phase CLI/MCP lifecycle passed on Jetson AGX Thor; other Linux hosts untested                                 |
+| Windows 11 x64 + Docker Desktop         | Linux AMD64 desktop                                                          | 17 functional phases passed with native Windows Node; preservation check flagged concurrent foreign-container removal |
+| macOS/Windows/Linux native host control | Existing host desktop                                                        | Not implemented; requires explicit OS permissions and gives no agent-owned isolation                                  |
+| macOS guest VM                          | Isolated macOS only with appropriate Apple hardware/licensing and VM adapter | Not implemented/tested                                                                                                |
+| Windows guest VM                        | Windows VM with its own agent service and hypervisor adapter                 | Not implemented/tested                                                                                                |
+| Remote owned computer                   | Authenticated adapter plus private transport and ownership verification      | Not implemented/tested                                                                                                |
 
 Docker on a Mac or Windows machine does **not** create a macOS or Windows guest.
-See [adapter boundaries](docs/ADAPTERS.md) and [validation evidence](docs/VALIDATION.md).
+See [adapter boundaries](docs/ADAPTERS.md), [host QA and its limits](docs/HOST-VALIDATION.md)
+and [validation evidence](docs/VALIDATION.md). Native Windows CLI testing used a
+checkout path with spaces. Non-ASCII source paths failed in BuildKit on both new
+hosts; doctor now warns before a build. These checks do not certify every OS,
+Docker installation or editor integration.
 
 ## Boundaries and development
 

@@ -13,6 +13,40 @@ import { compose, localEndpoint } from '../src/docker.js';
 import { setup, readConfig, statePath } from '../src/config.js';
 import { tools } from '../src/catalog.js';
 import { randomUUID } from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import { PassThrough } from 'node:stream';
+import { FileService } from '../runtime/file-service.js';
+
+test('file workers bound VM/filesystem threads while preserving UID isolation and result delivery', async () => {
+  const child = new EventEmitter();
+  child.stdin = new PassThrough();
+  child.stdout = new PassThrough();
+  child.kill = () => assert.fail('Successful worker must not be killed');
+  const service = new FileService('/data/workspace', {
+    launch: (_node, args, options) => {
+      assert.equal(args[0], '--v8-pool-size=1');
+      assert.equal(options.env.UV_THREADPOOL_SIZE, '1');
+      assert.deepEqual(Object.keys(options.env).sort(), [
+        'PATH',
+        'UV_THREADPOOL_SIZE',
+      ]);
+      assert.equal(options.uid, 1000);
+      assert.equal(options.gid, 1000);
+      child.stdin.once('finish', () => {
+        child.stdout.emit(
+          'data',
+          Buffer.from('{"result":{"path":"note.txt","text":"verified"}}'),
+        );
+        child.emit('close', 0);
+      });
+      return child;
+    },
+  });
+  assert.deepEqual(await service.read('note.txt'), {
+    path: 'note.txt',
+    text: 'verified',
+  });
+});
 
 async function temporary(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'cmcp-test-'));
@@ -119,13 +153,16 @@ test('file replacement detects concurrent changes and preserves ordinary permiss
   if (process.platform !== 'win32')
     assert.equal((await fs.stat(target)).mode & 0o777, 0o640);
   const open = fs.open.bind(fs);
+  // Windows can coalesce timestamps for same-size writes within one clock tick.
+  // Make this metadata-change fixture deterministic without sleeps or retries.
+  const concurrent = 'Changed concurrently with a longer value';
   t.mock.method(fs, 'open', async (...args) => {
     const file = await open(...args);
     if (path.basename(args[0]).startsWith('.computer-mcp-write-')) {
       const write = file.writeFile.bind(file);
       file.writeFile = async (...values) => {
         await write(...values);
-        await fs.writeFile(target, 'Changed concurrently');
+        await fs.writeFile(target, concurrent);
       };
     }
     return file;
@@ -134,7 +171,7 @@ test('file replacement detects concurrent changes and preserves ordinary permiss
     code: 'file_changed',
     status: 409,
   });
-  assert.equal((await files.read('note.txt')).text, 'Changed concurrently');
+  assert.equal((await files.read('note.txt')).text, concurrent);
   assert.deepEqual(await fs.readdir(root), ['note.txt']);
 });
 test(
@@ -397,7 +434,7 @@ test('CLI state never overwrites an existing computer; compose is local, owned a
   );
   assert.equal(service.labels['computer-mcp.owner'], config.computerId);
   assert.ok(service.volumes.every((v) => v.type === 'volume'));
-  assert.equal(service.pids_limit, 192);
+  assert.equal(service.pids_limit, 256);
   assert.equal(spec.networks.owned.internal, true);
   assert.equal(localEndpoint('ssh://real-machine'), false);
   assert.equal(localEndpoint('tcp://127.0.0.1:2375'), false);

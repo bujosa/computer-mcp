@@ -1,7 +1,8 @@
 # Product gaps and release gates
 
-Updated 14 October 2026 UTC with actual named-client/recovery acceptance and
-independent Mac mini checks. The market assessment originates at `3f5c6fc`,
+Updated 14 October 2026 UTC with actual named-client/recovery acceptance,
+independent Mac mini checks and [native Windows/Linux QA](HOST-VALIDATION.md).
+The market assessment originates at `3f5c6fc`,
 11 October (GitHub research snapshot 12 October UTC).
 This is a product/architecture review, not a release,
 security certification, customer study or promise to implement every item here.
@@ -52,7 +53,7 @@ adapters or infrastructure.
 | Design             | Sendtry palette, sticky control, grouped navigation, Skills/detail, guided Teach/connect; manual desktop/compact and delayed-copy checks | Full accessibility audit and all delayed-response/view transitions remain pending.                                      |
 | Recovery           | Storage/process bounds, takeover, three named-client timeouts, graceful Claude termination, restart persistence and read-only doctor     | Hard-crash/client-specific fault coverage is incomplete; hosted CI cannot start due to account billing restrictions.    |
 
-The current CLI closure passed 81 contracts locally and independently on the
+The preceding CLI closure passed 81 contracts locally and independently on the
 Mac mini. Real local guest integration and remote read/work SDK acceptance also
 passed. The remote guest intentionally retains its older image; the new host
 bridge/CLI was tested there from exact archived commit `210df79f`. The local
@@ -64,6 +65,16 @@ After the final rebuild, doctor at 04:24:21 UTC measured 10% guest use and
 One idle/view-session snapshot reported 306 MiB memory and image logical size
 1,620,852,456 bytes. Cold/warm/active/capture benchmarks remain pending.
 No automated UI appearance/E2E harness or competitor runtime was installed.
+
+The newer host slice passed 84 contracts on macOS and Linux ARM64, and 81 with
+three documented POSIX-only skips on native Windows x64. Its 17 functional
+lifecycle phases passed on Windows 11/Linux AMD64 guests and Ubuntu 24.04/Linux
+ARM64 guests. The Windows runner still returned failure: a foreign container
+disappeared during its preservation comparison. All original baseline resources
+were present at scoped teardown; the failure was retained rather than waived.
+Temporary QA directories, tools, guests, images and builder caches were removed
+from both hosts after ownership checks. This closes bounded host evidence, not
+the broader installation, performance, attribution or public-release gates.
 
 ## Ordered delivery gates
 
