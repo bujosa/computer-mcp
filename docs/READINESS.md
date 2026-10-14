@@ -1,7 +1,8 @@
 # Product gaps and release gates
 
-Market assessment at `3f5c6fc`, 11 October 2026 (GitHub research snapshot
-12 October UTC), with the diagnostic/owner-console closure on 12 October.
+Updated 14 October 2026 UTC with actual named-client/recovery acceptance and
+independent Mac mini checks. The market assessment originates at `3f5c6fc`,
+11 October (GitHub research snapshot 12 October UTC).
 This is a product/architecture review, not a release,
 security certification, customer study or promise to implement every item here.
 Recommendations below remain proposals except where explicitly marked delivered.
@@ -11,17 +12,18 @@ observations from hypotheses and executed checks.
 
 ## Overall judgment
 
-14 October follow-up: actual Claude/Codex work/read/Teach/reuse and advanced
-report runs, separate project skill-loading probes and a Claude takeover are
-recorded in [harness validation](HARNESS-VALIDATION.md). These improve the evidence
-below; they do not establish repeated-task success rates or all-client/host
-support. The [official Grok comparison](GROK-COMPARISON.md) maps the intended
-computer-provider scope and remaining product gaps.
+Actual Claude/Codex work/read/Teach/reuse, advanced reports and a Claude takeover
+are recorded in [harness validation](HARNESS-VALIDATION.md). The newer
+[client acceptance](CLIENT-VALIDATION.md) adds Cursor CLI, operator loading in all
+three CLIs, six fresh-input repetitions, three deliberate command timeouts,
+Claude prompt invocation and graceful CLI-disconnect cleanup. These are bounded
+synthetic checks, not a reliability rate or all-client/host support.
+The [official Grok comparison](GROK-COMPARISON.md) maps the intended provider scope.
 
 The private developer MVP has a coherent working loop: a persistent dedicated
 Linux guest, an existing agent connected by stdio, a shared owner console,
 exclusive control, demonstration evidence, reviewed instructions and real reuse
-with new inputs. One recorded/reviewed task and independent operator acceptance
+with new inputs. Recorded/reviewed tasks and independent operator acceptance
 are meaningful evidence. They do not establish reliable automation across tasks,
 low installation friction, repeat customer use or support for every harness/OS.
 
@@ -39,22 +41,28 @@ adapters or infrastructure.
 
 ## Existing strengths and evidence
 
-| Product area       | Implemented evidence                                                                                                               | Practical limit                                                                                                                |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Computer ownership | UUID/workspace pins, owned project/volume, persistent files/browser/Teach, catalog/default                                         | Changing default does not retarget connections. Docker container isolation is not a hostile-code VM guarantee.                 |
-| Shared work        | Same guest screen, read/work/owner separation, exclusive leases, takeover/cancellation                                             | One current writer; no collaborative multi-cursor or cloud identity system.                                                    |
-| MCP                | Official SDK, modern/legacy stdio, 16 tools, resources/prompts, real SSH SDK acceptance                                            | Named harness config is generated; actual Claude Code/Cursor/Codex installation/skill loading has not been verified.           |
-| Teach              | Real guest WebM, bounded sampled frames, consent, draft/owner review, v3 export and pinned new-input request                       | Owner sends a request to the existing agent. No internal model runner or automatic video-to-skill job.                         |
-| Execution          | Exact saved project/note verified after reload and guest restart in one real approved trial                                        | A bounded synthetic task, not repeated model-quality or real-world task reliability evidence.                                  |
-| Audit              | Local SQLite session/action/outcome/control times, owner filters/export, bounded metadata retention                                | Declared client labels/shared work credentials do not verify a person/model. Tool completion is not task success.              |
-| Design             | Sendtry palette, sticky session control, grouped navigation, compact Skills library/detail, guided Teach and owner-access recovery | Desktop/compact and keyboard paths passed; delayed-response fault injection and a full accessibility audit remain unexercised. |
-| Recovery           | Storage integrity, terminal bounds/cancel, interrupted state, restart persistence, pre-creation doctor and owned guest capacity    | Current local image is running on a nearly full Docker disk; hosted CI cannot start due to account restrictions.               |
+| Product area       | Implemented evidence                                                                                                                     | Practical limit                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Computer ownership | UUID/workspace pins, owned project/volume, persistent files/browser/Teach, catalog/default                                               | Changing default does not retarget connections. Docker container isolation is not a hostile-code VM guarantee.          |
+| Shared work        | Same guest screen, read/work/owner separation, exclusive leases, takeover/cancellation                                                   | One current writer; no collaborative multi-cursor or cloud identity system.                                             |
+| MCP                | Official SDK, modern/legacy stdio, 16 tools, resources/prompts, real SSH SDK and Claude/Codex/Cursor CLI acceptance                      | Temporary project/per-invocation registration exercised; editor/desktop UI menus and other harnesses are not certified. |
+| Teach              | Real guest WebM, bounded sampled frames, consent, draft/owner review, v3 export and pinned new-input request                             | Owner sends a request to the existing agent. No internal model runner or automatic video-to-skill job.                  |
+| Execution          | Claude/Codex advanced reports; six fresh-input form repetitions across three CLIs, reload and independent artifact checks                | Synthetic fixtures, not arbitrary task reliability or a matched Teach-versus-prompt evaluation.                         |
+| Audit              | Local SQLite session/action/outcome/control times, owner filters/export, bounded metadata retention                                      | Declared client labels/shared work credentials do not verify a person/model. Tool completion is not task success.       |
+| Design             | Sendtry palette, sticky control, grouped navigation, Skills/detail, guided Teach/connect; manual desktop/compact and delayed-copy checks | Full accessibility audit and all delayed-response/view transitions remain pending.                                      |
+| Recovery           | Storage/process bounds, takeover, three named-client timeouts, graceful Claude termination, restart persistence and read-only doctor     | Hard-crash/client-specific fault coverage is incomplete; hosted CI cannot start due to account billing restrictions.    |
 
-The current closure passed 73 contracts locally and on the Mac mini, local real
-MCP integration and one independent remote read/work SDK acceptance. Earlier
-Teach and broader lifecycle evidence belongs to its recorded source. The current
-UI received manual desktop/compact checks; exact scope and remaining checks are
-in [validation](VALIDATION.md).
+The current CLI closure passed 81 contracts locally and independently on the
+Mac mini. Real local guest integration and remote read/work SDK acceptance also
+passed. The remote guest intentionally retains its older image; the new host
+bridge/CLI was tested there from exact archived commit `210df79f`. The local
+guest was rebuilt for the final Cursor setup guidance and retained its pins/data.
+Earlier Teach/lifecycle evidence belongs to its recorded source. Exact checks,
+source/image boundaries and manual UI scope are in [validation](VALIDATION.md).
+After the final rebuild, doctor at 04:24:21 UTC measured 10% guest use and
+155,891,904,512 bytes available; the earlier near-full condition is historical.
+One idle/view-session snapshot reported 306 MiB memory and image logical size
+1,620,852,456 bytes. Cold/warm/active/capture benchmarks remain pending.
 No automated UI appearance/E2E harness or competitor runtime was installed.
 
 ## Ordered delivery gates
@@ -63,20 +71,20 @@ No automated UI appearance/E2E harness or competitor runtime was installed.
 not authorization to publish. A narrower first release can advertise only
 platforms/harnesses actually exercised. Later items are conditional on pilot need.
 
-| Order                                              | Missing outcome                                                                          | Existing starting point                                                                                          | Next bounded deliverable                                                                                                                                                                                                    | Acceptance evidence                                                                                                                                                                                                                                                                                                                                                |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1 — before public preview                          | A new user gets from checkout/prerequisites to a verified task without bespoke help      | `src/cli.js`, `src/connection.js`, `docs/SETUP.md`; pre-creation doctor checks engine/Compose and owned capacity | Complete a fresh installation walkthrough using the delivered diagnostic; add phase/error recovery and inspectable client registration/removal. Measure each phase; choose packaging after license review.                  | Fresh owned catalogs on each advertised host; actual named harness versions load MCP and operator skill; read and work tasks verified; two client launches/disconnects; default/pins preserved; paths with spaces and non-ASCII tested. Proposed goal: first verified task in ten minutes **after prerequisites**, reported as a target until measured.            |
-| 2 — before public preview                          | “Lightweight” has measured startup/storage/runtime evidence and useful capacity recovery | `src/docker.js` resource ceilings, bounds/retention, real ENOSPC and near-exhausted network evidence             | Extend the delivered owned-storage diagnostic for provisioning constraints; cold/warm/idle/active resource report. Design lifecycle update/backup/uninstall around exact owned identities, with inspectable deletion scope. | Report image/build bytes, cold build/warm start, actual RSS/CPU/disk for one idle/active PC, screenshot/stdio latency and capture overhead on specified hardware. Test low guest disk, no daemon, port conflict and unavailable network capacity without deleting unrelated resources. A 1536 MiB cap or a fast SDK trial is not measured footprint/model latency. |
-| 3 — first Teach pilot                              | Demonstrations make repeated tasks more useful than an ordinary prompt                   | `runtime/analysis.js`, `teach.js`, `skill.js`, operator v6; one real full journey                                | A bounded private Teach evaluation and clearer evidence review: sampled timestamps, missing actions, input parameters, observed result and uncertainty. Keep analysis in the selected external harness.                     | Six synthetic task families, five new-input/state variants and two named vision configurations: proposed 60 taught trials plus matched baseline using the same environments/models. Record owner corrections, interruption, changed selectors, budgets and actual result. No pass rate is claimed; paid model scope must be set before running inference.          |
-| 4 — after the evaluation exposes attribution needs | The owner knows which taught attempt ended and who/what checked it                       | Metadata-only Activity, exact reviewed revision, pinned handoff, operation/session IDs                           | Design a small task-attempt contract linking workflow/review/computer/session and explicit verifier attribution. Display reported, owner-reviewed and fixture-checked results separately.                                   | Stale/missing review rejected, foreign session/computer cannot finish it, retries are idempotent, restart marks uncertain work, takeover/cancel preserves partial-effect truth. A tool error/success or copied request never becomes verified task success. Do not relabel historical Activity.                                                                    |
-| 5 — before multi-agent sharing                     | Agents can be revoked separately and audit attribution matches their granted identity    | Existing read/work/owner credentials, immutable per-process session, lease generations                           | Host-owned per-agent credentials/rotation/revocation with explicit read/work grants; trusted credential identity separated from declared client/model metadata                                                              | Revoke one agent while others retain intended scope; expired/revoked credential cannot mutate/renew/finish; takeover clears active input/processes. Never use client labels as authorization or claim verified model identity. No organization/IAM/cloud service required.                                                                                         |
-| 6 — before public distribution                     | Users can legally build on the code and know how to contribute/get help                  | `private: true`, `UNLICENSED`, `SECURITY.md`, brand assets/provenance                                            | Decide code license separately from Sendtry marks/assets; inspect exact dependency/image notices; add contribution/support/version policy and a real private vulnerability channel                                          | Approved license/notices/brand rules, reproducible versioned artifact/setup, clean supported-host checks, credential-free diagnostics and no secrets/customer recordings in examples. Existing private-contact wording must be replaced with a usable reporting path before publication.                                                                           |
-| 7 — after pilot demand                             | A skill can be shared or discovered without silently binding to a stranger's PC          | Reviewed exports, Resources/prompts and identity/revision pins                                                   | Separate reusable template from local computer binding; reviewed import/rebinding with capability checks. Evaluate optional Skills over MCP only after actual host/SDK support                                              | Imported instructions treated as untrusted; no video/credentials copied; new owner approves bindings/review; foreign/stale pins fail; manifests/caches preserve source identity. Existing export/download remains fallback. A download is not proof that a harness loaded a skill.                                                                                 |
-| 8 — after supported core is useful                 | Additional machines/OSes without misleading isolation claims                             | Adapter seams in [ADAPTERS.md](ADAPTERS.md)                                                                      | One demanded VM/remote/native adapter at a time with its own auth, lifecycle and ownership contract                                                                                                                         | Actual guest OS and host/harness version tested; reconnect/identity/stop/persistence verified. Native mode explicitly controls an existing host, needs specific OS permissions and is not agent-owned isolation. No broad host permissions or exposure are authorized by this review.                                                                              |
+| Order                                              | Missing outcome                                                                          | Existing starting point                                                                                             | Next bounded deliverable                                                                                                                                                                                                    | Acceptance evidence                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 — before public preview                          | A new user gets from checkout/prerequisites to a verified task without bespoke help      | `src/cli.js`, `src/connection.js`, `docs/SETUP.md`; pre-creation doctor checks engine/Compose and owned capacity    | Complete a fresh installation walkthrough using the delivered diagnostic; add phase/error recovery and inspectable client registration/removal. Measure each phase; choose packaging after license review.                  | Fresh owned catalogs on each advertised host; actual named harness versions load MCP and operator skill; read and work tasks verified; two client launches/disconnects; default/pins preserved; paths with spaces and non-ASCII tested. Proposed goal: first verified task in ten minutes **after prerequisites**, reported as a target until measured.            |
+| 2 — before public preview                          | “Lightweight” has measured startup/storage/runtime evidence and useful capacity recovery | `src/docker.js` resource ceilings, bounds/retention, real ENOSPC and near-exhausted network evidence                | Extend the delivered owned-storage diagnostic for provisioning constraints; cold/warm/idle/active resource report. Design lifecycle update/backup/uninstall around exact owned identities, with inspectable deletion scope. | Report image/build bytes, cold build/warm start, actual RSS/CPU/disk for one idle/active PC, screenshot/stdio latency and capture overhead on specified hardware. Test low guest disk, no daemon, port conflict and unavailable network capacity without deleting unrelated resources. A 1536 MiB cap or a fast SDK trial is not measured footprint/model latency. |
+| 3 — first Teach pilot                              | Demonstrations make repeated tasks more useful than an ordinary prompt                   | `runtime/analysis.js`, `teach.js`, `skill.js`, operator v7; video-derived reviewed reuse and six fresh-input checks | A bounded private Teach evaluation and clearer evidence review: sampled timestamps, missing actions, input parameters, observed result and uncertainty. Keep analysis in the selected external harness.                     | Six synthetic task families, five new-input/state variants and two named vision configurations: proposed 60 taught trials plus matched baseline using the same environments/models. Record owner corrections, interruption, changed selectors, budgets and actual result. No pass rate is claimed; paid model scope must be set before running inference.          |
+| 4 — after the evaluation exposes attribution needs | The owner knows which taught attempt ended and who/what checked it                       | Metadata-only Activity, exact reviewed revision, pinned handoff, operation/session IDs                              | Design a small task-attempt contract linking workflow/review/computer/session and explicit verifier attribution. Display reported, owner-reviewed and fixture-checked results separately.                                   | Stale/missing review rejected, foreign session/computer cannot finish it, retries are idempotent, restart marks uncertain work, takeover/cancel preserves partial-effect truth. A tool error/success or copied request never becomes verified task success. Do not relabel historical Activity.                                                                    |
+| 5 — before multi-agent sharing                     | Agents can be revoked separately and audit attribution matches their granted identity    | Existing read/work/owner credentials, immutable per-process session, lease generations                              | Host-owned per-agent credentials/rotation/revocation with explicit read/work grants; trusted credential identity separated from declared client/model metadata                                                              | Revoke one agent while others retain intended scope; expired/revoked credential cannot mutate/renew/finish; takeover clears active input/processes. Never use client labels as authorization or claim verified model identity. No organization/IAM/cloud service required.                                                                                         |
+| 6 — before public distribution                     | Users can legally build on the code and know how to contribute/get help                  | `private: true`, `UNLICENSED`, `SECURITY.md`, brand assets/provenance                                               | Decide code license separately from Sendtry marks/assets; inspect exact dependency/image notices; add contribution/support/version policy and a real private vulnerability channel                                          | Approved license/notices/brand rules, reproducible versioned artifact/setup, clean supported-host checks, credential-free diagnostics and no secrets/customer recordings in examples. Existing private-contact wording must be replaced with a usable reporting path before publication.                                                                           |
+| 7 — after pilot demand                             | A skill can be shared or discovered without silently binding to a stranger's PC          | Reviewed exports, Resources/prompts and identity/revision pins                                                      | Separate reusable template from local computer binding; reviewed import/rebinding with capability checks. Evaluate optional Skills over MCP only after actual host/SDK support                                              | Imported instructions treated as untrusted; no video/credentials copied; new owner approves bindings/review; foreign/stale pins fail; manifests/caches preserve source identity. Existing export/download remains fallback. A download is not proof that a harness loaded a skill.                                                                                 |
+| 8 — after supported core is useful                 | Additional machines/OSes without misleading isolation claims                             | Adapter seams in [ADAPTERS.md](ADAPTERS.md)                                                                         | One demanded VM/remote/native adapter at a time with its own auth, lifecycle and ownership contract                                                                                                                         | Actual guest OS and host/harness version tested; reconnect/identity/stop/persistence verified. Native mode explicitly controls an existing host, needs specific OS permissions and is not agent-owned isolation. No broad host permissions or exposure are authorized by this review.                                                                              |
 
-## The next engineering slice
+## Activation progress and remaining work
 
-Start with **activation and diagnostic evidence**, not a larger tool catalog:
+Activation has been improved with executed evidence:
 
 1. The owner explicitly chooses a local Docker context. Before creating state,
    explain host OS versus Linux guest, prerequisites and likely capacity errors.
@@ -84,19 +92,22 @@ Start with **activation and diagnostic evidence**, not a larger tool catalog:
    Linux Engine/Compose, rejects saved-context overrides and distinguishes host
    space from measured owned running guest space. It does not start stopped
    guests, inspect network-pool capacity or register a harness.
-2. Retain inspectable configuration and local skill installation paths. Any
-   installer should show exact target file/diff, preserve existing configuration
-   and require explicit scope before edits. Do not auto-grant work/native access.
-3. Run a fresh first task through an actual harness, distinguish server discovery
-   from skill loading and independently check the task result. Reconnect twice
-   and demonstrate that default selection cannot move that agent.
+2. **Delivered:** credential-free config generation, guided client setup and
+   `node src/cli.js skill`, which prints the exact operator without state/Docker.
+   Actual Cursor failure exposed separate project trust/MCP approval; guidance
+   now explains exact-server enablement. No installer rewrites user config.
+3. **Exercised:** fresh temporary projects with spaces/non-ASCII, actual skill
+   loading in Claude/Codex/Cursor CLI, read/work results, awaited revision checks,
+   timeouts and own-lease cleanup. Catalog contracts separately verify defaults
+   cannot retarget a bridge. Fresh human onboarding and supported-host lifecycle
+   trials remain necessary; this was an engineering acceptance, not a user study.
 4. Add owned recovery instructions and resource measurements. Host APFS free space
    does not establish free Docker guest space. Stop retains state intentionally;
    support needs a safe lifecycle/removal story as catalogs grow.
 
-The read-only diagnostic and contextual control/access recovery are delivered.
-The remaining activation, installer and measurement work above is still pending.
-No new adapter, schema, cloud gateway or paid model evaluation was added here.
+The remaining host/IDE onboarding, broader task evaluation, inspectable optional
+installation/removal and footprint measurements are still pending. No new
+adapter, task schema, cloud gateway or automatic runner was added here.
 
 ## Task-attempt boundary to design before implementation
 
@@ -132,9 +143,10 @@ remains procedural guidance.
 Keep the established Sendtry visual system. The guided Teach/connection and
 screen-first session/control and grouped-navigation slices are implemented; see
 [the current direction](DESIGN-DIRECTION.md). Owner-access recovery also clears
-late responses from the old session. Follow-up manual validation should exercise
-delayed responses. Actual session invalidation and recovery passed after an owned
-guest restart; the delayed-response scenario was not manually exercised.
+late responses from the old session. Actual session invalidation/recovery passed
+after an owned guest restart; a held info response followed by pagehide performed
+zero late clipboard writes in the manual task-form check. Other delayed-response
+paths and a full accessibility audit remain to be exercised.
 Every important state needs an obvious next action and accurate language: recording, consent
 allowed, proposal waiting, reviewed, request prepared, actual attempt interrupted.
 Avoid an activity dashboard claiming “success” from tool counts.
@@ -174,6 +186,7 @@ If repeated taught attempts fail or require as much correction as a fresh prompt
 improve evidence/parameters/verification before expanding features. A pilot can
 invalidate the positioning hypothesis; GitHub stars cannot settle it.
 
-Hosted CI payments/spending and local Docker capacity remain external blockers.
+Hosted CI payments/spending remains an external blocker. The latest local Docker
+capacity check is healthy; available capacity must still be rechecked for builds.
 This document does not alter billing, Docker defaults/resources, repository
 visibility, licenses, host permissions or any production system.

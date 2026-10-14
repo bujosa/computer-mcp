@@ -69,6 +69,17 @@ The design separates computer capabilities (MCP tools) from procedural knowledge
 (skills). The owner's console configures the existing bridge and exports existing
 Teach data; it does not create a second agent runtime or a Piblo backend.
 
+`skill` reads the fixed repository asset `ui/skills/sendtry-computer/SKILL.md` and
+prints it unchanged. It runs before catalog selection, needs no computer/Docker
+and creates no state. The owner chooses where to save it in a harness project;
+printing does not install a skill, approve an MCP connection or grant control.
+
+The noVNC build applies a guarded local cleanup to its WebCodecs feature probe,
+closing only that probe's frame/decoder. Dependency source is never rewritten;
+an upstream mismatch fails the build. Attribution/source details are in
+[reuse](docs/REUSE.md). Desktop transport/authorization and Teach capture remain
+separate from this browser capability check.
+
 `src/connection.js` owns credential-free command/argument generation and a strict
 schema for owner setup metadata. `open` sends exact host paths and read/work
 entries with its authenticated ticket request. The guest holds this metadata only

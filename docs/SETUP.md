@@ -89,6 +89,7 @@ node src/cli.js stop
 | `status`                  | JSON availability, pinned identity, network, context and active controller kind                         |
 | `doctor`                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards |
 | `config`                  | Generate stdio configuration fixed to the selected absolute state                                       |
+| `skill`                   | Print the exact operator SKILL.md without requiring/creating computer state or contacting Docker        |
 | `mcp`                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                       |
 
 `list` reports **ready** (reachable, pinned, no lease), **busy** (reachable with
@@ -158,14 +159,20 @@ merge the full JSON into a local project `.mcp.json`, or use its
 [documented stdio MCP add flow](https://code.claude.com/docs/en/mcp). Its
 `add-json` command takes the inner server entry, not the full `mcpServers` wrapper.
 In Cursor merge it into `.cursor/mcp.json` in your project, or use its
-[MCP settings](https://cursor.com/docs/mcp). Preserve existing entries and keep
+[MCP settings](https://cursor.com/docs/mcp). Approve/enable this exact server;
+loading the skill alone does not approve its MCP connection. In Cursor CLI use
+`agent mcp enable computer`, then `agent mcp list-tools computer` to inspect its
+actual tools. The [official CLI guide](https://cursor.com/docs/cli/mcp) distinguishes
+server approval from tool permissions. Preserve existing entries and keep
 these absolute machine-specific paths local. Keep credentials out of harness
 config and restart/reload its MCP connection after changing entries. Do not use
 `npm start` as the MCP command: npm emits informational stdout; invoke Node
 and `src/cli.js mcp` directly. Standard SDK stdio interoperability is tested;
-Actual Claude Code CLI loading and model-driven work/read/busy paths passed with
-temporary explicit configuration; Cursor and Claude Desktop UI registration are
-not tested. See [real harness validation](HARNESS-VALIDATION.md).
+Actual Claude Code and Cursor CLI loading, operator skills and model-driven
+read/work paths passed with temporary project configuration. Claude busy/Take
+over paths also passed. Cursor editor and Claude Desktop UI registration were
+not tested. See [client acceptance](CLIENT-VALIDATION.md) and
+[earlier harness validation](HARNESS-VALIDATION.md).
 
 ## Codex
 
@@ -206,7 +213,12 @@ the agent's actual result and Activity. See [task assignment](TASKS.md).
 Registration in a specific harness UI still needs separate validation.
 
 The operator skill downloads as `SKILL.md`. Place it in a folder named
-`sendtry-computer` in your local harness's supported skills directory:
+`sendtry-computer` in your local harness's supported skills directory.
+
+From the source checkout, `node src/cli.js skill` also prints its exact Markdown
+to stdout with no setup, Docker, state or installation side effects. Save that
+output at the project path below; preserve any existing skill. This is the same
+artifact as the console download, not a separate installer or global setting.
 
 | Local client | Project skill file                         | Official instructions                                        |
 | ------------ | ------------------------------------------ | ------------------------------------------------------------ |
@@ -222,8 +234,11 @@ suppresses it. The isolated real probe used `--setting-sources project` and
 successfully invoked the Skill tool. Codex must be able to read its skill file;
 disabling all host file-reading tools can prevent loading the full body. A
 separate read-only real probe allowed only the project skill read, then verified
-guest reports via MCP. These checks changed no global settings. Cursor skill
-discovery remains untested.
+guest reports via MCP. Cursor CLI read its `.cursor/skills/sendtry-computer/SKILL.md`
+and completed read/work requests after approval of the configured MCP server.
+Loading a skill and approving its MCP connection are separate steps. These
+checks changed no global MCP/skills configuration. Details and initial setup
+failures are in [client acceptance](CLIENT-VALIDATION.md).
 
 Create the named folder and save the downloaded file there. Check that your
 client discovers `sendtry-computer`; restart its session if necessary. These
@@ -271,6 +286,10 @@ by download.
   saved video in Skills. Read-only access cannot analyze or propose. Send the
   copied request to a connected vision-capable agent; enabling consent does not
   itself invoke a model. Refresh the selected skill to see a new proposal.
+- **Cursor has the skill but no computer tools**: from that project inspect
+  `agent mcp list-tools computer`. If this exact configured server is unapproved,
+  use `agent mcp enable computer` and reconnect. Trust the intended project only;
+  do not enable unrelated servers to fix this connection.
 - **Demonstration changed**: refresh the selected skill and review the current
   draft/revision; do not automatically retry a stale write.
 - **Video quota/decode failure**: explicitly delete unneeded clips or record

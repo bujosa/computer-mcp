@@ -93,6 +93,7 @@ Start the computer first, then generate a credential-free stdio configuration:
 ```sh
 node src/cli.js config --name my-computer
 node src/cli.js config --name my-computer --client codex
+node src/cli.js skill
 ```
 
 Copy the JSON `mcpServers.computer` entry into your harness’s MCP settings (Claude
@@ -101,7 +102,10 @@ entry. Both use absolute Node/CLI/state paths, so harness working directories do
 not matter. See [setup and harness notes](docs/SETUP.md). Real Claude Code and
 Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
 see [harness validation](docs/HARNESS-VALIDATION.md) for versions and evidence.
-Cursor and persistent desktop/IDE registration remain untested.
+Cursor CLI also passed actual project skill loading, read/work tasks and timeout
+recovery. See [client acceptance](docs/CLIENT-VALIDATION.md), including initial
+approval/cap failures and independent result checks. Persistent desktop/IDE
+registration remains untested.
 
 For observation-only access, generate configuration with `--access read`. The
 bridge uses a distinct derived credential; the guest enforces that scope as well
@@ -140,6 +144,10 @@ until copy and clear on close/navigation; preparation does not start execution.
 **Connect agent** provides pinned JSON/TOML configuration and the
 [Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md). Downloads do not
 install settings or change your existing host computer.
+`node src/cli.js skill` prints the exact operator Markdown from the checkout,
+even before a PC is created. Save it at your client's project skill path without
+overwriting existing work; load it explicitly. In Cursor, approve the exact MCP
+server separately from loading the skill. See [client setup](docs/SETUP.md).
 
 In **Teach & skills**, take control, name the task and start recording. Demonstrate it
 on the shared Linux guest, then choose **Finish demonstration** to save its evidence

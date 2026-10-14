@@ -332,7 +332,7 @@ test('operator skill is available through the actual CLI before setup, without c
       'utf8',
     ),
   );
-  assert.match(result.stdout, /^---\nname: sendtry-computer\n/);
+  assert.match(result.stdout, /^---\r?\nname: sendtry-computer\r?\n/);
   await assert.rejects(fs.access(root));
   await assert.rejects(
     exec(process.execPath, [cli, 'skill', '--access', 'work']),
