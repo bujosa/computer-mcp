@@ -4,6 +4,25 @@ Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## MCP distribution preparation (14 October, subsequent slice)
+
+[Distribution research and acceptance](DISTRIBUTION.md) separates observed
+official-project patterns from this implementation. PASS source install with
+the renamed canonical lock, format/lint/build (58 modules), 88/88 contracts,
+private package inventory and official Registry-template schema validation.
+No dependency version changed; no license/publication/namespace verification.
+PASS actual private tarball installed outside the checkout, local binary and
+operator skill, then a newly owned guest built from the packaged Docker assets.
+PASS real installed stdio read/work legacy/modern initialization, version/title,
+VS Code entries, identity/file/terminal/browser/PNG/lease checks. All newly owned
+QA resources and its temporary root were removed after preflight; original
+resource snapshots and effective Docker context matched. The existing review
+PC remains running/healthy with its original image and data. This adds no native
+permissions, public service, installer settings write, production deploy or UI
+appearance/E2E harness. Windows/Linux artifact and persistent VS Code editor UI
+setup remain untested. See the acceptance record for exact archive/hash boundaries
+and corrected QA/schema/allowlist assumptions.
+
 ## Native Windows/Linux host QA (14 October, subsequent slice)
 
 See [the full host record](HOST-VALIDATION.md) for exact source fingerprints,

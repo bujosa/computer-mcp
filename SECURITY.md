@@ -37,7 +37,7 @@ service or a substitute for a VM. No native host control adapter is installed.
   guarantee. A lost response can still follow a completed write; inspect it.
 - **Processes**: 30-second command deadline, 64 KiB combined output, process-group
   kill on timeout/cancellation/output cap. Browser selector/navigation deadlines
-  are 5/15 seconds. Container limits are 2 CPUs, 1536 MiB RAM and 192 PIDs; output
+  are 5/15 seconds. Container limits are 2 CPUs, 1536 MiB RAM and 256 PIDs/threads; output
   logs rotate. Daemonized children that escape a process group may survive until
   stop; per-command cgroups and disk volume quotas are pending. Do not run
   hostile persistent workloads here.

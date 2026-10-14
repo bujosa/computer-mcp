@@ -1,0 +1,38 @@
+[
+  {
+    "repository": "microsoft/playwright-mcp",
+    "url": "https://github.com/microsoft/playwright-mcp",
+    "stars": 38117,
+    "license": "Apache-2.0",
+    "defaultBranch": "main",
+    "commit": "b8b4183e099f136cbec0388a6088d4aa2f6b9685",
+    "archived": false
+  },
+  {
+    "repository": "github/github-mcp-server",
+    "url": "https://github.com/github/github-mcp-server",
+    "stars": 33598,
+    "license": "MIT",
+    "defaultBranch": "main",
+    "commit": "c59e8c199efbf14467211861de44afaeeb6873e3",
+    "archived": false
+  },
+  {
+    "repository": "upstash/context7",
+    "url": "https://github.com/upstash/context7",
+    "stars": 63008,
+    "license": "MIT",
+    "defaultBranch": "master",
+    "commit": "2dcbb295e4a2664b3b34aa6fa0c0b4f33fd08101",
+    "archived": false
+  },
+  {
+    "repository": "modelcontextprotocol/registry",
+    "url": "https://github.com/modelcontextprotocol/registry",
+    "stars": 7354,
+    "license": "NOASSERTION",
+    "defaultBranch": "main",
+    "commit": "11b7b0e274d518b6f449c5ee3518a6151d9848b9",
+    "archived": false
+  }
+]

@@ -8,6 +8,7 @@ import { randomUUID, createHmac } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { setup, saveConfig } from '../src/config.js';
+import { serverInfo } from '../src/metadata.js';
 
 async function bridge(t, { access = 'work', modern = false } = {}) {
   const state = await fs.mkdtemp(path.join(os.tmpdir(), 'cmcp-task-prompt-'));
@@ -73,6 +74,7 @@ async function bridge(t, { access = 'work', modern = false } = {}) {
     assert.ok(!stderr.includes(config.ownerToken));
   });
   await client.connect(transport);
+  assert.deepEqual(client.getServerVersion(), serverInfo);
   return {
     client,
     config,

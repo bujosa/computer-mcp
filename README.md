@@ -20,6 +20,9 @@ preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
 maps computer/Teach behavior, practical use and truthful gaps. Licensing/publication remains pending.
 
+[Setup](docs/SETUP.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
+[Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
+
 ## Start your first computer
 
 Requirements: Node **22.13+**, Docker Engine **28+** with Compose v2 and a **local
@@ -29,6 +32,7 @@ reuse the image and data. Run these commands inside this private checkout:
 
 ```sh
 npm ci
+node src/cli.js --version
 node src/cli.js doctor --context desktop-linux
 node src/cli.js init --name my-computer --context desktop-linux
 node src/cli.js start --open
@@ -93,12 +97,13 @@ Start the computer first, then generate a credential-free stdio configuration:
 ```sh
 node src/cli.js config --name my-computer
 node src/cli.js config --name my-computer --client codex
+node src/cli.js config --name my-computer --client vscode
 node src/cli.js skill
 ```
 
 Copy the JSON `mcpServers.computer` entry into your harness’s MCP settings (Claude
 Code, Cursor or another stdio client). The second command emits a Codex TOML
-entry. Both use absolute Node/CLI/state paths, so harness working directories do
+entry; the third emits VS Code `servers` JSON. All use absolute Node/CLI/state paths, so harness working directories do
 not matter. See [setup and harness notes](docs/SETUP.md). Real Claude Code and
 Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
 see [harness validation](docs/HARNESS-VALIDATION.md) for versions and evidence.
@@ -255,6 +260,7 @@ npm run format:check
 npm run lint
 npm run build
 npm test
+npm run check:package
 npm run test:e2e -- --context desktop-linux
 npm run test:integration -- /absolute/path/to/owned/computer/state
 ```
@@ -273,3 +279,6 @@ and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 dependency notice review, public packaging and release policy remain decisions
 for a future explicitly authorized release. Nothing here publishes a package or
 changes repository visibility.
+The [distribution policy](docs/DISTRIBUTION.md) records primary-market research,
+the private artifact check and a schema-checked draft Registry manifest. The
+package is not on a public registry; use this authorized checkout today.

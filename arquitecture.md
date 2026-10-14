@@ -2,6 +2,16 @@
 
 ## Product boundary
 
+Distribution does not expand computer authority. See [distribution decisions](docs/DISTRIBUTION.md).
+The trusted owner installs/creates/starts explicitly; stdio connects only to a
+saved pinned computer. `src/metadata.js` reads fixed installed package metadata
+for CLI version and MCP initialization (technical name, Sendtry title, version,
+description and repo URL), independent of cwd/state/Docker. VS Code configuration
+is another pure serializer of the same pinned connection, with no editor writes.
+The npm file inventory excludes local state/artifacts; `npm-shrinkwrap.json` is
+the single source/installed dependency lock used by Docker. Registry metadata is
+a non-published template, separate from the runtime protocol and provisioning.
+
 **Sendtry Computer** (`computer-mcp`) supplies a computer to an existing agent harness. It does not own
 inference, chat history, bots, routines, billing, connectors or cloud accounts.
 The implemented adapter is a dedicated Linux Docker container with a local

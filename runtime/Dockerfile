@@ -3,7 +3,7 @@ ENV DEBIAN_FRONTEND=noninteractive DISPLAY=:1 PLAYWRIGHT_BROWSERS_PATH=/opt/pw-b
 RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils x11vnc openbox xdotool scrot util-linux fonts-dejavu-core ca-certificates python3 ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/computer-mcp
-COPY package.json package-lock.json ./
+COPY package.json npm-shrinkwrap.json ./
 RUN npm ci --omit=dev && npx playwright install --with-deps chromium \
     && chmod -R a+rX /opt/pw-browsers
 COPY runtime ./runtime

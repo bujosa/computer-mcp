@@ -17,6 +17,7 @@ import {
 import { RuntimeClient } from './client.js';
 import { serveMCP } from './mcp.js';
 import { diagnostics } from './diagnostics.js';
+import { version } from './metadata.js';
 import {
   connectionEntry,
   formatConnection,
@@ -46,9 +47,10 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   status                         Report availability, control and identity (JSON)
   doctor [--context local]      Read-only setup/Compose/capacity checks; no PC required
   stop | open                   Stop with data retained, or authorize owner console
-  config [--client generic|codex] Print pinned, credential-free MCP configuration
+  config [--client generic|codex|vscode] Print pinned, credential-free MCP configuration
          [--access work|read]
   skill                          Print the operator SKILL.md; no PC/setup required
+  --version | -v                 Print the installed package version; no setup required
   mcp [--access work|read]        Serve stdio to a harness; stdout is protocol only
 
 Selection: --state /absolute/path > --name <registered-name> > saved default.
@@ -73,6 +75,7 @@ const { positionals, values } = parseArgs({
     rebuild: { type: 'boolean' },
     json: { type: 'boolean' },
     help: { type: 'boolean', short: 'h' },
+    version: { type: 'boolean', short: 'v' },
   },
 });
 const allowedOptions = {
@@ -161,6 +164,15 @@ async function openConsole(state, config, root) {
 }
 async function main() {
   const command = positionals[0];
+  if (values.version) {
+    if (
+      positionals.length ||
+      Object.keys(values).some((key) => key !== 'version')
+    )
+      throw new Error('Use --version without other commands or options.');
+    process.stdout.write(version + '\n');
+    return;
+  }
   if (values.help || !command) {
     process.stdout.write(help);
     return;
