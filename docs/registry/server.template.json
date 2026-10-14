@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.bujosa/computer-mcp",
+  "title": "Sendtry Computer",
+  "description": "Owned Linux desktop with browser, files, terminal and reviewed Teach skills. Requires local Docker.",
+  "repository": {
+    "url": "https://github.com/bujosa/computer-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@bujosa/computer-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "packageArguments": [
+        { "type": "positional", "value": "mcp" },
+        {
+          "type": "named",
+          "name": "--state",
+          "description": "Absolute private state directory of a computer already created and started by its owner. Do not share its contents.",
+          "format": "filepath",
+          "isRequired": true
+        },
+        {
+          "type": "named",
+          "name": "--access",
+          "description": "Connection scope; work permits leased guest mutations.",
+          "choices": ["read", "work"],
+          "default": "read"
+        }
+      ]
+    }
+  ]
+}

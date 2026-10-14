@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a reproducible private-preview failure using sanitized metadata.
+title: '[Bug]: '
+body:
+  - type: markdown
+    attributes:
+      value: 'Do not attach computer.json, tokens, owner URLs, full Docker inspection, private paths, videos or customer data. Use SECURITY.md for security reports.'
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      description: 'Output of node src/cli.js --version, or the installed computer-mcp --version.'
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: 'Host OS/architecture, actual guest OS, Docker/Node versions and MCP client/version. Omit machine addresses, account names and credentials.'
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps and expected result
+      description: 'Use placeholders for computer names, private paths and supplied inputs.'
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result
+      description: 'Include sanitized error codes and doctor result/check statuses; omit the private state path and identities.'
+    validations:
+      required: true

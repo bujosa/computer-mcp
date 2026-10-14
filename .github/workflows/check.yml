@@ -18,8 +18,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+          cache-dependency-path: npm-shrinkwrap.json
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
       - run: npm run build
       - run: npm test
+      - run: npm run check:package

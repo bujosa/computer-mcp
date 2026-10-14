@@ -4,7 +4,43 @@
   "private": true,
   "type": "module",
   "description": "An owned Linux desktop for any MCP agent",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bujosa/computer-mcp.git"
+  },
+  "homepage": "https://github.com/bujosa/computer-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/bujosa/computer-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "computer-use",
+    "agent-skills",
+    "sendtry"
+  ],
+  "mcpName": "io.github.bujosa/computer-mcp",
   "license": "UNLICENSED",
+  "files": [
+    "npm-shrinkwrap.json",
+    "src/**/*.js",
+    "runtime/**/*.js",
+    "runtime/*.py",
+    "runtime/*.sh",
+    "runtime/Dockerfile",
+    "ui/*.js",
+    "ui/*.html",
+    "ui/*.css",
+    "ui/assets/*.svg",
+    "ui/skills/**/*.md",
+    "scripts/build-ui.mjs",
+    ".dockerignore",
+    "docs/SETUP.md",
+    "docs/TEACH.md",
+    "docs/TASKS.md",
+    "docs/DESKTOP.md",
+    "docs/ACTIVITY.md",
+    "SECURITY.md"
+  ],
   "bin": {
     "computer-mcp": "src/cli.js"
   },
@@ -14,6 +50,7 @@
   "scripts": {
     "start": "node src/cli.js",
     "test": "node --test test/*.test.js",
+    "check:package": "node scripts/check-package.mjs",
     "test:integration": "node scripts/integration.mjs",
     "test:catalog-integration": "node scripts/catalog-integration.mjs",
     "test:teach-integration": "node scripts/teach-integration.mjs",

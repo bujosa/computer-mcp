@@ -78,6 +78,15 @@ the broader installation, performance, attribution or public-release gates.
 
 ## Ordered delivery gates
 
+[Distribution preparation](DISTRIBUTION.md) now adds standard installed-version
+and MCP display metadata, native VS Code configuration output, a private package
+allowlist/check, canonical packaged shrinkwrap, contributor/report guidance and
+a schema-valid unpublished Registry template. An actual private artifact built
+a new guest and passed SDK read/work acceptance outside the checkout on macOS
+ARM64. These close specific packaging failures; license, ownership, multi-host
+artifact/editor setup, supported update/uninstall and public distribution gates
+remain pending. No public package or Registry entry was created.
+
 “Before public preview” means before claiming the corresponding supported path,
 not authorization to publish. A narrower first release can advertise only
 platforms/harnesses actually exercised. Later items are conditional on pilot need.

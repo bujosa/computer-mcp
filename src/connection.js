@@ -62,7 +62,15 @@ export function formatConnection(entry, client = 'generic') {
     return `[mcp_servers.computer]\ncommand = ${JSON.stringify(entry.command)}\nargs = ${JSON.stringify(entry.args)}\n`;
   if (client === 'generic')
     return JSON.stringify({ mcpServers: { computer: entry } }, null, 2) + '\n';
-  throw new Error('Choose generic or codex configuration.');
+  if (client === 'vscode')
+    return (
+      JSON.stringify(
+        { servers: { computer: { type: 'stdio', ...entry } } },
+        null,
+        2,
+      ) + '\n'
+    );
+  throw new Error('Choose generic, codex or vscode configuration.');
 }
 export function cliCommand(command, args = []) {
   const quote = (value) =>

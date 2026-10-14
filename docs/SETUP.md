@@ -125,6 +125,10 @@ contents. Protect Windows directories with appropriate user ACLs. In PowerShell
 use Windows absolute paths; do not paste POSIX paths into Windows configuration.
 No native host permissions or existing host desktop exposure is involved.
 
+`node src/cli.js --version` (or `-v`) prints the installed package version without
+setup, state creation or Docker access. Supply only the version flag. Include
+this version with sanitized bug reports rather than sharing private state.
+
 `open` authorizes the console using a 30-second, single-use ticket; the ticket is
 removed from the browser URL immediately. Opening the bare console URL does not
 grant control. Run `open` again after restarting the guest or switching browsers.
@@ -133,6 +137,14 @@ owner-only host connection metadata. Do not share
 the private host state or copy an authorization URL.
 
 ## Claude Code / Cursor / generic stdio
+
+For VS Code, run `node src/cli.js config --name coding --client vscode`
+(optionally `--access read`). Merge the emitted `servers.computer` entry into
+the intended user/workspace `mcp.json` through VS Code's MCP configuration UI.
+Review/approve that exact server separately. Generation writes no editor file,
+changes no trust setting and prints no credentials. Do not overwrite other
+servers. The JSON/stdio contract is tested; persistent VS Code editor setup is
+not certified. See [official VS Code configuration](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
 
 Run `node src/cli.js config --name coding`. It emits:
 
@@ -369,5 +381,6 @@ its Docker volume, and back up private host config separately.
 - [Playwright Docker guidance](https://playwright.dev/docs/docker) for guest
   browser dependencies, non-root browser execution and sandbox limitations.
 
-Dependency versions are pinned by package-lock. Open-source release and upstream
+Dependency versions are pinned by the canonical npm-shrinkwrap lock, included
+in private artifacts. Open-source release and upstream
 license/notice obligations remain an explicit future review.
