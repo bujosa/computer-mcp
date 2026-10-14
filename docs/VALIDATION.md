@@ -43,7 +43,11 @@ Final cached rebuild image:
 `sha256:3a9887906c70bf5fc010bef623b315df301565d3bb9fd0d15b5ec704b26f88b8`.
 UUIDs, volume, skills and history were preserved. Doctor at 02:18:49 UTC returned
 `ok`, 62% guest use and 66,243,846,144 bytes available. Only this owned
-`desktop-linux` computer was changed; global Docker context remains `ser9`.
+`desktop-linux` computer was changed; all runtime operations passed that saved
+context explicitly. At handoff the global context was observed as
+`desktop-linux`, differing from the initially supplied `ser9`. No context-change
+command was performed here; the source of that change was not established and
+the global setting was left untouched.
 Other guests, Mac mini, Linux/Windows hosts and isolated non-Linux guests were
 not revalidated by this slice. Repository/package remain private/UNLICENSED.
 
