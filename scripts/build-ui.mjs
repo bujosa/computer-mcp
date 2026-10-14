@@ -1,5 +1,12 @@
 import { build } from 'esbuild';
 await build({
+  entryPoints: ['src/task-request.js'],
+  outfile: 'ui/vendor/task-request.js',
+  bundle: true,
+  format: 'esm',
+  minify: true,
+});
+await build({
   entryPoints: ['src/skill-use.js'],
   outfile: 'ui/vendor/skill-use.js',
   bundle: true,
