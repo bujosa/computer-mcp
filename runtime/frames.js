@@ -51,6 +51,12 @@ export async function decodeFrames(
           '-hide_banner',
           '-loglevel',
           'error',
+          // CPU quotas do not limit detected cores; bound input and filter
+          // workers separately from the output encoder within the PID budget.
+          '-filter_threads',
+          '1',
+          '-threads',
+          '1',
           '-i',
           'pipe:0',
           '-ss',

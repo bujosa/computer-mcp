@@ -4,6 +4,43 @@ Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Native Windows/Linux host QA (14 October, subsequent slice)
+
+See [the full host record](HOST-VALIDATION.md) for exact source fingerprints,
+versions, original failures, fixes, skips and complete authorized teardown.
+PASS final format/lint/build and native contracts on both hosts: Thor 84/84;
+Windows 81 passed, three POSIX-only skips, zero failures. PASS all 17 functional
+lifecycle phases on each, including actual AMD64/ARM64 guest Teach media and
+new-input reuse, audit, takeover and restart. Thor's runner passed completely.
+Windows's runner **failed** its foreign-resource preservation comparison after
+a concurrent foreign container disappeared; the failure remains visible.
+All original pre-QA resources were retained at cleanup. Both temporary QA
+directories, tools and owned Docker resources were removed and absence checked;
+global contexts remained unchanged. Prior statements below about untested
+Windows/Linux hosts describe those earlier snapshots, not this newer evidence.
+
+PASS local follow-up on product code `b05a20a`: 84/84 contracts with no skips,
+format/lint/build, real `test:integration` (16 tools, modern/legacy stdio,
+takeover/cancel/read/identity/browser/files/Teach) and `test:teach-integration`.
+The latter captured a real 19,529-byte WebM, decoded three analysis frames,
+checked proposal/review/consent/private-media boundaries and reused supplied
+file content through MCP; only its own clip was deleted. The fixed proposal is
+protocol acceptance, not a new model-quality evaluation. Worker bytes in the
+image match this checkout. Same owned UUIDs/data, healthy guest, 256 PID/thread
+cap, no final control lease or active Teach. Current image:
+`sha256:48ab3413305559ded1c86421c02a701f00013edccd7b3ef49df5a40a379aec8e`.
+Manual T3 1280×800 live view, Take control and Release/reconnection passed;
+no UI code or generated UI harness was added. An initial shared-builder registry
+metadata wait was cancelled only for our build; a separate temporary public-pull
+builder succeeded and its container/cache/configuration were removed. No cause
+for the shared-builder wait was established; unrelated builds were preserved.
+
+BLOCKED hosted CI on `b05a20a`: both push/PR Ubuntu/macOS/Windows runs completed
+with zero steps and the account payments/spending-limit annotation. GitGuardian
+passed. No billing or branch-protection setting was changed; these failures
+are not reported as passing checks. Documentation follow-ups do not change
+the runtime/CLI/tests validated above.
+
 ## Named-client setup, repetition and cleanup (14 October)
 
 `node src/cli.js skill` now prints the exact operator asset before catalog

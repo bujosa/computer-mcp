@@ -1,7 +1,13 @@
 // Trusted host diagnostics only. Never create a computer, change context or clean resources.
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { checkDocker, checkOwned, projectName, runDocker } from './docker.js';
+import {
+  checkDocker,
+  checkOwned,
+  projectName,
+  runDocker,
+  root as checkoutRoot,
+} from './docker.js';
 
 const MiB = 1024 * 1024;
 export function parseDisk(output) {
@@ -57,6 +63,7 @@ export async function diagnostics(
     statfs = fs.statfs,
     node = process.version,
     platform = process.platform,
+    sourceRoot = checkoutRoot,
   } = {},
 ) {
   const report = {
@@ -88,6 +95,13 @@ export async function diagnostics(
     nodeOK
       ? 'Node meets the 22.13+ requirement.'
       : 'Install Node 22.13 or newer before setup.',
+  );
+  add(
+    'source-path',
+    /[^\x20-\x7e]/.test(sourceRoot) ? 'warning' : 'info',
+    /[^\x20-\x7e]/.test(sourceRoot)
+      ? 'The source checkout path contains non-ASCII characters. Some BuildKit builders reject it; use an ASCII-only checkout for builds. Private state and MCP client paths can stay separate. No files are moved.'
+      : 'Source path is ASCII (spaces are allowed). This does not verify a build.',
   );
   try {
     report.storage.host = await hostSpace(state || root, statfs);

@@ -139,6 +139,12 @@ test('Video is private, unprivileged, scoped and coalesces stop; default Teach n
   assert.equal(options.config.gid, 1000);
   assert.equal(options.config.env.COMPUTER_TOKEN, undefined);
   assert.ok(options.args.includes(':1') && options.args.includes('-an'));
+  assert.equal(options.args[options.args.indexOf('-filter_threads') + 1], '1');
+  const input = options.args.indexOf('-i');
+  assert.equal(options.args[options.args.indexOf('-threads') + 1], '1');
+  assert.ok(options.args.indexOf('-threads') < input);
+  assert.equal(options.args[options.args.lastIndexOf('-threads') + 1], '1');
+  assert.ok(options.args.lastIndexOf('-threads') > input);
   assert.ok(!options.args.includes(root));
   await assert.rejects(video.start(randomUUID()), { code: 'video_busy' });
   const [saved, again] = await Promise.all([video.stop(id), video.stop(id)]);
@@ -310,6 +316,11 @@ test('Analysis decoder uses a separate UID and cancels only its bounded child on
     (_bin, args, opts) => {
       options = opts;
       assert.ok(!args.includes(video.file(id)));
+      assert.equal(args[args.indexOf('-filter_threads') + 1], '1');
+      assert.equal(args[args.indexOf('-threads') + 1], '1');
+      assert.ok(args.indexOf('-threads') < args.indexOf('-i'));
+      assert.equal(args[args.lastIndexOf('-threads') + 1], '1');
+      assert.ok(args.lastIndexOf('-threads') > args.indexOf('-i'));
       child.child.stdin.once('finish', () =>
         child.child.stdout.write(Buffer.alloc(frameLimits.bytes + 1)),
       );

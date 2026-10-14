@@ -7,6 +7,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { setup } from '../src/config.js';
 import { diagnostics, parseDisk } from '../src/diagnostics.js';
+import { buildPathAdvice } from '../src/docker.js';
 
 const config = {
   name: 'review',
@@ -18,6 +19,7 @@ const options = { context: config.context, root: '/private/unused-catalog' };
 const deps = {
   node: 'v22.13.0',
   platform: 'darwin',
+  sourceRoot: '/private/source with spaces',
   statfs: async () => ({ bavail: 100000, bsize: 4096 }),
   dockerCheck: async () => ({
     guestOS: 'linux',
@@ -25,6 +27,48 @@ const deps = {
     architecture: 'arm64',
   }),
 };
+
+test('source-path diagnostics warn about BuildKit Unicode independently of catalog/state paths', async () => {
+  for (const [platform, sourceRoot] of [
+    ['linux', '/home/owner/source with é'],
+    ['win32', 'C:\\Users\\owner\\source with é'],
+  ]) {
+    const report = await diagnostics(options, {
+      ...deps,
+      platform,
+      sourceRoot,
+      run: async () => 'v2.35.0',
+    });
+    assert.equal(report.result, 'warning');
+    const check = report.checks.find((x) => x.id === 'source-path');
+    assert.equal(check.status, 'warning');
+    assert.match(check.message, /ASCII-only checkout/);
+    assert.ok(!JSON.stringify(report).includes(sourceRoot));
+  }
+  const report = await diagnostics(
+    { ...options, root: '/catalog with é' },
+    {
+      ...deps,
+      run: async () => 'v2.35.0',
+    },
+  );
+  assert.equal(report.result, 'ok');
+  assert.equal(
+    report.checks.find((x) => x.id === 'source-path').status,
+    'info',
+  );
+});
+
+test('known BuildKit path transport rejection gets recovery advice without leaking its payload', () => {
+  const message =
+    'header key "x-docker-expose-session-sharedkey" contains value with non-printable ASCII characters';
+  const advice = buildPathAdvice(message + ' private-path-payload');
+  assert.match(advice, /same explicit private state/);
+  assert.match(advice, /Do not delete or recreate/);
+  assert.ok(!advice.includes('private-path-payload'));
+  assert.equal(buildPathAdvice('permission denied'), '');
+  assert.equal(buildPathAdvice('non-printable ASCII in another header'), '');
+});
 
 test('pre-creation diagnostic reads prerequisites without needing or creating a computer', async () => {
   const calls = [];

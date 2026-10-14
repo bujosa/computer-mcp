@@ -34,6 +34,11 @@ Stopped guests remain stopped. Host free space and unmeasured guest capacity sta
 distinct; results never imply runtime, harness or task readiness. The command has
 no MCP exposure, resource cleanup or schema/state writes.
 
+Diagnostics separately warn about a non-ASCII **source checkout** path: some
+BuildKit session headers reject it even though Node/MCP accepts Unicode paths.
+The known transport rejection adds an ASCII-checkout recovery hint, retaining
+explicit computer state. No automatic source/state copy or cleanup is performed.
+
 Host lifecycle is not exposed as an MCP tool. An agent using these tools cannot
 ask the bridge to start another computer, change Docker context, bind a host path
 or grant native screen/accessibility permissions. The CLI is a trusted owner
@@ -324,7 +329,7 @@ unrelated computer.
 
 The guest has a separate named volume and dedicated network, no bind mounts,
 Docker socket, host network or privileged mode. CPU is limited to 2 cores,
-memory to 1536 MiB and processes to 192. Only `127.0.0.1:<port>:7070` is
+memory to 1536 MiB and processes/threads to 256. Only `127.0.0.1:<port>:7070` is
 published. `/tmp` is a bounded 256 MiB tmpfs, so X11 locks and ephemeral captures
 cannot survive a container stop/start. Product data lives in the owned volume.
 Internet mode publishes the guest console port directly. Docker Desktop does not
@@ -453,6 +458,17 @@ video in a same-UID decoder. There is one extraction per computer, cancellation
 on disconnect/revoke/delete/shutdown, and a final consent+revision check before
 return. Numeric timestamps are bounded to the encoded frame estimate; samples
 can miss actions. No durable frame cache or model client is added.
+
+FFmpeg input decoding, filtering and output encoding each use one worker thread
+in capture/extraction. A CPU quota does not reduce FFmpeg's detected host core
+count; automatic codec/filter workers exhausted the former 192-PID guest budget
+beside Chromium on AMD64. The same clip decoded with these bounds. File workers
+also bound their V8/libuv pools to one each; the guest retains a finite 256-PID
+budget for browser/helper headroom. CPU/memory/media limits and UID separation
+remain intact. The later opaque file-worker failure is recorded without assuming
+its exact cause. The updated budgets passed all 17 functional lifecycle phases
+on Windows/Linux AMD64 and Linux ARM64; the separate Windows preservation-check
+failure remains visible in [host QA](docs/HOST-VALIDATION.md).
 
 The flow is: human starts optional video → demonstrates → saves → reviews
 visible content → grants analysis → connected vision agent calls

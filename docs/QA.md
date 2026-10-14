@@ -53,17 +53,24 @@ The runner exercises real CLI commands and official SDK stdio MCP clients:
 `report.json` records environment, source fingerprint/commit, phase timings and
 cleanup results without credentials. Screenshots and skills are retained beside
 the report. The runner stops **only** its newly owned guests in `finally`, even
-on failure; private volumes are retained. It checks that the default context and
+on failure; containers, private volumes, networks and image tags are retained.
+It checks that the default context and
 unrelated container identities/running states match its initial snapshot.
 An interruption such as SIGKILL may require manually inspecting and stopping
 only the UUIDs recorded in that catalog. It never prunes or deletes resources.
+On a shared host, a foreign actor's addition, removal or state change also makes
+this comparison fail. Keep that result and investigate separately; the runner
+cannot attribute the change and should not silently waive it.
 
 Repeated retained QA projects can exhaust Docker's automatic subnet pool or
 consume disk space. Treat a network-allocation error as a failed run; do not
 change the daemon, prune globally or delete another project's resources to hide
 it. Manual cleanup must first verify this run's exact UUID ownership, stopped
-guests and empty network endpoints, with volumes preserved. Cleanup outside the
-runner is recorded separately in the validation evidence.
+guests and empty network endpoints. Preserve volumes by default; deletion of
+task-owned QA volumes requires explicit scope. Cleanup outside the runner is
+recorded separately in the validation evidence. The
+[Windows/Linux QA record](HOST-VALIDATION.md) includes an explicitly authorized
+complete teardown with baseline comparisons and directory-absence checks.
 
 Artifacts are gitignored and may include demonstrated content or local private
 state. Do not commit or publicly share the artifact directory.
