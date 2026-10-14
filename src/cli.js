@@ -48,6 +48,7 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   stop | open                   Stop with data retained, or authorize owner console
   config [--client generic|codex] Print pinned, credential-free MCP configuration
          [--access work|read]
+  skill                          Print the operator SKILL.md; no PC/setup required
   mcp [--access work|read]        Serve stdio to a harness; stdout is protocol only
 
 Selection: --state /absolute/path > --name <registered-name> > saved default.
@@ -86,6 +87,7 @@ const allowedOptions = {
   stop: ['name', 'state'],
   open: ['name', 'state'],
   config: ['name', 'state', 'client', 'access'],
+  skill: [],
   mcp: ['name', 'state', 'access'],
 };
 async function lifecycleLock(state, fn) {
@@ -174,6 +176,15 @@ async function main() {
   for (const key of Object.keys(values))
     if (!['root', 'help', ...allowedOptions[command]].includes(key))
       throw new Error(`--${key} is not supported by ${command}. Run --help.`);
+  if (command === 'skill') {
+    process.stdout.write(
+      await fs.readFile(
+        new URL('../ui/skills/sendtry-computer/SKILL.md', import.meta.url),
+        'utf8',
+      ),
+    );
+    return;
+  }
   const root = catalogRoot(values.root);
   if (command === 'list') {
     const computers = await listComputers(root);

@@ -321,6 +321,25 @@ test('CLI defaults/config/strict options work through the real executable withou
   await assert.rejects(run(['mcp', '--access', 'admin']), /Choose --access/);
 });
 
+test('operator skill is available through the actual CLI before setup, without creating state', async (t) => {
+  const root = path.join(await temporary(t), 'new catalog with spaces é');
+  const result = await exec(process.execPath, [cli, 'skill', '--root', root]);
+  assert.equal(result.stderr, '');
+  assert.equal(
+    result.stdout,
+    await fs.readFile(
+      path.resolve('ui/skills/sendtry-computer/SKILL.md'),
+      'utf8',
+    ),
+  );
+  assert.match(result.stdout, /^---\nname: sendtry-computer\n/);
+  await assert.rejects(fs.access(root));
+  await assert.rejects(
+    exec(process.execPath, [cli, 'skill', '--access', 'work']),
+    /not supported by skill/,
+  );
+});
+
 test('owner catalog contract contains commands and identity only; no lifecycle API is introduced', async (t) => {
   const root = await temporary(t);
   const pc = await createComputer(root, {
