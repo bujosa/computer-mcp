@@ -1,5 +1,6 @@
 import RFB from '/vendor/rfb.js';
 import { formatSkillUse } from '/vendor/skill-use.js';
+import { prepareComputerTask } from '/vendor/task-request.js';
 const $ = (id) => document.getElementById(id);
 const pages = {
   desktop: 'Screen',
@@ -17,6 +18,8 @@ let terminalRun;
 let reviewingSkillId, teachNextAction, teachAlternativeAction;
 const firstTaskPath = `sendtry-check-${crypto.randomUUID().slice(0, 8)}.txt`;
 let skillUseGeneration = 0;
+let taskGeneration = 0,
+  taskComputer;
 let view = 'desktop',
   locked = false,
   busy = false;
@@ -137,6 +140,7 @@ async function showView(next) {
   $('nav-toggle').setAttribute('aria-expanded', 'false');
   if (next !== 'teach') clearSkillUse();
   if (next !== 'teach') $('skill-video-player').pause();
+  if (view === 'connect' && next !== 'connect') clearTaskDraft();
   view = next;
   document.body.dataset.view = view;
   for (const el of document.querySelectorAll('.view'))
@@ -169,6 +173,7 @@ function mutationState() {
     $(id).disabled = !own() || busy;
   for (const id of ['file-read', 'browse']) $(id).disabled = !info || busy;
   $('agent-copy').disabled = !ownerConfig || !info || busy;
+  renderTaskDraft();
   $('take').disabled = !info || own() || busy;
   $('release').disabled = !own() || busy || !!info?.teach.active;
   $('take').hidden = !info || own();
@@ -972,6 +977,8 @@ const clientGuides = {
       'Merge this JSON into .mcp.json in your local project. Reconnect Claude Code and approve this server when prompted. Keep this machine-specific configuration local.',
     docs: 'https://code.claude.com/docs/en/mcp',
     skillPath: '.claude/skills/sendtry-computer/SKILL.md',
+    activation:
+      'Save it relative to the project root. Open Claude Code there and invoke /sendtry-computer. If it is unavailable, check the path, enable project skills and restart the session.',
     skillDocs: 'https://code.claude.com/docs/en/skills',
   },
   cursor: {
@@ -979,6 +986,8 @@ const clientGuides = {
       'Merge this JSON into .cursor/mcp.json in your local project, or use Cursor’s MCP settings. Reload its MCP connection. Keep this machine-specific configuration local.',
     docs: 'https://cursor.com/docs/mcp',
     skillPath: '.cursor/skills/sendtry-computer/SKILL.md',
+    activation:
+      'Save it relative to the project root, then follow Cursor’s official guide to load and invoke the skill.',
     skillDocs: 'https://cursor.com/docs/skills',
   },
   codex: {
@@ -986,12 +995,16 @@ const clientGuides = {
       'Add this TOML entry to your Codex config.toml, keeping the other servers. Reconnect the MCP server. Keep this machine-specific configuration local.',
     docs: 'https://learn.chatgpt.com/docs/extend/mcp?surface=cli',
     skillPath: '.agents/skills/sendtry-computer/SKILL.md',
+    activation:
+      'Save it relative to the project root. Restart Codex in that project and invoke $sendtry-computer. Let it read the skill file before working through MCP.',
     skillDocs: 'https://learn.chatgpt.com/docs/build-skills',
   },
   generic: {
     setup:
       'Add the computer entry to your client’s documented stdio MCP settings, keeping the other servers. Reconnect the server. This client must run on the same host as the CLI.',
     skillPath: '<your-client-skills-directory>/sendtry-computer/SKILL.md',
+    activation:
+      'Use your client’s documented skill loader. Verify that it loaded these instructions before giving it a task.',
   },
 };
 function firstTaskText() {
@@ -1026,6 +1039,68 @@ function renderFirstTask() {
         : info.lease
           ? 'Control is occupied. The new agent must wait for release; it cannot take over.'
           : 'Control is available. Your agent acquires it before making changes.';
+  renderTaskDraft();
+}
+function taskInput() {
+  return {
+    goal: $('task-goal').value,
+    expectedResult: $('task-result').value,
+    scope: $('task-scope').value,
+    intent: $('task-intent').value,
+  };
+}
+function clearTaskDraft() {
+  taskGeneration++;
+  taskComputer = undefined;
+  $('task-form').reset();
+  $('task-error').hidden = true;
+  $('task-error').textContent = '';
+  $('task-request').textContent =
+    'Add a goal and a success criterion to prepare a request.';
+  $('task-copy').disabled = true;
+  document.querySelector('.task-preview').open = false;
+  document.querySelector('.task-scope-options').open = false;
+}
+function renderTaskDraft() {
+  const available = !!info && !!ownerConfig && !locked;
+  const pin = info ? `${info.computerId}:${info.workspaceId}` : undefined;
+  if (taskComputer && pin && taskComputer !== pin) clearTaskDraft();
+  if (pin) taskComputer = pin;
+  const readOnly = $('client-access').value === 'read';
+  $('task-intent').querySelector('[value="execute"]').disabled = readOnly;
+  if (readOnly) $('task-intent').value = 'plan';
+  for (const field of $('task-form').querySelectorAll('textarea, select'))
+    field.disabled = !available || busy;
+  $('task-clear').disabled = busy;
+  $('task-activity').disabled = !available || busy;
+  $('task-identity').textContent = available
+    ? `For ${ownerConfig.computerName} · ${info.computerId.slice(0, 8)} / ${info.workspaceId.slice(0, 8)}`
+    : 'Authorize and connect this console to prepare a task.';
+  let packet;
+  if (available) {
+    try {
+      packet = prepareComputerTask(info, taskInput(), {
+        access: $('client-access').value,
+      });
+    } catch {
+      /* Incomplete drafts are not requests. Native form validation explains required fields. */
+    }
+  }
+  $('task-request').textContent =
+    packet?.request ||
+    'Add a goal and a success criterion to prepare a request.';
+  $('task-copy').disabled = !packet || busy;
+  $('task-copy').firstChild.textContent =
+    $('task-intent').value === 'plan'
+      ? 'Copy plan request '
+      : 'Copy task request ';
+  $('task-control-hint').textContent = !available
+    ? 'This computer is unavailable. Reopen the console from the host CLI.'
+    : readOnly
+      ? 'Read access supports observation and planning. Reconnect with work access to execute.'
+      : $('task-intent').value === 'plan'
+        ? 'The agent may inspect this computer, then proposes a plan without acquiring control.'
+        : $('agent-control-hint').textContent;
 }
 function renderConfig() {
   const text = configText();
@@ -1040,6 +1115,7 @@ function renderConfig() {
   const guide = clientGuides[$('client-format').value];
   $('config-guide').textContent = guide.setup;
   $('operator-path').textContent = guide.skillPath;
+  $('operator-activation').textContent = guide.activation;
   for (const [id, href] of [
     ['config-docs', guide.docs],
     ['operator-docs', guide.skillDocs],
@@ -1501,9 +1577,86 @@ $('skill-use-copy').onclick = guarded(async () => {
   }
 });
 window.addEventListener('pagehide', clearSkillUse);
+window.addEventListener('pagehide', clearTaskDraft);
 window.addEventListener('pagehide', () => terminalRun?.controller.abort());
 $('client-format').onchange = renderConfig;
-$('client-access').onchange = renderConfig;
+$('client-access').onchange = () => {
+  taskGeneration++;
+  renderConfig();
+};
+$('agent-task-kind').onchange = () => {
+  const custom = $('agent-task-kind').value === 'custom';
+  $('connect-quick-check').hidden = custom;
+  $('connect-custom-task').hidden = !custom;
+  if (!custom) clearTaskDraft();
+  renderTaskDraft();
+  if (custom && !$('task-goal').disabled) $('task-goal').focus();
+};
+for (const field of $('task-form').querySelectorAll('textarea, select'))
+  field.addEventListener('input', () => {
+    taskGeneration++;
+    $('task-error').hidden = true;
+    renderTaskDraft();
+  });
+$('task-clear').onclick = () => {
+  clearTaskDraft();
+  renderTaskDraft();
+  $('task-goal').focus();
+};
+$('task-activity').onclick = guarded(() => showView('activity'));
+$('task-form').onsubmit = guarded(async () => {
+  const generation = taskGeneration,
+    owner = actor,
+    input = taskInput(),
+    access = $('client-access').value;
+  const identity = {
+    computerId: info?.computerId,
+    workspaceId: info?.workspaceId,
+  };
+  try {
+    const currentInfo = await request('/api/info', undefined, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (
+      generation !== taskGeneration ||
+      actor !== owner ||
+      view !== 'connect' ||
+      locked
+    )
+      return;
+    if (
+      currentInfo.computerId !== identity.computerId ||
+      currentInfo.workspaceId !== identity.workspaceId
+    ) {
+      clearTaskDraft();
+      throw new Error(
+        'The selected computer changed. Prepare a new task for its current identity.',
+      );
+    }
+    const packet = prepareComputerTask(currentInfo, input, { access });
+    await copy(packet.request);
+    if (
+      generation === taskGeneration &&
+      actor === owner &&
+      view === 'connect' &&
+      !locked
+    )
+      notice(
+        'Request copied. Send it to your connected agent, then follow its tool activity here.',
+      );
+  } catch (error) {
+    if (
+      generation === taskGeneration &&
+      actor === owner &&
+      view === 'connect' &&
+      !locked
+    ) {
+      $('task-error').textContent = error.message;
+      $('task-error').hidden = false;
+    }
+    throw error;
+  }
+});
 $('computers-list-copy').onclick = guarded(() =>
   copy(ownerConfig.management.listCommand),
 );
@@ -1557,6 +1710,7 @@ function disconnected(error) {
     actor = undefined;
     locked = true;
     clearSkillUse();
+    clearTaskDraft();
     $('access-state').hidden = false;
     document.body.classList.add('owner-access-required');
     if (hadOwner) $('access-title').focus();

@@ -199,7 +199,10 @@ not a guessed provider-connection status. The first-task preview checks **both
 computer and workspace IDs**. Work requests create/read a fresh uniquely named
 check file, run `pwd`, observe browser/desktop and release acquired control; an
 existing different file must not be overwritten. Read requests only observe.
-Copy does not execute anything. Review the agent's reported result and Activity.
+Stage three, **Start working**, also offers **Give your own task**: goal, success
+criterion and optional limits. Planning is the default; read access disables
+execution. Copy freshly checks both identities and starts no execution. Review
+the agent's actual result and Activity. See [task assignment](TASKS.md).
 Registration in a specific harness UI still needs separate validation.
 
 The operator skill downloads as `SKILL.md`. Place it in a folder named
@@ -210,6 +213,17 @@ The operator skill downloads as `SKILL.md`. Place it in a folder named
 | Claude Code  | `.claude/skills/sendtry-computer/SKILL.md` | [Claude Code skills](https://code.claude.com/docs/en/skills) |
 | Cursor       | `.cursor/skills/sendtry-computer/SKILL.md` | [Cursor skills](https://cursor.com/docs/skills)              |
 | Codex        | `.agents/skills/sendtry-computer/SKILL.md` | [OpenAI skills](https://learn.chatgpt.com/docs/build-skills) |
+
+Paths are relative to the harness project's root. Restart/reload the client after
+saving, then explicitly invoke `/sendtry-computer` in Claude Code or
+`$sendtry-computer` in Codex. Confirm it loaded the instructions. Claude project
+skill discovery requires the project setting source: empty `--setting-sources`
+suppresses it. The isolated real probe used `--setting-sources project` and
+successfully invoked the Skill tool. Codex must be able to read its skill file;
+disabling all host file-reading tools can prevent loading the full body. A
+separate read-only real probe allowed only the project skill read, then verified
+guest reports via MCP. These checks changed no global settings. Cursor skill
+discovery remains untested.
 
 Create the named folder and save the downloaded file there. Check that your
 client discovers `sendtry-computer`; restart its session if necessary. These

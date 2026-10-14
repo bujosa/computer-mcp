@@ -88,6 +88,16 @@ response, not an invented harness connection status. Loss of owner authorization
 clears host setup metadata and the request. This adds no endpoint, table, model
 runtime or lifecycle permission.
 
+`src/task-request.js` is an effect-free general task formatter shared with the
+console bundle. It validates both UUIDs, read/work scope and bounded literal
+goal/outcome/limits, and defaults to planning. The console keeps fields only in
+page memory and clears them on view exit, authorization loss or identity change.
+Copy awaits a fresh eight-second `/api/info` read and rejects changed pins or a
+superseded owner/draft/view. It neither stores a job nor invokes an agent. The
+harness receives the request and determines the tool sequence; existing runtime
+boundaries enforce authority. Activity records actual tools, not a copied task's
+success. See [task assignment](docs/TASKS.md).
+
 UI connection-stage selection is local navigation, not installation/connection
 evidence. The Teach guide derives its next action from the current info response,
 saved workflow revision/draft/review and open form state; it adds no persisted

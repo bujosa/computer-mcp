@@ -1,6 +1,16 @@
 # Review this workspace locally
 
-On 13 October UTC the owned `review-mvp` was rebuilt with the current runtime and
+Latest follow-up: **14 October UTC**, with **Connect agent → Start working →
+Give your own task**, plan-first goal/outcome/scope handoff and explicit project
+skill invocation guidance. Actual Claude/Codex advanced reports, project skill
+loading, Claude takeover and final 16-tool integration passed; see
+[validation](VALIDATION.md) and [tasks](TASKS.md). The current owned review image
+is `sha256:3a9887906c70bf5fc010bef623b315df301565d3bb9fd0d15b5ec704b26f88b8`.
+It retains the same identity/data. Desktop and 390px owner console were manually
+reviewed. Latest read-only doctor measured 62% guest use, 66,243,846,144 bytes
+available. Mac mini's earlier snapshot was not updated in this slice.
+
+On 13 October UTC the owned `review-mvp` was rebuilt with the preceding runtime and
 screen-first UI and left running, idle with no control lease or active Teach
 recording. The rebuild reused unchanged dependency layers and retained
 computer/workspace UUIDs, its

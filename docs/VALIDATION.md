@@ -1,10 +1,57 @@
 # Validation record
 
-Private Sendtry Computer MVP reviewed on 10–13 October 2026 (UTC).
+Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
-## Actual Claude Code and Codex agents
+## Advanced task experience (14 October)
+
+The general task handoff adds a pure shared formatter and owner page-memory
+form: goal, observable success, optional scope, plan-first default and read/work
+checks. Copy freshly validates both pins without storing/executing a job.
+No MCP/API/schema/state migration or dependency changed.
+
+PASS `npm test`: 77 contracts, zero failures/skips, including four new task
+identity/access/literal-data/limit contracts. PASS `npm run lint`,
+`npm run format:check`, `npm run build` (53 JavaScript modules plus UI bundles)
+and `git diff --check`. PASS actual
+`npm run test:integration -- .computer-mcp/review-mvp artifacts/advanced-experience-20261014/mcp-final`:
+16 tools, modern/legacy stdio, real guest Chromium/PNG, read/work/owner authority,
+identity, leases/takeover/cancellation, process/file bounds and Teach/reuse/RFB.
+Saved contract workflow `7c271bde-852d-4320-88a8-3e1d643b3b59`.
+
+PASS actual Claude/Codex advanced report tasks, independent source/report checks,
+separate real project skill-loading probes and actual Claude command takeover.
+Initial skill-discovery limitations and keyboard reload uncertainty remain
+explicit in [the harness record](HARNESS-VALIDATION.md). Activity retained the
+declared sessions and cancelled takeover outcome; no task-success record was
+inferred from a copied request or model answer.
+
+PASS manual T3 owner console at 1280×900 and 390×844: blank copy disabled,
+plan default, fresh pinned requests, collapsed optional scope, readable wrapping,
+44px task actions, read access forcing plan, preserved values across setup steps,
+Clear/view-exit cleanup and actual copying. With a real info response held by a
+temporary page hook, fields stayed disabled; a dispatched pagehide invalidated
+the draft, then releasing the response performed zero clipboard writes and
+restored the form. Hooks were restored. No UI test harness was generated.
+The session header is opaque so scrolled content cannot bleed through it;
+copy wording describes the handoff without claiming current execution status.
+
+The owned guest was explicitly restarted after read-only ownership inspection:
+it had been stopped with exit 255, no OOM; the cause was not established.
+Final cached rebuild image:
+`sha256:3a9887906c70bf5fc010bef623b315df301565d3bb9fd0d15b5ec704b26f88b8`.
+UUIDs, volume, skills and history were preserved. Doctor at 02:18:49 UTC returned
+`ok`, 62% guest use and 66,243,846,144 bytes available. Only this owned
+`desktop-linux` computer was changed; all runtime operations passed that saved
+context explicitly. At handoff the global context was observed as
+`desktop-linux`, differing from the initially supplied `ser9`. No context-change
+command was performed here; the source of that change was not established and
+the global setting was left untouched.
+Other guests, Mac mini, Linux/Windows hosts and isolated non-Linux guests were
+not revalidated by this slice. Repository/package remain private/UNLICENSED.
+
+## Actual Claude Code and Codex agents (13 October)
 
 13 October follow-up on `c36a235`: real Claude Code 2.1.296 / Opus 5.5 and Codex
 CLI 0.162.1 / GPT-6.1-Sol connected over stdio using temporary configuration and

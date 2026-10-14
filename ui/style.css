@@ -206,7 +206,7 @@ nav {
   z-index: 30;
   border-bottom: 1px solid var(--line);
   padding: 8px 24px;
-  background: #fffffff5;
+  background: #fff;
 }
 .session-line {
   display: flex;
@@ -972,6 +972,44 @@ code {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
   gap: 30px;
   margin-top: 20px;
+}
+.task-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.task-choice > div {
+  min-width: min(100%, 240px);
+}
+.custom-task-form {
+  display: grid;
+  gap: 16px;
+  max-width: 740px;
+  margin-top: 20px;
+}
+.custom-task-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.custom-task-form .actions button {
+  min-height: 44px;
+}
+.task-scope-options summary {
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.custom-task-form > p {
+  margin: 0;
+}
+.task-preview {
+  margin-top: 20px;
+}
+#task-request {
+  max-height: 360px;
+  overflow: auto;
+  padding: 16px;
 }
 .first-task-intro > p:not(.eyebrow) {
   color: var(--soft);

@@ -680,9 +680,9 @@ Ready. Your command output will appear here.</pre
               <button
                 type="button"
                 data-connect-step="3"
-                aria-label="3 Verify a task"
+                aria-label="3 Start working"
               >
-                <span class="step-number">3</span>First task
+                <span class="step-number">3</span>Start working
               </button>
             </li>
           </ol>
@@ -768,6 +768,7 @@ Ready. Your command output will appear here.</pre
                 <code id="operator-path" class="install-path"
                   >sendtry-computer/SKILL.md</code
                 >
+                <p id="operator-activation" class="setup-guide"></p>
                 <a
                   id="operator-docs"
                   class="text-link"
@@ -787,7 +788,7 @@ Ready. Your command output will appear here.</pre
                   >Saved the skill in your project? Ask the agent to load
                   it.</span
                 ><button id="connect-to-task" type="button" class="primary">
-                  Next: verify a task
+                  Next: give a task
                   <svg class="icon"><use href="#i-arrow" /></svg>
                 </button>
               </div>
@@ -795,35 +796,120 @@ Ready. Your command output will appear here.</pre
           </div>
           <section
             id="connect-check"
-            class="panel first-task-panel"
+            class="panel"
             aria-labelledby="first-task-title"
             hidden
           >
-            <div class="first-task-intro">
-              <h2 id="first-task-title">Try a first task.</h2>
-              <p id="agent-step"></p>
-              <p id="agent-control-hint" class="caption" role="status"></p>
-              <div class="actions">
-                <button id="agent-copy" class="primary" disabled>
-                  Copy first task
-                  <svg class="icon"><use href="#i-arrow" /></svg>
-                </button>
-                <button id="connect-activity">View activity</button>
+            <div class="task-choice">
+              <h2 id="first-task-title">Start working.</h2>
+              <div>
+                <label for="agent-task-kind">What would you like to do?</label>
+                <select id="agent-task-kind">
+                  <option value="check">Check the connection</option>
+                  <option value="custom">Give your own task</option>
+                </select>
               </div>
-              <p class="caption">
-                Send this request to your agent after reconnecting its MCP
-                server. Copying starts no execution.
-              </p>
             </div>
-            <div>
-              <span class="preview-label">REQUEST PREVIEW</span>
-              <pre
-                id="agent-request"
-                tabindex="0"
-                aria-label="First agent task"
-              >
+            <div id="connect-quick-check" class="first-task-panel">
+              <div class="first-task-intro">
+                <h3>Try a quick check.</h3>
+                <p id="agent-step"></p>
+                <p id="agent-control-hint" class="caption" role="status"></p>
+                <div class="actions">
+                  <button id="agent-copy" class="primary" disabled>
+                    Copy first task
+                    <svg class="icon"><use href="#i-arrow" /></svg>
+                  </button>
+                  <button id="connect-activity">View activity</button>
+                </div>
+                <p class="caption">
+                  Send this request to your agent after reconnecting its MCP
+                  server. Copying starts no execution.
+                </p>
+              </div>
+              <div>
+                <span class="preview-label">REQUEST PREVIEW</span>
+                <pre
+                  id="agent-request"
+                  tabindex="0"
+                  aria-label="First agent task"
+                >
 Authorize this console to prepare a task for its computer.</pre
-              >
+                >
+              </div>
+            </div>
+            <div id="connect-custom-task" hidden>
+              <form id="task-form" class="custom-task-form">
+                <p>
+                  Describe the outcome. Your connected agent chooses the steps
+                  using this computer's tools.
+                </p>
+                <p id="task-identity" class="caption"></p>
+                <div>
+                  <label for="task-goal">What should the agent do?</label>
+                  <textarea
+                    id="task-goal"
+                    rows="3"
+                    maxlength="4000"
+                    required
+                    placeholder="Read my project CSV, create a summary report and save a browser note with the result."
+                  ></textarea>
+                </div>
+                <div>
+                  <label for="task-result">What does success look like?</label>
+                  <textarea
+                    id="task-result"
+                    rows="2"
+                    maxlength="2000"
+                    required
+                    placeholder="The report reconciles with the source rows, and the note remains after reloading."
+                  ></textarea>
+                </div>
+                <details class="task-scope-options">
+                  <summary>Scope and limits (optional)</summary>
+                  <label for="task-scope">Allowed work and boundaries</label>
+                  <textarea
+                    id="task-scope"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Use only reports/ and the local practice page. Keep existing files. No installs or external actions."
+                  ></textarea>
+                </details>
+                <div>
+                  <label for="task-intent">Ask your agent to</label>
+                  <select id="task-intent">
+                    <option value="plan">Prepare a plan first</option>
+                    <option value="execute">Do the task</option>
+                  </select>
+                </div>
+                <p id="task-control-hint" class="caption" role="status"></p>
+                <p id="task-error" class="inline-error" role="alert" hidden></p>
+                <div class="actions">
+                  <button id="task-copy" type="submit" class="primary" disabled>
+                    Copy task request
+                    <svg class="icon"><use href="#i-arrow" /></svg>
+                  </button>
+                  <button id="task-clear" type="button">Clear</button>
+                  <button id="task-activity" type="button">
+                    View activity
+                  </button>
+                </div>
+                <p class="caption">
+                  Send the request to your agent after connecting MCP. Copying
+                  starts no execution. These fields stay in this page and clear
+                  when you leave Connect agent; keep secrets out of the request.
+                </p>
+              </form>
+              <details class="instruction-preview task-preview">
+                <summary>Review the exact task request</summary>
+                <pre
+                  id="task-request"
+                  tabindex="0"
+                  aria-label="Custom agent task"
+                >
+Add a goal and a success criterion to prepare a request.</pre
+                >
+              </details>
             </div>
           </section>
           <div class="panel capability-panel">

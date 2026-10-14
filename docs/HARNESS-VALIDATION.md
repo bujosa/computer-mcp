@@ -13,7 +13,94 @@ were changed.
 | Claude Code | 2.1.296 | `opus`, resolved to `claude-opus-5-5`; high effort | `claude-code`, MCP `2026-07-28`      |
 | Codex CLI   | 0.162.1 | `gpt-6.1-sol`; medium reasoning                    | `codex-mcp-client`, MCP `2025-06-18` |
 
-## Completed scenarios
+## Advanced task follow-up: 14 October UTC
+
+On the same private macOS/ARM64 host and owned Linux guest, both actual CLIs
+received the exact request copied through the new **Give your own task** UI.
+A temporary clipboard spy forwarded the real write and captured only the
+synthetic request; it was restored afterwards. No operator body was pasted into
+these prompts. Both completed bounded multi-step tasks in new, separate guest
+directories: read CSV, create/run a Python standard-library report generator,
+write JSON/Markdown, report/skip malformed minutes, reuse their separately
+reviewed project-note procedure with computed values, save once, reload and
+verify the persisted card, then release their lease.
+
+Independent parent reads verified both sets of aggregates: seven valid rows,
+one invalid row, total 510, done 420, open 90; Atlas 210, Beacon 135, Cedar 165.
+Both source files remained byte-for-byte unchanged, SHA-256
+`1e1139cfcdb3d500658cc44709f77979a11a510bf53ff4d84be473ca8b99db06`.
+Reports explained the rejected row. Claude's persisted result was retained in its
+post-reload response; the parent also read Codex's final saved card. Each checked
+the ready/reviewed exact revision sequentially after acquisition, before effects.
+
+Both called real guest `desktop_action` for Ctrl+l, local URL text and Return,
+with native PNG images and a subsequent saved-card snapshot. Input delivery and
+the card were observed; an identical before/after PNG alone cannot prove a
+navigation transition. Claude explicitly reported this limitation. Codex's final
+answer stated no uncertainty; that statement is stronger than the evidence for
+the exact keyboard reload transition, and is not adopted here.
+
+Claude's first advanced run took about 80 seconds; Codex's about 128 seconds.
+These are individual runs, not reliability or latency benchmarks.
+
+### Actual project skill loading
+
+The initial Claude advanced run's Skill tool returned `Unknown skill` because
+its isolated invocation had empty `--setting-sources`. It honestly reported that
+and still completed MCP work using server instructions. That is a failed skill
+discovery check, not a fully passing skill-enabled execution.
+
+A separate read-only probe in an owned temporary project used
+`--setting-sources project`, native `--tools Skill`, the exact Skill/info grants,
+strict MCP config and `dontAsk`; no bypass flag or global settings change.
+`Skill(sendtry-computer)` loaded the actual operator body and the model quoted
+its cancellation rules, then verified both IDs. Claude strips frontmatter from
+the loaded body, so it correctly declined to invent its version.
+
+Codex's initial advanced invocation disabled all host file tools. Its statement
+that it was using the skill did not independently establish loading the body.
+A separate read-only probe retained a file-reading tool solely for the explicit
+project skill read. The actual trace contains only `cat
+.agents/skills/sendtry-computer/SKILL.md` as a host command, exit 0; it read
+frontmatter version 7 and the storage-full rule, then verified the existing guest
+reports and card through read-only MCP. It did not rerun the task or acquire
+control. Project-relative paths, restart/invocation and file-read prerequisites
+are now explained in Connect agent and [setup](SETUP.md).
+
+These contracts were checked against official
+[Claude Code skills](https://code.claude.com/docs/en/skills) and
+[Codex skills](https://learn.chatgpt.com/docs/build-skills) documentation.
+Cursor/Desktop/IDE skill loading remains untested.
+
+### Named-model human takeover
+
+With the actual project Skill successfully loaded, Claude acquired its agent
+lease and issued one 30-second guest command: write a unique start marker, sleep
+25 seconds, then write a completion marker. The parent observed the start file
+and clicked the real owner console's **Take over** while it was pending.
+
+The tool returned `lease_lost` rather than exit/stopped fields. Claude used read
+tools to inspect partial work and the human lease, did not retry or mutate, and
+did not release human control. It accurately reported its remaining timing
+uncertainty. Parent checks at 02:13:02 UTC, after the original command deadline,
+confirmed the start file and absent completion file. Only then did the owner
+release control; final lease was null. This tests one actual named harness's
+takeover recovery. Named-harness timeout/disconnect injection remains untested.
+
+The owner-only Activity export retained four declared Claude/Codex sessions for
+the two advanced runs, takeover and Codex read-only skill probe. All ended as
+`client_closed`; takeover's terminal event was `cancelled` / `lease_lost`.
+The Claude skill/info-only probe retained MCP source/timestamps but null client
+name/version/protocol. This is incomplete declared attribution, not an invented
+identity. No full prompt, command, file data or model-verified identity is added
+to the audit contract.
+
+Private requests, JSONL, copied skill files, outcome checks and independent reads
+are ignored under `artifacts/advanced-experience-20261014/` or owned temporary
+directories. They are not shipped as product data or a UI test harness. See
+[task assignment](TASKS.md) for boundaries and ordinary use.
+
+## Completed scenarios (13 October)
 
 Both harnesses passed the following model-driven scenarios. Success was checked
 against tool responses, independent file/page reads and owner-only Activity,
@@ -141,9 +228,9 @@ Configuration contracts were checked against the installed help and official
 
 This verifies bounded local CLI use on one owned Linux guest. It does not certify
 Claude Desktop, Cursor, Codex IDE/TUI setup, all models, autonomous long-running
-tasks, native host control or isolated Windows/macOS guests. Human takeover during
-an actual named-model command, named-harness disconnect failure injection and
-named-harness terminal timeout behavior were not run here; the separate real
+tasks, native host control or isolated Windows/macOS guests. The 14 October
+follow-up above adds an actual Claude command takeover test. Named-harness
+disconnect failure injection and terminal timeout behavior remain untested; the separate real
 MCP/security suites cover those runtime paths with SDK clients.
 
 Private JSONL transcripts, prompt/config files, independent result reads and

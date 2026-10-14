@@ -108,7 +108,14 @@ as filtering the tool catalog. No runtime credential is printed in either
 configuration. Keep the local state directory private: the owner’s credential
 lives there, and any process able to read it has computer authority.
 
-Ask your agent to:
+In **Connect agent → Start working**, check the connection, then choose
+**Give your own task**. Describe the goal, success criterion and optional limits;
+plan first or prepare an execution request and send it to your connected agent.
+Both computer/workspace IDs are pinned. Copying starts no execution. Actual
+Claude/Codex agents generated reports and reused taught tasks; see
+[task assignment and recovery](docs/TASKS.md).
+
+For a small first task, ask your agent to:
 
 > Read computer_info, acquire control, explore the browser, write hello.txt in
 > the workspace and run a command to read it. Capture a desktop screenshot and

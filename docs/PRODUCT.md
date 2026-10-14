@@ -63,7 +63,12 @@ keys appear in copy/download output. The console reports actual guest capabiliti
 and lease state; it does not claim that a specific harness is connected.
 
 Connect agent follows three selectable steps: configure MCP, install the operator
-skill and verify a first task. Client selection provides the configuration format,
+skill and start working. Stage three supports a connection check or a custom
+goal/outcome/scope, with plan-first default and execution disabled for read
+access. Requests freshly check both UUIDs before copying; fields stay in page
+memory and clear on exit. Copy starts no agent or task job. Screen/Activity and
+artifact checks establish what actually happened. See [task assignment](TASKS.md).
+Client selection provides the configuration format,
 local project skill path and official setup/skills guides for Claude Code, Cursor
 and Codex. Other stdio clients receive a neutral path placeholder. The request
 preview pins both computer/workspace UUIDs; work checks create/read a uniquely
