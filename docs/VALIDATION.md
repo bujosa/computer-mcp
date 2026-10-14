@@ -19,6 +19,28 @@ directories, tools and owned Docker resources were removed and absence checked;
 global contexts remained unchanged. Prior statements below about untested
 Windows/Linux hosts describe those earlier snapshots, not this newer evidence.
 
+PASS local follow-up on product code `b05a20a`: 84/84 contracts with no skips,
+format/lint/build, real `test:integration` (16 tools, modern/legacy stdio,
+takeover/cancel/read/identity/browser/files/Teach) and `test:teach-integration`.
+The latter captured a real 19,529-byte WebM, decoded three analysis frames,
+checked proposal/review/consent/private-media boundaries and reused supplied
+file content through MCP; only its own clip was deleted. The fixed proposal is
+protocol acceptance, not a new model-quality evaluation. Worker bytes in the
+image match this checkout. Same owned UUIDs/data, healthy guest, 256 PID/thread
+cap, no final control lease or active Teach. Current image:
+`sha256:48ab3413305559ded1c86421c02a701f00013edccd7b3ef49df5a40a379aec8e`.
+Manual T3 1280×800 live view, Take control and Release/reconnection passed;
+no UI code or generated UI harness was added. An initial shared-builder registry
+metadata wait was cancelled only for our build; a separate temporary public-pull
+builder succeeded and its container/cache/configuration were removed. No cause
+for the shared-builder wait was established; unrelated builds were preserved.
+
+BLOCKED hosted CI on `b05a20a`: both push/PR Ubuntu/macOS/Windows runs completed
+with zero steps and the account payments/spending-limit annotation. GitGuardian
+passed. No billing or branch-protection setting was changed; these failures
+are not reported as passing checks. Documentation follow-ups do not change
+the runtime/CLI/tests validated above.
+
 ## Named-client setup, repetition and cleanup (14 October)
 
 `node src/cli.js skill` now prints the exact operator asset before catalog

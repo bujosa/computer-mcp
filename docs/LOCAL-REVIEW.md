@@ -1,11 +1,28 @@
 # Review this workspace locally
 
-Latest follow-up: **14 October UTC**, with exact Cursor MCP approval guidance,
+Latest host QA follow-up: **14 October UTC**, product code `b05a20a`. The owned
+local review computer is running/healthy on
+`sha256:48ab3413305559ded1c86421c02a701f00013edccd7b3ef49df5a40a379aec8e`,
+with bounded media/file-helper threads and a 256-process/thread ceiling.
+It retains computer `a70f163f-1e9a-4604-b62b-cce24ddf4be0`, workspace
+`6af2848e-2c28-4d84-826e-7e7111bf1ec8` and the original data volume.
+Actual modern/legacy 16-tool MCP integration and optional-video Teach acceptance
+passed after rebuilding. The updated worker bytes match the checkout.
+Manual T3 review at 1280×800 passed live view, Take control and Release/reconnection;
+final control is free and Teach is inactive. Doctor at 06:19:41 UTC returned `ok`,
+10% guest use and 154,480,074,752 bytes available. The initial shared-builder
+metadata wait was cancelled for this owned build only; a private temporary
+builder completed the image and was removed with its cache/configuration.
+[Windows/Linux QA](HOST-VALIDATION.md) includes their functional results,
+preservation-check failure and complete remote teardown. Source is still private.
+All image/capacity observations below refer to earlier snapshots.
+
+Preceding follow-up: **14 October UTC**, with exact Cursor MCP approval guidance,
 `node src/cli.js skill`, actual three-client project skill loading, six new-input
 repetitions, three deliberate timeouts and graceful Claude disconnect cleanup.
 Earlier advanced reports/Teach/takeover and the newer 16-tool integration passed;
 see [validation](VALIDATION.md), [client acceptance](CLIENT-VALIDATION.md) and
-[tasks](TASKS.md). The current owned review image is
+[tasks](TASKS.md). The preceding owned review image was
 `sha256:dee61d8529e0a82cbd1099c0bcc3b575565019378e19ec2b1ca1bd9367794366`.
 It includes the guarded noVNC feature-probe cleanup and retains the same pins/data.
 Desktop/390px guide, keyboard access, live screen and Take control/Release were
