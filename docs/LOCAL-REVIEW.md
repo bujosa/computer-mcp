@@ -1,14 +1,22 @@
 # Review this workspace locally
 
-Latest follow-up: **14 October UTC**, with **Connect agent → Start working →
-Give your own task**, plan-first goal/outcome/scope handoff and explicit project
-skill invocation guidance. Actual Claude/Codex advanced reports, project skill
-loading, Claude takeover and final 16-tool integration passed; see
-[validation](VALIDATION.md) and [tasks](TASKS.md). The current owned review image
-is `sha256:3a9887906c70bf5fc010bef623b315df301565d3bb9fd0d15b5ec704b26f88b8`.
-It retains the same identity/data. Desktop and 390px owner console were manually
-reviewed. Latest read-only doctor measured 62% guest use, 66,243,846,144 bytes
-available. Mac mini's earlier snapshot was not updated in this slice.
+Latest follow-up: **14 October UTC**, with exact Cursor MCP approval guidance,
+`node src/cli.js skill`, actual three-client project skill loading, six new-input
+repetitions, three deliberate timeouts and graceful Claude disconnect cleanup.
+Earlier advanced reports/Teach/takeover and the newer 16-tool integration passed;
+see [validation](VALIDATION.md), [client acceptance](CLIENT-VALIDATION.md) and
+[tasks](TASKS.md). The current owned review image is
+`sha256:dee61d8529e0a82cbd1099c0bcc3b575565019378e19ec2b1ca1bd9367794366`.
+It includes the guarded noVNC feature-probe cleanup and retains the same pins/data.
+Desktop/390px guide, keyboard access, live screen and Take control/Release were
+manually reviewed. Doctor at 04:24:21 UTC measured 10% guest use,
+155,891,904,512 bytes available and returned `ok`.
+
+The Mac mini independently passed 81 tests and real SDK read/work acceptance of
+host CLI commit `210df79f`, in a new exact source archive. Its existing QA guests
+remained running/idle with older images; no lifecycle update was made remotely.
+The noVNC/UI/docs follow-up is local-only evidence. Prior source/image/capacity
+observations below are historical, not claims about the latest image.
 
 On 13 October UTC the owned `review-mvp` was rebuilt with the preceding runtime and
 screen-first UI and left running, idle with no control lease or active Teach

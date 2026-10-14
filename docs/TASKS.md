@@ -56,6 +56,15 @@ Console copying remains available when a harness lacks prompt support.
 `taught-workflow` handles reviewed procedures, while `analyze-demonstration`
 prepares evidence analysis. None starts inference or execution.
 
+Actual Claude Code 2.1.299 discovered and invoked
+`/mcp__computer__computer-task Inspect Plan Read-only plan` through its normal
+MCP command loader. The resulting plan used read tools and acquired no control.
+Its [documented parser](https://code.claude.com/docs/en/mcp#execute-mcp-prompts)
+splits arguments on whitespace: use the console copy/SDK flow for multiword
+requirements rather than assuming shell quotes preserve them. This CLI proof
+does not establish Cursor/Codex prompt-menu support. Their tool/skill integration
+is tested separately.
+
 ## An advanced bounded example
 
 **Goal:** read a guest CSV, write/run a standard-library report generator in a

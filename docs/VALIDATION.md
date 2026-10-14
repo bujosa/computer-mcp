@@ -4,6 +4,78 @@ Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Named-client setup, repetition and cleanup (14 October)
+
+`node src/cli.js skill` now prints the exact operator asset before catalog
+selection, without creating state, contacting Docker or installing settings.
+PASS actual CLI contract, including an absent root with spaces/non-ASCII,
+byte-preserving output, empty stderr and rejected unrelated options.
+PASS `npm test`: 81/81, zero failures/skips, plus format/lint/build (54 modules)
+for CLI commit `210df79f`. After the CRLF-portable assertion edit, PASS focused
+`node --test test/computers.test.js`: 11/11. Final UI/static gates are recorded
+below; the noVNC-only iteration did not add a UI test suite.
+
+PASS actual Claude Code 2.1.299, Codex 0.162.1 and Cursor CLI
+2026.10.12-d47ca18: project operator loading, six new-input form repetitions,
+awaited exact review checks before effects, exactly one Save per input, reload
+verification, three deliberately timed-out commands with no retry, and own lease
+release. Parent reads checked each final card and partial files after the
+original command deadline. PASS actual Claude `computer-task` discovery and
+headless command invocation; no lease/effects for its plan. PASS graceful Claude
+CLI SIGTERM/stdio cleanup: started file retained, completion absent after the
+25-second sleep deadline, lease null. These are synthetic checks, not a success
+rate or proof of hard-crash/all-client recovery. Initial Cursor trust/approval
+failures and Claude's partial 22-turn attempt are retained in
+[client acceptance](CLIENT-VALIDATION.md).
+
+PASS independent Mac mini gates from an exact archive of `210df79f`: `npm ci`,
+format/lint/build and 81/81 tests. Real SDK 2.3.1 read/work acceptance passed
+against its intentionally older owned guest, with prompt/read-scope checks,
+identity, file/terminal/browser/PNG and lease cleanup. Remote guest lifecycle was
+unchanged; unrelated resources/context fingerprints matched. This is not an
+updated remote image or remote model evaluation. Final noVNC/UI/docs edits were
+not included in that remote snapshot.
+
+Cursor's guide now explains exact-server approval independently of skill
+loading. Manual T3 review at 1280×900 and 390×844 passed: readable guide, no
+horizontal overflow, labeled selectors, next-step navigation, keyboard Tab to
+Agent access. Desktop view and owner Take control/Release passed after rebuild.
+Two QA locator requests used unsupported `exact` syntax, performed no action
+and were corrected using snapshot-provided refs/valid role locators.
+
+That review exposed noVNC 1.6.0's WebCodecs probe leaving a frame/decoder open.
+The build applies a guarded cleanup to this upstream probe only, retaining
+source/license pointers and not editing installed dependency files. Actual T3
+browser diagnostic of the served bundle decoded one frame: one closed frame,
+one closed decoder, zero decoder errors. The temporary diagnostic wrapper was
+restored. Original console warnings preceded the patch; this is not a blanket
+claim of leak-free browser codecs. No generated appearance/E2E UI harness.
+
+PASS final `npm run format:check`, `npm run lint`, `npm run build` (54 modules
+and bundles) and `git diff --check`. PASS
+`npm run test:integration -- .computer-mcp/review-mvp artifacts/client-closure-20261014/mcp-final-image`
+on the final rebuilt image: 16-tool real guest acceptance, modern/legacy stdio,
+read/work/owner authority, identity pins, process/file bounds, takeover/cancel/
+disconnect, browser/PNG, Teach/reviewed reuse and authorized RFB handshake.
+Saved workflow `d86673e9-568f-42e7-9608-5f763adc3d63`; final own lease released.
+Served `app.js`, noVNC bundle and operator bytes matched this checkout exactly.
+
+The first rebuild repeated dependency downloads rather than reusing all cached
+layers; their cache absence cause was not established. The final cleanup rebuild
+reused those layers. Final owned image:
+`sha256:dee61d8529e0a82cbd1099c0bcc3b575565019378e19ec2b1ca1bd9367794366`.
+Same computer/workspace/volume; only explicit `desktop-linux` lifecycle was used.
+Doctor at 04:24:21 UTC returned `ok`, 10% guest use and 155,891,904,512 bytes
+available. A single read-only Docker snapshot, view session open/no task lease,
+reported 306 MiB memory of 1.5 GiB, 1.72% CPU and image logical size
+1,620,852,456 bytes. This is an idle observation, not a footprint/performance
+benchmark or compressed download/incremental host disk measurement.
+
+Hosted CI remains unable to start due to account billing/spending restrictions.
+Windows/Linux host lifecycle and persistent editor/desktop UI setup remain
+untested. Repository/package remain private/UNLICENSED; no release, production
+deployment, global context switch or native host permission change.
+
 ## General task prompt and Grok reference (14 October)
 
 The host stdio bridge adds `computer-task`, using the existing pure formatter.

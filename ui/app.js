@@ -983,7 +983,7 @@ const clientGuides = {
   },
   cursor: {
     setup:
-      'Merge this JSON into .cursor/mcp.json in your local project, or use Cursor’s MCP settings. Reload its MCP connection. Keep this machine-specific configuration local.',
+      'Merge this JSON into .cursor/mcp.json in your local project, then approve this computer server and reload its connection. In Cursor CLI, use agent mcp enable computer. Keep this machine-specific configuration local.',
     docs: 'https://cursor.com/docs/mcp',
     skillPath: '.cursor/skills/sendtry-computer/SKILL.md',
     activation:

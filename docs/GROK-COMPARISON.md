@@ -96,11 +96,14 @@ Deliver artifacts inside the guest; host repositories are not mounted or copied.
 The local developer MVP has working paths. It is not perfect, certified for every
 application or ready to promise mass-market unattended operation. Priorities:
 
-1. Clean installation/skill loading in named clients/hosts with real first-task
-   checks. Cursor/IDE registration and Windows/Linux host lifecycle remain
-   untested; hosted CI is blocked by account billing.
-2. Repeated bounded task evaluations with varied initial state and independent
-   outcome checks. Named-model examples are evidence, not a success rate.
+1. Broaden clean installation checks beyond the exercised macOS hosts. Claude,
+   Codex and Cursor CLI skill/loading and task paths passed; editor/desktop UI
+   registration and Windows/Linux host lifecycle remain untested. Hosted CI is
+   blocked by account billing. See [client acceptance](CLIENT-VALIDATION.md).
+2. Broaden task evaluation beyond the six fresh-input form repetitions and
+   three deliberate timeouts now checked in those CLIs. Graceful Claude CLI
+   termination also stopped its guest process and released control. These
+   synthetic checks do not establish a real-world success rate.
 3. Explicit task-attempt/verifier attribution before success badges or automatic
    resume. Activity timing cannot supply that provenance.
 4. Portable reviewed templates with explicit owner rebinding before cross-PC

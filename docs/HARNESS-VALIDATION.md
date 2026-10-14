@@ -70,7 +70,9 @@ are now explained in Connect agent and [setup](SETUP.md).
 These contracts were checked against official
 [Claude Code skills](https://code.claude.com/docs/en/skills) and
 [Codex skills](https://learn.chatgpt.com/docs/build-skills) documentation.
-Cursor/Desktop/IDE skill loading remains untested.
+Cursor CLI skill loading was subsequently exercised in
+[client acceptance](CLIENT-VALIDATION.md). Desktop/IDE UI registration remains
+untested.
 
 ### Named-model human takeover
 
@@ -85,7 +87,8 @@ did not release human control. It accurately reported its remaining timing
 uncertainty. Parent checks at 02:13:02 UTC, after the original command deadline,
 confirmed the start file and absent completion file. Only then did the owner
 release control; final lease was null. This tests one actual named harness's
-takeover recovery. Named-harness timeout/disconnect injection remains untested.
+takeover recovery. Subsequent three-client timeout and graceful Claude CLI
+disconnect checks are recorded in [client acceptance](CLIENT-VALIDATION.md).
 
 The owner-only Activity export retained four declared Claude/Codex sessions for
 the two advanced runs, takeover and Codex read-only skill probe. All ended as
