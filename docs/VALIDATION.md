@@ -1229,3 +1229,61 @@ pending. SSH was QA transport to Mac mini's local Docker, not an implemented
 remote-computer adapter. Public packaging, code/dependency licenses and Sendtry
 asset terms are future release decisions. See [security](../SECURITY.md) and
 [local handoff](LOCAL-REVIEW.md).
+
+## 15 October 2026 — Tool and skill audit
+
+This audit adds [the tool/skill inventory](TOOLS-AND-SKILLS.md), corrects
+`openWorldHint` for live browser observation and guest desktop input, and aligns
+version-4 taught exports/prepared execution requests with the operator's awaited
+post-acquisition ready/reviewed/exact-revision check. These are advisory metadata
+and instruction changes, not new permissions or per-effect review enforcement.
+
+Local validation on macOS / Node 24.1.0:
+
+- `node --test test/task-prompt.test.js`: **5 passed**, including new actual SDK
+  stdio read/work tool, annotation, prompt and identity-resource discovery against
+  a deterministic loopback runtime double. Discovery causes no runtime effects.
+- `npm test`: **90 passed**, zero failed/skipped. Existing tests cover identity,
+  review/consent/revision gates, leases, cancellation, containment and limits.
+- `npm run format:check`, `npm run lint`, `npm run build`: **passed**; syntax
+  build checks 58 JavaScript modules. The later documentation package allowlist
+  change also passed `node --test test/distribution.test.js` (**4 passed**).
+- `npm run check:package`: **passed**, private dry-run inventory of 57 files;
+  includes the new tool/skill guide. This is not publication/install acceptance.
+- `quick_validate.py` for the operator and an actual guest-exported version-4
+  skill: **passed**. Frontmatter validity does not prove model compliance.
+
+The first live MCP attempt failed with a closed connection while Docker Desktop
+was off. `doctor` correctly reported unavailable Docker. Starting the local
+engine and only the owned idle review computer restored access. Ownership,
+volume and loopback bindings were verified before rebuilding this review guest
+from the changed source. Computer/workspace identity and data were retained.
+No Docker default, unrelated container or remote QA machine was changed.
+
+Live checks used explicit `desktop-linux`, Docker Engine 29.4.3 / Compose 5.1.3,
+and the existing review computer's Linux ARM64 guest:
+
+- Official SDK stdio discovery: **passed**, read = 7 tools / 2 prompts, work =
+  16 tools / 3 prompts, one identity resource each. Resource IDs matched the
+  pinned state. A read connection could not call `control_acquire`; the work
+  connection acquired control, navigated to the guest practice page and released.
+- `npm run test:teach-integration -- <owned-review-state> <private-artifacts>`:
+  **passed**. Real Xvfb WebM capture/decode, private UID storage, owner-only raw
+  media/review, ranges, final input without blur, consent/revocation, sampled MCP
+  PNGs, proposal/review, version-4 export, plan/execute handoff, new supplied file
+  content reused and read back through MCP, audit payload exclusion, explicit
+  deletion of this run's clip, encoder cleanup and Teach after Chromium closes.
+  The proposal is a fixed contract fixture; this run does not measure an AI
+  model's video interpretation quality or its adherence to the new wording.
+- Final `doctor`: **ok**, guest storage measured at 13% used. Runtime identity
+  matched, lease was null and Teach inactive. The owned review PC remains running;
+  the three unrelated containers remained stopped as observed after engine start.
+
+Private evidence is gitignored under `artifacts/skill-tool-audit-20261015/`:
+discovery descriptors, actual Teach media/frames/export and a manually previewed
+interactive Spanish inventory. No media, state, credentials or guest fixtures
+are committed. No fresh Windows/Linux-host or Claude/Codex model run was performed
+for this instruction/metadata change; earlier acceptance remains separately dated
+in [client validation](CLIENT-VALIDATION.md) and [harness validation](HARNESS-VALIDATION.md).
+Hosted CI status belongs to the PR checks; earlier account billing failures are
+not treated as a passing matrix.

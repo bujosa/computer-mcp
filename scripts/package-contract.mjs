@@ -17,7 +17,7 @@ export const requiredPackageFiles = [
 const documents = new Set([
   'README.md',
   'SECURITY.md',
-  ...['SETUP', 'TEACH', 'TASKS', 'DESKTOP', 'ACTIVITY'].map(
+  ...['SETUP', 'TEACH', 'TASKS', 'DESKTOP', 'ACTIVITY', 'TOOLS-AND-SKILLS'].map(
     (name) => `docs/${name}.md`,
   ),
 ]);

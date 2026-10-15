@@ -138,6 +138,8 @@ Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 resource and `computer-task`, `taught-workflow` and `analyze-demonstration` prompts.
 `computer-task` prepares the same pinned plan/task as the console for clients
 supporting prompts; retrieval performs no task. See [the prompt contract](docs/TASKS.md#prepare-a-task-directly-through-mcp).
+For each tool's access, inputs, limits, control requirements and skill execution
+flow, see [Tools and skills](docs/TOOLS-AND-SKILLS.md).
 
 ## Give the agent skills
 

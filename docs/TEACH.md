@@ -79,7 +79,9 @@ Exported `SKILL.md` files carry the same computer/workspace and exact revision
 pins. They require fetching the current saved workflow, including after a wait
 or reconnect, rather than falling back to the embedded procedure if it changes
 or becomes unavailable. Export again after changes; older downloads need a
-fresh version-3 export. General MCP action tools do not bind effects to that
+fresh version-4 export. After acquiring control, await another successful
+ready/reviewed/exact-revision `workflow_get` check before any mutation, including
+navigation. Never run that check in parallel with an action. General MCP action tools do not bind effects to that
 reviewed revision, so these checks remain agent instructions.
 
 Input names/descriptions come from captured steps, including command cwd, file
