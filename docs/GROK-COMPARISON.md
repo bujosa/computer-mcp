@@ -1,6 +1,6 @@
 # Grok Bot reference and Sendtry Computer direction
 
-Rechecked 15 October 2026 UTC against public first-party documentation and this
+Rechecked 16 October 2026 UTC against public first-party documentation and this
 repository's executed evidence. Grok was not installed or tested during this
 review. Vendor descriptions are not our measurements or an independent security
 assessment. Source code, recordings, screenshots and assets were not copied.
