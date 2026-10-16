@@ -1,5 +1,36 @@
 # Teach a task, understand it, reuse it
 
+Teach turns an owner demonstration into evidence, an agent-proposed method and
+an owner-reviewed skill. The external agent supplies the reasoning. A saved
+workflow is the persistent record of this process; a task request asks an agent
+to use it on a particular occasion.
+
+## What is created, and when
+
+| Stage                  | Artifact                                                                            | Meaning                                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Start/finish recording | Workflow ID, computer ID, name, goal, timestamps, captured steps and saved revision | A demonstration exists on this computer. `status: ready` means it finished, not that its procedure is approved or has passed a test. |
+| Optional video         | Local guest WebM and media metadata                                                 | Visual evidence. Typed values may be visible even though the trace omits them. Raw video remains owner-only.                         |
+| Allow analysis         | Consent and a new workflow revision                                                 | Work agents can request sampled frames. This does not launch a model or an analysis task.                                            |
+| Agent proposes         | Draft procedure, expected result, uncertainties and source revision                 | A candidate skill on the same workflow, awaiting human correction/review. It is not an executable script or an approved task.        |
+| Owner confirms review  | Published reviewed procedure and a new top-level revision                           | Export/reuse becomes available. The review does not certify a successful run.                                                        |
+| Prepare a plan/run     | A copied request with computer/workspace/workflow/revision pins and current inputs  | Instructions for the existing agent. There is no durable background task or task-success record.                                     |
+
+Workflow identity stays stable as its revisions change. Workspace identity comes
+from the owning computer's persistent volume and is included in exported skills
+and prepared requests. The proposal is stored on the existing workflow, rather
+than creating another PC or a separate queued analysis job. Recorded workflows,
+media and reviews survive normal stops/rebuilds in that computer's private data
+volume. See [data boundaries](../arquitecture.md).
+
+There are two explicit handoffs: **analysis request → connected agent**, and
+after review, **new task request → connected agent**. The console does not know
+how to start an arbitrary Claude/Codex/Cursor session. A harness must already be
+connected and receive the request. A skill file is optional for this handoff;
+installing it is a separate way to make the reviewed method discoverable later.
+
+## Record, analyze and review
+
 1. Start/open your selected computer. Take control in the owner console.
 2. In **Teach & skills**, choose **Teach a task**, name the outcome and optionally include
    guest video. Keep credentials/customer data out of the demonstration.
@@ -36,6 +67,135 @@ wait for fresh computer state before enabling the next action. If that metadata
 read exceeds eight seconds, the console shows the computer as unavailable and
 retries; inspect the recovered state before continuing. This does not extend the
 runtime's control lease or change its execution deadlines.
+
+## Worked example: teach a project note
+
+This uses only the offline practice page in the agent's Linux guest. It needs
+no external account, Internet or new permissions. It is the same class of form
+task covered by [client acceptance](CLIENT-VALIDATION.md); the values below are
+illustrative. They are not an additional measured benchmark.
+
+### 1. Demonstrate once
+
+Start/open the selected PC and verify the intended computer/workspace. In
+**Screen**, take control and choose **Practice task**. In **Teach & skills**,
+start a recording named `Save a project note`, with goal `Save the supplied
+project and next step and verify them after reload`. Enable guest video if you
+want the agent to analyze visual evidence.
+
+Return to the live guest. Enter `Garden plan` in **Project name** and
+`Choose three plants for the balcony.` in **Next step**, then click **Save note**.
+Inspect the saved card. Choose **Finish demonstration** and wait until saving
+completes. Select that saved workflow in Skills. If recording started before
+opening the page, navigation may also appear in its trace.
+
+The trace records selectors such as `#project`, `#note` and `#save-note`, with
+generated `input_N` parameters for typed values. The specific parameter numbers
+depend on captured actions; use the actual names shown by this recording.
+The trace does not retain the demonstration text. The optional video can show it.
+Browser form saving also needs a click/submit; a fill by itself is not completion.
+
+### 2. Ask the agent to understand it
+
+Play/review the saved clip, choose **Allow agent analysis**, then **Copy analysis
+request**. Send the copied request to your existing image-capable work agent.
+It contains the selected workflow's real ID; do not substitute an ID from
+another computer. The operator skill directs the agent to verify identity and
+read the workflow before analysis.
+
+The expected tool sequence is:
+
+1. `computer_info` and `workflow_get` on the owning computer.
+2. `workflow_analyze` with the selected workflow ID. Inspect the trace and PNGs;
+   request additional `atSeconds` samples when a transition is missing.
+3. `workflow_propose` with the returned analysis `sourceRevision` as
+   `expectedRevision`, a parameterized `procedure`, observable `expectedResult`
+   and explicit `uncertainties`.
+
+The agent should describe how to fill and verify a new note, including missing
+steps and failure cases. It must not save another note while analyzing. Sampling
+can miss clicks or text, so a plausible narrative alone is insufficient evidence.
+It should not retain `Garden plan` as the input for every future run.
+
+For a client with MCP prompt support, an already connected SDK client can obtain
+the same kind of request:
+
+```js
+// workflowId is the selected saved workflow's UUID on this connection.
+const request = await client.getPrompt({
+  name: 'analyze-demonstration',
+  arguments: { id: workflowId },
+});
+```
+
+Retrieving this prompt returns messages for the harness; it neither analyzes the
+video nor calls the tools. Forward/use those messages in the agent's normal
+conversation. Console copying remains the fallback for clients without prompts.
+
+### 3. Correct and publish the method
+
+Choose **Refresh saved skill** / **Review updated proposal**. Check that the
+proposed method includes these operations, with this recording's actual input
+parameters:
+
+1. Open the local practice page in the guest and inspect a fresh browser snapshot.
+2. Fill `#project` and `#note` using this run's supplied values.
+3. Click `#save-note` once.
+4. Inspect `#result-project` and `#result-note` for exact current values.
+5. Reload, inspect again and report whether the same values remain.
+
+Define the expected result as both supplied values being visible after reload.
+This practice page keeps one latest note in its guest browser storage; this
+example authorizes replacing that practice note, not appending a history or
+changing unrelated files/sites. Remove secrets and incorrect assumptions before
+**Confirm review**. An agent cannot perform that owner-only approval.
+
+The input form is derived from captured parameters, not a new arbitrary input
+schema inferred from prose. If the proposal needs an input absent from the
+trace, supply it separately to the agent or let the agent ask for it. Do not
+pretend an uncaptured value has an automatically generated form field.
+
+### 4. Reuse with different inputs
+
+In **Try with new inputs**, supply `Workshop plan` and `List the tools needed
+for Saturday.` in the parameters corresponding to the two fields. Start with
+**Prepare a plan first** if you want to inspect the intended steps. A plan must
+not acquire control or change the practice note.
+
+For an actual attempt, choose **Do the reviewed task**, inspect/copy the request
+and send it to the work agent. Release human control first. The agent checks the
+pinned identity and review, acquires control, awaits another successful exact
+ready/reviewed revision check, then fills/saves/verifies using the new values.
+It releases its own control on completion/failure. If the owner edits the review
+in between, prepare a fresh request rather than silently using another revision.
+
+### 5. Check what happened
+
+Independently inspect the guest's saved card after reload. It should show
+`Workshop plan` and `List the tools needed for Saturday.`, with no old demo text.
+Ask the agent to report the workflow ID/revision, actual observed result and any
+uncertainty. Activity supplies separate tool/session metadata; it is not a task
+verdict. If a submission or response is ambiguous, inspect before repeating it.
+
+Exporting `SKILL.md` packages the reviewed instructions for future discovery. It
+does not contain a recording player, embedded model or proof of this run's
+success. Keep the same computer/workspace/review checks for later uses.
+
+## Saved states and recovery
+
+| What you see                          | What to do                                                                                                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Recording / Saving                    | Finish and await the saved result; exporting is unavailable.                                                                                |
+| Completed demonstration, not reviewed | Inspect its trace/video. Review the trace directly or send an authorized analysis request.                                                  |
+| Frame access allowed, no proposal     | Send the request to the connected work agent and inspect its response/tool activity. Refresh the saved skill; consent alone creates no job. |
+| Pending proposal                      | Correct and confirm the current proposal, or discard it. An earlier review does not override a pending draft.                               |
+| Reviewed                              | Prepare a new plan/run or export. Verify a real execution separately.                                                                       |
+| Changed revision / stale request      | Refresh, inspect and prepare a fresh request/export for the intended saved review.                                                          |
+| Interrupted recording                 | Inspect partial evidence and make a new completed demonstration before export/reuse.                                                        |
+| No video / text-only agent            | Review captured steps manually. Video-only demonstrations need a proposal before review; unsupported evidence may require teaching again.   |
+
+No automatic retry, scheduling or analysis queue is created by these states.
+For tool access/lease/limit recovery, see [the operator contract](TOOLS-AND-SKILLS.md).
 
 ## Use a reviewed skill
 

@@ -1,6 +1,6 @@
 # Grok Bot reference and Sendtry Computer direction
 
-Reviewed 14 October 2026 UTC against public first-party documentation and this
+Rechecked 15 October 2026 UTC against public first-party documentation and this
 repository's executed evidence. Grok was not installed or tested during this
 review. Vendor descriptions are not our measurements or an independent security
 assessment. Source code, recordings, screenshots and assets were not copied.
@@ -32,6 +32,30 @@ of analysis agents, a skill compiler or a model-training pipeline. We cannot
 assert how Grok internally derives a skill from a recording. Our implementation
 is independently defined: consented video samples plus action trace, a proposal
 from the existing vision-capable harness, owner correction/review, then reuse.
+
+## Does a recording become a task for the agent?
+
+The documented Grok experience ends recording with a Bot-created draft skill for
+review and testing. Those Teach instructions describe neither an analysis-job
+API nor the internal worker pipeline. See the first-party
+[Teach instructions](https://docs.x.ai/grok-bot/skills-routines-and-automations#teach-a-workflow-by-demonstration).
+
+In Sendtry, the saved **workflow** is the unit your agent analyzes: stable ID,
+goal, captured trace, optional media and evolving revision. `workflow_analyze`
+delivers authorized evidence; the connected agent reasons and saves a candidate
+procedure with `workflow_propose`. The draft remains on that same workflow.
+Owner review publishes instructions; a later task request asks the agent to use
+them with new inputs. No separate queued analysis job or execution attempt is
+created by finishing the recording.
+
+The visible handoff is currently manual: **copy/send analysis request → agent**,
+then **copy/send reviewed task request → agent**. This keeps model choice and
+conversation in the user's existing harness. Automatically dispatching an agent
+would require a future harness integration with explicit identity, consent,
+cancel/retry and result contracts. It is not implemented by an MCP prompt or
+claimed as current functionality. The
+[worked example](TEACH.md#worked-example-teach-a-project-note) follows the complete
+path without an internal chatbot or scheduler.
 
 ## What Sendtry actually provides
 
@@ -96,10 +120,14 @@ Deliver artifacts inside the guest; host repositories are not mounted or copied.
 The local developer MVP has working paths. It is not perfect, certified for every
 application or ready to promise mass-market unattended operation. Priorities:
 
-1. Broaden clean installation checks beyond the exercised macOS hosts. Claude,
-   Codex and Cursor CLI skill/loading and task paths passed; editor/desktop UI
-   registration and Windows/Linux host lifecycle remain untested. Hosted CI is
-   blocked by account billing. See [client acceptance](CLIENT-VALIDATION.md).
+1. Broaden clean installation and artifact checks. Claude, Codex and Cursor CLI
+   skill/loading and task paths passed. Bounded source-checkout lifecycle QA now
+   covers Windows and Linux hosts; the Windows preservation check retained a
+   concurrent foreign-container removal failure. See [host QA](HOST-VALIDATION.md).
+   The private tarball's real guest build was exercised on local macOS; new
+   artifacts on other hosts and editor/desktop UI registration need their own
+   acceptance. Hosted CI remains blocked by account billing. See
+   [client acceptance](CLIENT-VALIDATION.md) and [distribution](DISTRIBUTION.md).
 2. Broaden task evaluation beyond the six fresh-input form repetitions and
    three deliberate timeouts now checked in those CLIs. Graceful Claude CLI
    termination also stopped its guest process and released control. These

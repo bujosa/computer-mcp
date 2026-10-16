@@ -95,6 +95,14 @@ parameterized instructions. You review/correct the draft before publishing it.
 skill handles general computer work; the taught skill describes one procedure.
 Neither trains a model automatically. See [Teach](TEACH.md).
 
+The saved Teach workflow is a reusable method/evidence record. A new task request
+is a separate instruction to the existing agent to plan or use that method with
+current inputs. Finishing a recording does not create a queued analysis job;
+copy/send its analysis request, review the returned proposal, then copy/send a
+new execution request. Follow the
+[project-note walkthrough](TEACH.md#worked-example-teach-a-project-note) to see
+the exact owner/agent handoffs and how to independently check the result.
+
 For reuse, the agent waits for a fresh ready/reviewed/exact-revision check after
 acquiring control and before its first effect. General tools do not atomically
 bind every effect to that workflow pin.
