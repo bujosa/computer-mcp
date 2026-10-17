@@ -273,7 +273,9 @@ export async function computerStatus(state, config, isDefault = false) {
     control: null,
   };
   try {
-    const info = await new RuntimeClient(config).info({ timeoutMs: 1500 });
+    const info = await new RuntimeClient(config, { owner: true }).info({
+      timeoutMs: 1500,
+    });
     if (!config.workspaceId) return { ...summary, status: 'needs-start' };
     return {
       ...summary,

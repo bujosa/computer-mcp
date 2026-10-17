@@ -19,6 +19,8 @@ export const auditLimits = Object.freeze({
 });
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const uuidOrNull = (value) =>
+  typeof value === 'string' && uuid.test(value) ? value : null;
 const iso = (ms) => (ms === null ? null : new Date(ms).toISOString());
 const outcomes = new Set(['success', 'failed', 'cancelled', 'interrupted']);
 
@@ -93,6 +95,23 @@ export class Audit {
           409,
         );
         if (previous === undefined) put.run(key, value);
+      }
+      // Schema-1 history predates named grants. Add nullable metadata only after
+      // validating the saved identity, in the same transaction as initialization.
+      // Older images can continue reading schema 1 and leave these fields null.
+      for (const [table, columns] of Object.entries({
+        sessions: ['connection_id'],
+        events: ['connection_id', 'task_id', 'attempt_id'],
+      })) {
+        const existing = new Set(
+          this.db
+            .prepare(`PRAGMA table_info(${table})`)
+            .all()
+            .map((row) => row.name),
+        );
+        for (const column of columns)
+          if (!existing.has(column))
+            this.db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT`);
       }
       if (!get.get('pruned')) put.run('pruned', '0');
       const now = this.now();
@@ -179,6 +198,11 @@ export class Audit {
       name: client.name || null,
       version: client.version || null,
       protocol: client.protocol || null,
+      // Only runtime-populated request context supplies attribution. Declared
+      // client metadata, headers and submitted task contents are never consulted.
+      connectionId: uuidOrNull(req.connectionId),
+      taskId: uuidOrNull(req.taskId),
+      attemptId: uuidOrNull(req.attemptId),
     };
   }
   dropSession(id) {
@@ -198,9 +222,14 @@ export class Audit {
     const now = this.now();
     let row = this.db
       .prepare(
-        'SELECT * FROM sessions WHERE boot=? AND actor=? AND access=? ORDER BY id DESC LIMIT 1',
+        'SELECT * FROM sessions WHERE boot=? AND actor=? AND access=? AND connection_id IS ? ORDER BY id DESC LIMIT 1',
       )
-      .get(this.identity.bootId, context.actor, context.access);
+      .get(
+        this.identity.bootId,
+        context.actor,
+        context.access,
+        context.connectionId,
+      );
     const holding =
       row &&
       this.db
@@ -276,8 +305,8 @@ export class Audit {
       const result = this.db
         .prepare(
           `INSERT INTO sessions
-        (uuid,actor,boot,kind,access,source,client,version,protocol,started,seen)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+        (uuid,actor,boot,kind,access,source,client,version,protocol,connection_id,started,seen)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
         )
         .run(
           randomUUID(),
@@ -289,6 +318,7 @@ export class Audit {
           context.name,
           context.version,
           context.protocol,
+          context.connectionId,
           now,
           now,
         );
@@ -346,8 +376,8 @@ export class Audit {
       const result = this.db
         .prepare(
           `INSERT INTO events
-        (session,boot,actor,kind,access,source,client,version,protocol,action,operation,workflow,started,outcome)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'running')`,
+        (session,boot,actor,kind,access,source,client,version,protocol,action,operation,workflow,connection_id,task_id,attempt_id,started,outcome)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'running')`,
         )
         .run(
           session,
@@ -360,8 +390,11 @@ export class Audit {
           context.version,
           context.protocol,
           action,
-          uuid.test(operationId || '') ? operationId : randomUUID(),
-          uuid.test(workflowId || '') ? workflowId : null,
+          uuidOrNull(operationId) || randomUUID(),
+          uuidOrNull(workflowId),
+          context.connectionId,
+          context.taskId,
+          context.attemptId,
           this.now(),
         );
       const id = Number(result.lastInsertRowid);
@@ -504,10 +537,11 @@ export class Audit {
     });
   }
   end(req, reason = 'client_closed') {
-    this.transaction(() =>
-      this.db
+    this.transaction(() => {
+      const context = this.context(req);
+      return this.db
         .prepare(
-          'UPDATE sessions SET ended=?, seen=?, reason=? WHERE boot=? AND actor=? AND access=? AND ended IS NULL',
+          'UPDATE sessions SET ended=?, seen=?, reason=? WHERE boot=? AND actor=? AND access=? AND connection_id IS ? AND ended IS NULL',
         )
         .run(
           this.now(),
@@ -515,9 +549,10 @@ export class Audit {
           reason,
           this.identity.bootId,
           req.actor,
-          this.context(req).access,
-        ),
-    );
+          context.access,
+          context.connectionId,
+        );
+    });
   }
   prune() {
     this.transaction(() => {
@@ -588,6 +623,9 @@ export class Audit {
       action: row.action,
       operationId: row.operation,
       workflowId: row.workflow,
+      connectionId: row.connection_id ?? null,
+      taskId: row.task_id ?? null,
+      attemptId: row.attempt_id ?? null,
       startedAt: iso(row.started),
       endedAt: iso(row.ended),
       durationMs: row.duration ?? null,
@@ -638,6 +676,7 @@ export class Audit {
       bootId: s.boot,
       kind: s.kind,
       access: s.access,
+      connectionId: s.connection_id ?? null,
       client: {
         source: s.source,
         name: s.client,
@@ -708,6 +747,7 @@ export class Audit {
         bootId: s.boot,
         kind: s.kind,
         access: s.access,
+        connectionId: s.connection_id ?? null,
         client: {
           source: s.source,
           name: s.client,

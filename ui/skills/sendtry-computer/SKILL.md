@@ -4,7 +4,7 @@ description: Operate an assigned Sendtry Computer through MCP, analyze an owner-
 metadata:
   requires: Sendtry Computer MCP; changes require work access
   author: Sendtry
-  version: '8'
+  version: '9'
 ---
 
 # Sendtry Computer operator
@@ -22,11 +22,27 @@ observation without acquiring or releasing control. Execution and demonstration
 analysis/proposals require work access; the owner must change the pinned MCP
 configuration and reconnect. Verify the same two IDs after that switch.
 
-Acquire `control_acquire` before changing browser, guest desktop, files or terminal state. If another session owns the
+Check `computer_info.connection`. A named connection has its own revocable grant
+and `requiresTask` for work. For execution, read `task_list`/`task_get`, match the
+owner's assignment and this connection ID, then call `task_start` with the task
+ID. It takes exclusive control and binds one attempt to this session, boot and
+lease generation. Do not use `control_acquire` to bypass assignment. A copied
+request or the `assigned-task` prompt prepares instructions; neither dispatches
+an agent or starts work. Only the owner can create/retry an assignment.
+
+For explicitly enabled legacy shared work access (`connection: null`), acquire
+`control_acquire` before changing browser, guest desktop, files or terminal state. If another session owns the
 lease, report that state and wait for release; agent credentials cannot take over
 human control. You can still observe with available read tools. The MCP bridge
 renews a held lease while connected. Release only a lease you acquired, with
-`control_release`, when the requested work finishes or fails.
+`control_release`, when legacy work finishes or fails. For a named attempt,
+call `task_finish` with outcome `success`, `failure` or `uncertain`, a factual
+summary and bounded evidence references. It records an agent report and releases
+that attempt's lease. Owner verification is separate; never mark your own task
+verified. An identical lost-response report may be repeated only after reading
+`task_get`; it must not resume effects. Interrupted/terminal tasks require a new
+owner assignment. Revocation, takeover or lease loss means stop and report partial
+or unknown effects, without releasing someone else's control.
 
 Use the narrowest available tools:
 
@@ -71,7 +87,7 @@ named inputs; older reviews fall back to the captured parameters.
 
 Verify the requested outcome with a browser snapshot, file read or screenshot.
 Report the observed result, any incomplete or unknown outcome and the owning
-computer. Release control if acquired. Teaching capture
+computer. Finish the named attempt or release legacy control if acquired. Teaching capture
 and human takeover belong to the owner console, not to an agent-side skill.
 
 ## Reuse a taught task
@@ -83,14 +99,17 @@ require a new completed demonstration. A prepared request also requires its
 exact supplied revision. For direct selection, pin the returned revision for
 this task and recheck it immediately before execution. Stop on a changed review
 instead of silently switching versions. Report the workflow ID/revision used.
-After acquiring control, call `workflow_get` again and wait for its successful
+After `task_start` (or legacy acquisition), call `workflow_get` again and wait for its successful
 ready/reviewed/exact-revision response before the first mutation, including
 navigation. Do not run this check in parallel with an action. Pin the top-level
 `revision`; `review.sourceRevision` identifies proposal provenance and can differ
 from the published revision.
 
-These checks are agent instructions. General browser/file/terminal tools enforce
-access and leases, but do not bind each effect to a workflow review.
+For named execution, the owner assignment must pin this workflow ID/revision.
+The runtime binds effects to the running attempt and blocks workflow changes
+while it runs. Task scope and the actual correctness of the method still require
+agent judgment and independent result inspection. Legacy execution retains
+procedural revision checks without this runtime binding.
 
 ## Propose a skill from a demonstration
 
@@ -130,9 +149,11 @@ ask for missing input, and captured names may not cover all prerequisites.
 
 The `taught-workflow` prompt defaults to planning. If intent is plan, describe
 the procedure and verification without acquiring control or performing effects.
+For named work, obtain an owner assignment and use `assigned-task`/`task_start`;
+`taught-workflow` and `computer-task` execution prompts require legacy work.
 Execute only a requested task through work access; keep normal control, scope,
 fresh-target and outcome checks. Report the workflow ID/revision and observed
-result, then release any acquired control. A prepared/copied request is not a completed run.
+result, then finish the named attempt or release legacy control. A prepared/copied request is not a completed run.
 
 ## Recover without changing the task
 

@@ -39,6 +39,7 @@
     "docs/TASKS.md",
     "docs/DESKTOP.md",
     "docs/ACTIVITY.md",
+    "docs/ASSIGNMENTS.md",
     "docs/TOOLS-AND-SKILLS.md",
     "SECURITY.md"
   ],
@@ -54,6 +55,7 @@
     "check:package": "node scripts/check-package.mjs",
     "test:integration": "node scripts/integration.mjs",
     "test:catalog-integration": "node scripts/catalog-integration.mjs",
+    "test:assignments-integration": "node scripts/assignments-integration.mjs",
     "test:teach-integration": "node scripts/teach-integration.mjs",
     "test:audit-integration": "node scripts/audit-integration.mjs",
     "test:desktop-integration": "node scripts/desktop-integration.mjs",

@@ -7,6 +7,12 @@ export const requiredPackageFiles = [
   'src/cli.js',
   'src/mcp.js',
   'src/metadata.js',
+  'src/assigned-connections.js',
+  'src/assigned-task.js',
+  'src/command-line.js',
+  'src/operations-contract.js',
+  'runtime/operations.js',
+  'runtime/assignments.js',
   'runtime/Dockerfile',
   'runtime/entrypoint.sh',
   'runtime/chromium-agent.sh',
@@ -17,9 +23,15 @@ export const requiredPackageFiles = [
 const documents = new Set([
   'README.md',
   'SECURITY.md',
-  ...['SETUP', 'TEACH', 'TASKS', 'DESKTOP', 'ACTIVITY', 'TOOLS-AND-SKILLS'].map(
-    (name) => `docs/${name}.md`,
-  ),
+  ...[
+    'SETUP',
+    'TEACH',
+    'TASKS',
+    'DESKTOP',
+    'ACTIVITY',
+    'ASSIGNMENTS',
+    'TOOLS-AND-SKILLS',
+  ].map((name) => `docs/${name}.md`),
 ]);
 export function validatePackageInventory(pkg, files) {
   assert.equal(pkg.private, true, 'Public distribution is not authorized.');

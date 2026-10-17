@@ -37,6 +37,13 @@ const noVncProbeCleanup = {
   },
 };
 await build({
+  entryPoints: ['src/command-line.js'],
+  outfile: 'ui/vendor/command-line.js',
+  bundle: true,
+  format: 'esm',
+  minify: true,
+});
+await build({
   entryPoints: ['src/task-request.js'],
   outfile: 'ui/vendor/task-request.js',
   bundle: true,
