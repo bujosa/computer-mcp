@@ -100,6 +100,8 @@ async function grant(pc, access) {
       label,
       '--state',
       pc.state,
+      '--root',
+      path.join(directory, 'catalog'),
       '--access',
       access,
     ],
