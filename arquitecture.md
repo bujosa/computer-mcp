@@ -20,6 +20,12 @@ remote adapters are design seams, not advertised implementations.
 
 ## Modules and dependency direction
 
+The named connection and assignment contracts are detailed in
+[ASSIGNMENTS.md](docs/ASSIGNMENTS.md). The host owns computer selection and
+credential files; the runtime owns grants, observed sessions, requests and
+attempts; the existing harness owns model execution. These boundaries do not add
+a cloud scheduler or a cross-computer control gateway.
+
 | Module                                                                  | Responsibility                                                                                                                        |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/cli.js`, `config.js`, `computers.js`, `docker.js`                  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
@@ -27,6 +33,9 @@ remote adapters are design seams, not advertised implementations.
 | `src/catalog.js`                                                        | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
 | `runtime/server.js`                                                     | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
 | `runtime/lease.js`                                                      | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
+| `src/assigned-connections.js`, `command-line.js`, `network.js`          | Private scoped connection files, safe host command serialization and optional owned-network IPAM validation                           |
+| `src/operations-contract.js`, `assigned-task.js`                        | Strict connection/task schemas and an effect-free, identity-pinned assignment handoff shared with the console                         |
+| `runtime/operations.js`, `assignments.js`                               | Separate fail-closed SQLite grant/presence/task store; workflow/lease/attempt coordination and owner verification                     |
 | `runtime/audit.js`, `audit-http.js`, `src/audit-contract.js`            | Root-only SQLite session/action/control history, allowlisted metadata, bounded retention, owner reads/exports and declared MCP labels |
 | `runtime/relay.js`                                                      | Offline-mode TCP relay from loopback publishing to the internal guest; fixed destination, no credentials, API, files or guest egress  |
 | `runtime/desktop.js`                                                    | Authorized binary RFB WebSocket bridge with backpressure, bounded frames and control revocation                                       |
@@ -111,15 +120,16 @@ state. Copy performs no MCP call. The chosen agent receives the request and uses
 its exposed tools/credential scope; read observation needs no lease, and work
 changes acquire one. UI readiness/control hints derive from the existing info
 response, not an invented harness connection status. Loss of owner authorization
-clears host setup metadata and the request. This adds no endpoint, table, model
-runtime or lifecycle permission.
+clears host setup metadata and the request. This walkthrough adds no model runtime or lifecycle permission;
+named grant and task state use the explicit owner endpoints described below.
 
 `src/task-request.js` is an effect-free general task formatter shared with the
 console bundle. It validates both UUIDs, read/work scope and bounded literal
 goal/outcome/limits, and defaults to planning. The console keeps fields only in
 page memory and clears them on view exit, authorization loss or identity change.
 Copy awaits a fresh eight-second `/api/info` read and rejects changed pins or a
-superseded owner/draft/view. It neither stores a job nor invokes an agent. The
+superseded owner/draft/view. The legacy/planning formatter neither stores a job nor invokes an agent.
+Named execution instead uses the saved assignment flow below. The
 harness receives the request and determines the tool sequence; existing runtime
 boundaries enforce authority. Activity records actual tools, not a copied task's
 success. See [task assignment](docs/TASKS.md).
@@ -157,16 +167,16 @@ revision, missing input parameters and the recorded procedure. The runtime
 supplies its trusted volume identity; missing or foreign identities fail (409).
 Version-3 exports instruct the agent to read the current workflow and require
 ready/reviewed/exact revision before effects, without using the embedded text
-as a fallback when the record changes or is unavailable. These are agent
-instructions, not a revision lock on general action tools. Legacy workflows
+as a fallback when the record changes or is unavailable. Legacy use relies on these agent instructions. Named assignments add the
+runtime revision/attempt guard described below. Legacy workflows
 without a revision use their workflow UUID, as the existing prompt does. No
 stored workflow migration is needed; old downloads need a fresh export.
 The version-7 operator and MCP server instructions make the acquisition boundary
 explicit: await another ready/reviewed/exact top-level revision check after
 acquiring control and before the first mutation, including navigation. This
 check must not be scheduled in parallel with the action. Proposal provenance in
-`review.sourceRevision` is distinct from the published `revision`. Neither
-instruction creates an atomic execution guard or binds general tools to a skill.
+`review.sourceRevision` is distinct from the published `revision`. Legacy instruction checks alone do not bind general tools to a skill; named
+tracked attempts now add that guard.
 Interrupted recordings cannot export (409). The
 read endpoint `/api/workflows/:id/skill` uses normal authenticated workflow
 observation authority. The static operator skill is public local UI content
@@ -198,6 +208,67 @@ or new MCP tool is required. Older guests need rebuild before the updated bridge
 can safely use this prompt.
 
 ## Protocol and identities
+
+### Named connections and tracked execution
+
+New computers disable legacy shared agent access by default. The owner CLI uses
+separate fixed `/api/owner/*` routes for observation and grant/policy management;
+it cannot proxy arbitrary action tools with owner credentials. Owner cookie
+sessions retain the local console route set. Existing saved configurations
+without `legacyAccess` retain compatibility until the owner disables it; this
+policy is then persisted in the operations store rather than reset at restart.
+
+`connection create --name <pc>` mints a revocable read/work grant. Its runtime
+record contains a domain-separated credential hash; its host file contains only
+the scoped secret, PC/workspace/grant IDs, port and access. It has no owner or
+shared work credential and does not load the owner catalog on bridge startup.
+Private files use exclusive publication and restrictive permissions. Windows
+directory ACLs remain an owner prerequisite; POSIX modes are not an ACL guarantee.
+Configuration uses a unique per-PC/grant MCP key and an absolute file path.
+The owner console displays safe host command templates, never raw credentials.
+
+The bridge's random session UUID is namespaced by the authenticated grant.
+Legacy actors are separately derived with HMAC from their scoped credential and
+session UUID, so copying a public actor UUID cannot impersonate a named writer.
+Declared harness labels are metadata, not verified human/model identity.
+Operations presence records recently observed requests; it is not a connection
+or availability signal. HTTP authorization uses `req.computerConnection` rather
+than Node's `req.connection` socket alias.
+
+Named read/work discovery adds `task_list` and `task_get`; work also adds
+`task_start` and `task_finish` (9/20 tools respectively). Legacy discovery stays
+7/16. The `assigned-task` prompt retrieves a queued request for a named work
+connection without starting it. Generic task/workflow prompts still prepare
+plans, but named execution requires an owner-created saved assignment.
+These are application tools over synchronous MCP, not the MCP Tasks extension.
+
+The owner assigns goal/scope/expected result to one active work grant. A taught
+request additionally pins an exact ready/reviewed workflow revision. Activation
+shares the workflow Store queue with all review/proposal/consent/video changes,
+claims the exclusive lease and commits one boot/session/generation-bound
+attempt. Every named effect checks that binding before execution and again
+after asynchronous completion. Workflow mutations reject while a pinned attempt
+runs. This guards review identity, not arbitrary task semantics or changes in
+external pages and guest programs.
+
+`task_finish` records the agent's success/failure/uncertain report and releases
+only that attempt's lease. An identical duplicate report cannot release a newer
+attempt's lease; the bridge also keys heartbeat cleanup to lease generation.
+Owner verification/rejection is a separate optimistic-revision operation with
+an attributed note. Cancellation blocks new effects, aborts/drains active input,
+then commits cancellation before lease reuse. Takeover, revocation, expiry,
+disconnect and restart retain interruption and unknown partial effects. There
+is one attempt per request; retries require a new owner assignment.
+
+`/data/control/operations/operations.sqlite` is separate from Activity. Root-only
+SQLite identity/schema pins, FULL synchronization, bounded retention and limits
+fail closed. Startup interrupts running attempts and ends old-boot presence.
+Explicit task requirements/reports/review notes are private persisted content;
+Teach trial values and raw tool output are not captured automatically. Activity
+receives trusted grant/task/attempt/workflow IDs only. Missing historical IDs
+stay null during its additive schema-1 migration. See [privacy](docs/ACTIVITY.md).
+
+### Shared access and base transport
 
 MCP uses official `@modelcontextprotocol/server` v2 and its `serveStdio` factory.
 The SDK handles modern discovery (2026-07-28) and legacy initialize (2025-era),

@@ -7,14 +7,14 @@ to use it on a particular occasion.
 
 ## What is created, and when
 
-| Stage                  | Artifact                                                                            | Meaning                                                                                                                              |
-| ---------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Start/finish recording | Workflow ID, computer ID, name, goal, timestamps, captured steps and saved revision | A demonstration exists on this computer. `status: ready` means it finished, not that its procedure is approved or has passed a test. |
-| Optional video         | Local guest WebM and media metadata                                                 | Visual evidence. Typed values may be visible even though the trace omits them. Raw video remains owner-only.                         |
-| Allow analysis         | Consent and a new workflow revision                                                 | Work agents can request sampled frames. This does not launch a model or an analysis task.                                            |
-| Agent proposes         | Draft procedure, expected result, uncertainties and source revision                 | A candidate skill on the same workflow, awaiting human correction/review. It is not an executable script or an approved task.        |
-| Owner confirms review  | Published reviewed procedure and a new top-level revision                           | Export/reuse becomes available. The review does not certify a successful run.                                                        |
-| Prepare a plan/run     | A copied request with computer/workspace/workflow/revision pins and current inputs  | Instructions for the existing agent. There is no durable background task or task-success record.                                     |
+| Stage                  | Artifact                                                                            | Meaning                                                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start/finish recording | Workflow ID, computer ID, name, goal, timestamps, captured steps and saved revision | A demonstration exists on this computer. `status: ready` means it finished, not that its procedure is approved or has passed a test.                    |
+| Optional video         | Local guest WebM and media metadata                                                 | Visual evidence. Typed values may be visible even though the trace omits them. Raw video remains owner-only.                                            |
+| Allow analysis         | Consent and a new workflow revision                                                 | Work agents can request sampled frames. This does not launch a model or an analysis task.                                                               |
+| Agent proposes         | Draft procedure, expected result, uncertainties and source revision                 | A candidate skill on the same workflow, awaiting human correction/review. It is not an executable script or an approved task.                           |
+| Owner confirms review  | Published reviewed procedure and a new top-level revision                           | Export/reuse becomes available. The review does not certify a successful run.                                                                           |
+| Prepare a plan/run     | A copied request with computer/workspace/workflow/revision pins and current inputs  | Instructions for the existing agent. Named execution uses a saved assignment and separate agent report/owner verdict; copying alone records no success. |
 
 Workflow identity stays stable as its revisions change. Workspace identity comes
 from the owning computer's persistent volume and is included in exported skills
@@ -202,6 +202,30 @@ success. Keep the same computer/workspace/review checks for later uses.
 No automatic retry, scheduling or analysis queue is created by these states.
 For tool access/lease/limit recovery, see [the operator contract](TOOLS-AND-SKILLS.md).
 
+## Assign a reviewed skill to a named connection
+
+After owner review, choose **Assign to connection** in the skill's use panel.
+Select an active work connection on this PC. The assignment pins the exact
+published workflow ID/revision. Enter a goal, scope and observable expected
+result, then save it in **Tasks** and copy its request to the connected agent.
+The runtime does not dispatch the model. Trial inputs remain literal data in
+the copied handoff; include no secrets. If you explicitly put values in the
+saved goal/scope, those task fields are private persisted content.
+
+The agent reads `task_get`, calls `task_start` to take control, awaits another
+exact `workflow_get` check, performs bounded effects and inspects the result.
+A running taught attempt prevents owner/proposal changes to its review. Finish
+or cancel the attempt before editing that method. `task_finish` reports the
+agent's outcome and releases its lease; **Reported done** awaits your independent
+inspection and **Verify** or **Reject** decision. A changed queued review is
+**Outdated** and cannot start. Interrupted tasks require a new assignment.
+
+Teach analysis and proposals still require owner consent and work access, with
+no task or lease. They interpret evidence and propose instructions; they do not
+perform the demonstrated task. Planning/copy flows and explicitly enabled legacy
+work remain available, but only named assignments enforce attempt/revision
+binding. See [assignments](ASSIGNMENTS.md) for persistence and recovery.
+
 ## Use a reviewed skill
 
 On a compact screen, choose a task from the searchable library to open its
@@ -244,7 +268,7 @@ Exported `SKILL.md` files carry the same computer/workspace and exact revision
 pins. They require fetching the current saved workflow, including after a wait
 or reconnect, rather than falling back to the embedded procedure if it changes
 or becomes unavailable. Export again after changes; older downloads need a
-fresh version-5 export for reviewed task-input definitions. After acquiring control, await another successful
+fresh version-6 export for reviewed task-input definitions. After acquiring control, await another successful
 ready/reviewed/exact-revision `workflow_get` check before any mutation, including
 navigation. Never run that check in parallel with an action. General MCP action tools do not bind effects to that
 reviewed revision, so these checks remain agent instructions.
@@ -278,7 +302,7 @@ to planning. Read access can plan, but requesting execute is rejected. A hidden
 pending draft is represented by `reviewed: false`, including when a prior owner
 review still exists. Rebuild older guests/bridges before using this contract.
 
-For execution, the agent acquires control for mutations, stays within the user's
+For legacy execution, the agent acquires control for mutations, stays within the user's
 requested task, verifies the saved expected result with actual evidence and
 releases control on completion/failure. Preparing/copying is recorded as
 **Prepared a skill request**; it does not prove that a task ran or succeeded.

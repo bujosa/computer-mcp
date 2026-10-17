@@ -4,6 +4,24 @@ Private Sendtry Computer MVP reviewed on 10–17 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
 
+## Named connections and assigned attempts (17 October)
+
+See [the full two-PC acceptance](ASSIGNMENT-VALIDATION.md). PASS actual named
+Claude Code 2.1.302 and Codex 0.162.1 video analysis → draft → owner correction →
+reviewed v6 skill/operator v9 → saved assignment → execution → report → independent
+owner verification. Two newly owned isolated Linux guests ran simultaneously;
+current computed reports, unchanged inputs and saved browser results after reload
+were independently checked. Both awaited exact workflow checks after task_start,
+finished factually and released their attempt's control. No automatic model
+training or internal job runner is implied.
+
+PASS actual host/stdio/API contracts for per-PC grants, named work20/read9,
+wrong PC/grant/session, copied actor UUIDs, read scope, cancellation/revocation of
+running processes, review binding and trusted ID-only Activity attribution.
+PASS owned restart interruption with earlier verified report/files retained.
+Final gate and manual console review details are in the linked record; older
+host/client evidence below retains its original snapshot and scope.
+
 ## Reviewed task inputs and actual harness reuse (17 October)
 
 See [the full learning evaluation](LEARNING-EVALUATION.md) and

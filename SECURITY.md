@@ -24,6 +24,27 @@ service or a substitute for a VM. No native host control adapter is installed.
   and rotation of their local work/owner credentials before reuse. All three
   owned review computers were updated and rotated during this validation;
   reconnect their MCP clients and run `open` for a new owner session.
+- **Named connections**: new PCs disable shared legacy access. A named file
+  grants read/work authority to one pinned PC/workspace, without owner/shared
+  credentials; protect its private file and Windows directory ACLs. The guest
+  stores only a domain-separated credential hash. Owner-created labels identify
+  grants, not verified people/models. Grant-scoped session actors and separate
+  HMAC legacy actors prevent impersonation by copying a visible session UUID.
+  Revocation interrupts that grant's work and rejects future calls; it cannot
+  erase data already read or undo completed effects. Old configurations missing
+  the legacy policy retain compatibility until the owner explicitly disables it.
+- **Assigned tasks**: named effects require an owner-assigned running attempt,
+  its authenticated session, boot and exclusive lease generation. Taught tasks
+  pin a reviewed workflow; changes are blocked while its attempt runs. This
+  does not sandbox the meaning of a goal or make external pages/programs
+  immutable. `task_finish` is an agent report; owner verification is separate.
+  Explicit task requirements, reports, evidence references and review notes are
+  private persisted content in root-only operations SQLite. Do not submit
+  credentials or unnecessary sensitive content. Activity retains trusted UUID
+  attribution only, without copying that text. Both stores fail closed. One
+  task has one attempt; interruption requires a new explicit owner assignment.
+  Teach analysis/proposals remain consented work operations without a task or
+  lease, and cannot approve or execute their own draft.
 - **Files**: relative workspace paths, canonical containment, no symlinks/special
   files, no hardlinked writes and 256 KiB text limit. Short-lived unprivileged
   file workers prevent guest races from accessing root control secrets. This is

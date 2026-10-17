@@ -1,6 +1,10 @@
 # Real Claude Code and Codex validation
 
-The newer [17 October learning evaluation](LEARNING-EVALUATION.md) records actual
+The newest [named two-PC assignment acceptance](ASSIGNMENT-VALIDATION.md)
+records actual Claude/Codex video analysis, reviewed v6 skills, operator v9,
+tracked execution with new inputs and independent owner verification.
+
+The earlier [17 October learning evaluation](LEARNING-EVALUATION.md) records actual
 task-input proposals, owner-edited v5 exports, native operator v8/task loading,
 cross-harness reuse, invalid-report handling and stale-review stops. Its
 restricted-mode skill-loading failure and corrected interpretation are explicit;
