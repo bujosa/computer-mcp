@@ -22,7 +22,7 @@ preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
 maps computer/Teach behavior, practical use and truthful gaps. Licensing/publication remains pending.
 
-[Setup](docs/SETUP.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
+[Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
 
 ## How a demonstration becomes a skill
@@ -175,6 +175,18 @@ To reprint an existing grant's configuration in another format, use
 `config --connection /absolute/private/connection.json --client codex`.
 The file supplies PC/workspace/access and cannot be combined with
 `--root`, `--name`, `--state` or `--access`.
+
+Before handing the connection to an agent, test the actual stdio bridge:
+
+```sh
+node src/cli.js check --connection /absolute/private/connection.json
+```
+
+Use the private file path printed by creation. The JSON report checks pins,
+access, discovery and structured observations without taking control or running
+a task. It distinguishes read-only, missing assignment, queued work and busy
+control; `ready` accepts the connection, not future task success. Exit status 1
+includes sanitized recovery guidance. [Connection check and recovery](docs/RECOVERY.md).
 
 Keep credential files private. They contain only that grant's token and scope,
 with no owner credential or shared work secret. The runtime retains its hash.

@@ -41,6 +41,25 @@ All inputs have strict schemas. Empty input is `{}`. Runtime checks repeat
 authorization, validation and identity checks; MCP annotations are hints for
 clients, never the permission boundary.
 
+All 20 tools advertise object `outputSchema` contracts and return validated
+`structuredContent` on success. Ordinary results retain the same JSON in a text
+block for older clients. Screenshots keep the image as the first content block
+and expose MIME metadata in JSON; analysis keeps timestamped PNG blocks and
+puts frame timestamps/MIME types in JSON, avoiding duplicate base64. The SDK
+projects these for modern and legacy protocol clients. Saved trace/review/video
+metadata and extensible limits are JSON objects; core identity, permission,
+task/report/verdict and execution fields are typed. This does not constrain a
+model's reasoning or make tool content trusted.
+
+An incompatible runtime result returns `isError` with `invalid_tool_result` and
+no parser issues/rejected payload. **Effects may already have occurred** before
+output validation: inspect task/computer state before any deliberate retry.
+Runtime authorization and input checks still precede execution. See
+[SDK schema contracts](https://ts.sdk.modelcontextprotocol.io/v2/advanced/schema-libraries)
+and [official MCP tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools).
+`check --connection /absolute/private/file.json` accepts named discovery and
+structured observations without effects; [recovery](RECOVERY.md) explains limits.
+
 | Tool                 | Access          | Control               | Purpose and principal input                                                                                                                                                               |
 | -------------------- | --------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `computer_info`      | read/work       | none                  | Identity, guest OS, capabilities, limits, network, Teach and current lease. Empty input.                                                                                                  |

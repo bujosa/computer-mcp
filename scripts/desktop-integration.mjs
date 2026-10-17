@@ -87,7 +87,13 @@ async function tool(name, args = {}) {
     !result.isError,
     `Failed tool: ${name} (${result.isError ? JSON.parse(result.content[0].text).code : ''})`,
   );
-  return JSON.parse(result.content[0].text);
+  const json = JSON.parse(result.content[0].text);
+  assert.deepEqual(
+    result.structuredContent,
+    json,
+    `${name}: structured/text parity`,
+  );
+  return json;
 }
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let fixtureStarted = false,

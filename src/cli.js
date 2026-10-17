@@ -64,6 +64,7 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   start [--open] [--rebuild]      Start selected PC; ready PCs keep their sessions
   status                         Report availability, control and identity (JSON)
   doctor [--context local]      Read-only setup/Compose/capacity checks; no PC required
+  check --connection /absolute/private/file.json  Test actual MCP; no effects or lease
   stop | open                   Stop with data retained, or authorize owner console
   config [--client generic|codex|vscode] Print pinned, credential-free MCP configuration
          --connection /absolute/private/file.json (recommended named connection)
@@ -134,6 +135,7 @@ const allowedOptions = {
   start: ['name', 'state', 'open', 'rebuild'],
   status: ['name', 'state'],
   doctor: ['name', 'state', 'context'],
+  check: ['connection'],
   stop: ['name', 'state'],
   open: ['name', 'state'],
   config: ['name', 'state', 'client', 'access', 'connection'],
@@ -440,6 +442,10 @@ async function main() {
     );
     return;
   }
+  if (command === 'check' && values.connection === undefined)
+    throw new Error(
+      'Use check --connection /absolute/private/file.json. Run doctor for setup prerequisites.',
+    );
   if (values.connection !== undefined) {
     if (
       ['name', 'state', 'root', 'access'].some(
@@ -449,6 +455,13 @@ async function main() {
       throw new Error(
         '--connection cannot be combined with --name, --state, --root or --access.',
       );
+    if (command === 'check') {
+      const { checkConnection } = await import('./readiness.js');
+      const report = await checkConnection(values.connection);
+      process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+      if (report.result === 'blocked') process.exitCode = 1;
+      return;
+    }
     validateConnectionClient(values.client);
     const config = await readAssignedConnection(values.connection);
     if (command === 'mcp') await serveMCP(config);

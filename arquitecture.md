@@ -31,6 +31,7 @@ a cloud scheduler or a cross-computer control gateway.
 | `src/cli.js`, `config.js`, `computers.js`, `docker.js`                  | Trusted host lifecycle, local state, explicit Docker context and resource ownership checks                                            |
 | `src/mcp.js`, `client.js`                                               | Official MCP stdio transport, session identity, read/work credentials, guest HTTP requests and heartbeat/cancellation                 |
 | `src/catalog.js`                                                        | Shared Zod argument contracts and tool metadata; guest repeats validation at its trust boundary                                       |
+| `src/tool-results.js`, `readiness.js`                                   | Success output contracts and observation-only acceptance of an actual scoped stdio bridge; sanitized recovery guidance                |
 | `runtime/server.js`                                                     | Authenticated private control API, same-origin loopback console, identity enforcement, authorization, screenshots and WebSocket proxy |
 | `runtime/lease.js`                                                      | One exclusive per-computer writer, generation, expiry, mutation serialization and cancellation                                        |
 | `src/assigned-connections.js`, `command-line.js`, `network.js`          | Private scoped connection files, safe host command serialization and optional owned-network IPAM validation                           |
@@ -274,10 +275,35 @@ MCP uses official `@modelcontextprotocol/server` v2 and its `serveStdio` factory
 The SDK handles modern discovery (2026-07-28) and legacy initialize (2025-era),
 framing, tool validation, resources, prompts and protocol cancellation. Stdout is
 reserved for MCP; lifecycle logs never run through stdio. The transport buffer is
-512 KiB. Screenshot results are MCP image content, while other tools return JSON
-text. Operational failures use `isError`; malformed protocol requests remain
+512 KiB. `src/tool-results.js` defines object output schemas for every tool;
+`mcp.js` advertises them and validates a runtime success before returning it or
+using it for heartbeat state. Ordinary results contain both structured data and
+the matching JSON text for older consumers. Screenshot image-first ordering is
+preserved with MIME metadata in JSON. Analysis frames stay in image blocks;
+their timestamp/MIME metadata is structured without duplicate base64. Core
+identity, access, execution and task/report/verdict fields are typed; evolving
+Teach metadata and limit objects remain JSON. Unknown ordinary top-level fields
+are stripped. Invalid results become a fixed `invalid_tool_result` tool error
+without leaking the rejected payload or Zod issues. Validation occurs after the
+runtime may have executed effects, so this error never authorizes automatic
+retry. Operational failures use `isError`; malformed protocol requests remain
 SDK protocol errors. There is no public HTTP MCP endpoint or custom JSON-RPC
 implementation.
+
+`src/readiness.js` is a separate host CLI acceptance boundary, not an MCP tool or
+guest lifecycle API. `check --connection FILE` reads only a strict private named
+grant, performs bounded pinned HTTP preflight and starts the real stdio bridge
+using the pinned official client SDK. It checks discovery and validates
+`computer_info`/`task_list`, returning public IDs, counts and observational
+read-only/needs-assignment/assigned/busy state. It performs no task/effect,
+control or model call and never opens owner configuration/catalog/Docker. Child
+stderr is drained without retention; errors use fixed recovery messages. The
+five-second preflight and single 15-second probe deadline precede bounded SDK
+cleanup of its own child. Both successful sessions end; presence/Activity can
+record the check. It never releases another process's lease. Discovery state is
+a snapshot, not a reservation or task/harness guarantee. The CLI loads this
+client module only for `check`; the official client becomes a production
+dependency for installations without dev packages. See [recovery](docs/RECOVERY.md).
 
 A bridge process has one random session UUID, never accepted from tool
 arguments. Requests to the loopback guest API carry the computer UUID, workspace

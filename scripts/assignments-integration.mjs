@@ -13,6 +13,7 @@ import { readConfig } from '../src/config.js';
 import { RuntimeClient } from '../src/client.js';
 import { checkDocker, checkOwned } from '../src/docker.js';
 import { readAssignedConnection } from '../src/assigned-connections.js';
+import { checkConnection } from '../src/readiness.js';
 
 assert.ok(
   process.argv[2] && process.argv[3],
@@ -140,7 +141,13 @@ async function bridge(grant) {
 async function invoke(client, name, args = {}) {
   const result = await client.callTool({ name, arguments: args });
   assert.ok(!result.isError, `${name} returned an error`);
-  return JSON.parse(result.content[0].text);
+  const json = JSON.parse(result.content[0].text);
+  assert.deepEqual(
+    result.structuredContent,
+    json,
+    `${name}: structured/text parity`,
+  );
+  return json;
 }
 async function task(grant, extra = {}) {
   return (
@@ -185,6 +192,15 @@ try {
   assert.equal((await ca.listTools()).tools.length, 20);
   assert.equal((await cr.listTools()).tools.length, 9);
   assert.equal((await cb.listTools()).tools.length, 20);
+  for (const client of [ca, cr, cb])
+    assert.ok(
+      (await client.listTools()).tools.every(
+        (tool) => tool.outputSchema?.type === 'object',
+      ),
+    );
+  const idleCheck = await checkConnection(wa.file);
+  assert.equal(idleCheck.result, 'ready');
+  assert.equal(idleCheck.work.state, 'needs-assignment');
   assert.ok(
     (await ca.listPrompts()).prompts.some((x) => x.name === 'assigned-task'),
   );
@@ -196,6 +212,10 @@ try {
   );
   const ta = await task(wa),
     tb = await task(wb);
+  const assignedCheck = await checkConnection(wa.file);
+  assert.equal(assignedCheck.result, 'ready');
+  assert.equal(assignedCheck.work.state, 'assigned');
+  assert.equal((await a.owner('/api/info')).lease, null);
   const prepared = await ca.getPrompt({
     name: 'assigned-task',
     arguments: { id: ta.id },
@@ -213,6 +233,16 @@ try {
   assert.deepEqual((await invoke(cr, 'task_list')).tasks, []);
   const started = await invoke(ca, 'task_start', { id: ta.id });
   assert.equal(started.task.status, 'running');
+  const busyCheck = await checkConnection(wa.file);
+  assert.equal(busyCheck.result, 'ready');
+  assert.equal(busyCheck.work.state, 'busy');
+  assert.equal(
+    (await a.owner('/api/info')).lease.generation,
+    started.lease.generation,
+  );
+  checks.push(
+    'real named stdio check validates schemas, pins and readiness without taking or releasing existing control',
+  );
   assert.deepEqual(
     (await ra.api.info()).lease.controller,
     { kind: 'assigned' },

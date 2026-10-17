@@ -50,7 +50,13 @@ async function connect({ modern = false, access = 'work' } = {}) {
 async function tool(client, name, args = {}) {
   const result = await client.callTool({ name, arguments: args });
   assert.ok(!result.isError, JSON.stringify(result));
-  return JSON.parse(result.content[0].text);
+  const json = JSON.parse(result.content[0].text);
+  assert.deepEqual(
+    result.structuredContent,
+    json,
+    `${name}: structured/text parity`,
+  );
+  return json;
 }
 async function rejected(client, name, args = {}) {
   const result = await client.callTool({ name, arguments: args });

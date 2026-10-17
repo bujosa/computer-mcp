@@ -12,6 +12,7 @@ import { prepareSkillUse, formatSkillUse } from './skill-use.js';
 import { prepareComputerTask, taskRequestLimits } from './task-request.js';
 import { serverInfo } from './metadata.js';
 import { formatAssignedTask } from './assigned-task.js';
+import { outputSchemas, toolResult } from './tool-results.js';
 
 export async function serveMCP(config) {
   if (config.access && !['work', 'read'].includes(config.access))
@@ -68,6 +69,7 @@ export async function serveMCP(config) {
       {
         description: tool.description,
         inputSchema: tool.schema,
+        outputSchema: outputSchemas[name],
         annotations: {
           readOnlyHint: !!tool.read || name === 'workflow_analyze',
           destructiveHint: !tool.read && name !== 'workflow_analyze',
@@ -88,6 +90,7 @@ export async function serveMCP(config) {
             ctx.mcpReq.signal,
             metadata(ctx),
           );
+          const response = toolResult(name, result);
           if (['control_acquire', 'task_start'].includes(name)) {
             heldClient = metadata(ctx);
             heldGeneration = (result.lease || result).generation;
@@ -106,25 +109,7 @@ export async function serveMCP(config) {
               heldGeneration === result.task?.attempt?.leaseGeneration)
           )
             stopHeartbeat();
-          if (name === 'desktop_screenshot')
-            return {
-              content: [
-                { type: 'image', mimeType: result.mimeType, data: result.data },
-              ],
-            };
-          if (name === 'workflow_analyze') {
-            const { frames, ...metadata } = result;
-            return {
-              content: [
-                { type: 'text', text: JSON.stringify(metadata) },
-                ...frames.flatMap((frame) => [
-                  { type: 'text', text: `Sample at ${frame.atSeconds}s` },
-                  { type: 'image', mimeType: frame.mimeType, data: frame.data },
-                ]),
-              ],
-            };
-          }
-          return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+          return response;
         } catch (error) {
           return {
             isError: true,

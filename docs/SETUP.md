@@ -94,25 +94,26 @@ node src/cli.js connection create web-codex --name web --access work --client co
 node src/cli.js stop
 ```
 
-| Command                                                   | Behavior                                                                                                |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `init --name <name>`                                      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`       |
-| `list` / `list --json`                                    | Probe registered identities without claiming control; mark default with `*` / `isDefault`               |
-| `use <name>`                                              | Persist selection for future CLI invocations; can select a currently stopped PC                         |
-| `register --state <path>`                                 | Register existing version-1 state without copying its data or overwriting credentials                   |
-| `start`                                                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases     |
-| `start --open`                                            | Start, then authorize/open the same owner's console                                                     |
-| `start --rebuild`                                         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions       |
-| `status`                                                  | JSON availability, pinned identity, network, context and active controller kind                         |
-| `doctor`                                                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards |
-| `connection create <label> --name PC --access work\|read` | Create a private named grant and print its credential-free MCP entry                                    |
-| `connection list --all`                                   | Report each registered PC independently, including unavailable PCs and its scoped grant list            |
-| `connection revoke <UUID> --name PC`                      | Revoke that PC's named grant and interrupt its work                                                     |
-| `connection legacy enable\|disable --name PC`             | Set shared legacy-access policy explicitly                                                              |
-| `config --connection <file>`                              | Reprint a named entry using only its absolute private grant file                                        |
-| `config --name PC`                                        | Generate legacy shared configuration pinned to the selected state; runtime policy must enable it        |
-| `skill`                                                   | Print the exact operator SKILL.md without requiring/creating computer state or contacting Docker        |
-| `mcp`                                                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                       |
+| Command                                                   | Behavior                                                                                                             |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `init --name <name>`                                      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`                    |
+| `list` / `list --json`                                    | Probe registered identities without claiming control; mark default with `*` / `isDefault`                            |
+| `use <name>`                                              | Persist selection for future CLI invocations; can select a currently stopped PC                                      |
+| `register --state <path>`                                 | Register existing version-1 state without copying its data or overwriting credentials                                |
+| `start`                                                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases                  |
+| `start --open`                                            | Start, then authorize/open the same owner's console                                                                  |
+| `start --rebuild`                                         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions                    |
+| `status`                                                  | JSON availability, pinned identity, network, context and active controller kind                                      |
+| `doctor`                                                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards              |
+| `check --connection <file>`                               | Accept actual named stdio/pins/discovery without effects; report read-only, missing assignment, queued or busy state |
+| `connection create <label> --name PC --access work\|read` | Create a private named grant and print its credential-free MCP entry                                                 |
+| `connection list --all`                                   | Report each registered PC independently, including unavailable PCs and its scoped grant list                         |
+| `connection revoke <UUID> --name PC`                      | Revoke that PC's named grant and interrupt its work                                                                  |
+| `connection legacy enable\|disable --name PC`             | Set shared legacy-access policy explicitly                                                                           |
+| `config --connection <file>`                              | Reprint a named entry using only its absolute private grant file                                                     |
+| `config --name PC`                                        | Generate legacy shared configuration pinned to the selected state; runtime policy must enable it                     |
+| `skill`                                                   | Print the exact operator SKILL.md without requiring/creating computer state or contacting Docker                     |
+| `mcp`                                                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                                    |
 
 `list` reports **ready** (reachable, pinned, no lease), **busy** (reachable with
 an exclusive lease), **starting** (runtime's authenticated `not_ready` response),
@@ -200,7 +201,13 @@ For an existing grant, reprint the same configuration without creating another:
 node src/cli.js config --connection /absolute/private/connection.json --client generic
 node src/cli.js config --connection /absolute/private/connection.json --client codex
 node src/cli.js config --connection /absolute/private/connection.json --client vscode
+node src/cli.js check --connection /absolute/private/connection.json
 ```
+
+`check` authenticates this grant and probes the real stdio bridge by observation.
+It returns credential-free JSON and exit 0/1 for accepted/blocked readiness;
+ready work may still need an assignment or be busy. It never takes control,
+starts a task or registers a harness. [Checks and recovery](RECOVERY.md).
 
 Replace the illustrative path with the exact file reported by creation. Access
 cannot be overridden on a named file; create the intended grant and revoke the

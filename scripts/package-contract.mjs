@@ -6,6 +6,8 @@ export const requiredPackageFiles = [
   '.dockerignore',
   'src/cli.js',
   'src/mcp.js',
+  'src/readiness.js',
+  'src/tool-results.js',
   'src/metadata.js',
   'src/assigned-connections.js',
   'src/assigned-task.js',
@@ -25,6 +27,7 @@ const documents = new Set([
   'SECURITY.md',
   ...[
     'SETUP',
+    'RECOVERY',
     'TEACH',
     'TASKS',
     'DESKTOP',
