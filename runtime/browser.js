@@ -210,28 +210,91 @@ export class Browser {
   async snapshot(pageId) {
     const page = this.page(pageId);
     const data = await page.evaluate(() => {
-      const elements = Array.from(
-        document.querySelectorAll(
-          'a,button,input,textarea,select,[role="button"]',
+      const selectorFor = (el) => {
+        const parts = [];
+        for (let node = el; node?.nodeType === 1; node = node.parentElement) {
+          if (
+            node.id &&
+            document.querySelectorAll('#' + CSS.escape(node.id)).length === 1
+          ) {
+            parts.unshift('#' + CSS.escape(node.id));
+            break;
+          }
+          const tag = node.tagName.toLowerCase();
+          const siblings = node.parentElement
+            ? [...node.parentElement.children].filter(
+                (item) => item.tagName === node.tagName,
+              )
+            : [];
+          parts.unshift(
+            tag +
+              (siblings.length > 1
+                ? `:nth-of-type(${siblings.indexOf(node) + 1})`
+                : ''),
+          );
+          if (tag === 'body') break;
+        }
+        return parts.join(' > ');
+      };
+      const elements = [];
+      let bytes = 0;
+      for (const el of [
+        ...document.querySelectorAll(
+          'a[href],button,input,textarea,select,[role="button"]',
         ),
-      ).slice(0, 100);
+      ].slice(0, 600)) {
+        const rect = el.getBoundingClientRect(),
+          style = getComputedStyle(el);
+        if (
+          !rect.width ||
+          !rect.height ||
+          style.visibility === 'hidden' ||
+          style.display === 'none' ||
+          el.matches(
+            'input[type="password"],input[type="hidden"],input[type="file"]',
+          )
+        )
+          continue;
+        const selector = selectorFor(el);
+        if (!selector || selector.length > 500) continue;
+        const item = {
+          tag: el.tagName.toLowerCase(),
+          role: el.getAttribute('role'),
+          text: (
+            el.getAttribute('aria-label') ||
+            (el.labels &&
+              [...el.labels].map((label) => label.innerText).join(' ')) ||
+            el.innerText ||
+            el.getAttribute('placeholder') ||
+            ''
+          )
+            .trim()
+            .slice(0, 160),
+          selector,
+          inputType: el.getAttribute('type'),
+        };
+        if (el.tagName === 'A') {
+          try {
+            const url = new URL(el.href, location.href);
+            if (
+              ['http:', 'https:'].includes(url.protocol) &&
+              !url.username &&
+              !url.password
+            )
+              item.url = url.href;
+          } catch {
+            /* malformed links are not usable navigation targets */
+          }
+        }
+        bytes += JSON.stringify(item).length;
+        if (bytes > 16000) break;
+        elements.push(item);
+        if (elements.length === 80) break;
+      }
       return {
         title: document.title,
         text: (document.body?.innerText || '').slice(0, 12000),
-        elements: elements.map((el) => ({
-          tag: el.tagName.toLowerCase(),
-          role: el.getAttribute('role'),
-          text: (el.innerText || el.getAttribute('aria-label') || '').slice(
-            0,
-            120,
-          ),
-          selector: el.id
-            ? `#${CSS.escape(el.id)}`
-            : el.getAttribute('data-testid')
-              ? `[data-testid="${CSS.escape(el.getAttribute('data-testid'))}"]`
-              : null,
-          inputType: el.getAttribute('type'),
-        })),
+        elements,
       };
     });
     return {

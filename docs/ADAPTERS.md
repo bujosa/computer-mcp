@@ -35,9 +35,9 @@ new agent-owned guests.
 | Windows VM         | Windows guest service plus Hyper-V/QEMU/other hypervisor lifecycle                               | Windows licensing, owned guest and isolated profile                                                          | Design only; no Windows guest test performed                                                          |
 | macOS VM           | macOS guest service on appropriate Apple hardware and supported virtualization                   | Apple hardware/licensing, owned guest disk and OS permissions                                                | Design only; no macOS guest test performed                                                            |
 | Remote owned guest | Identity-pinned adapter over authenticated private transport (e.g. SSH tunnel/mTLS)              | Explicit machine authorization; remote root/operator remains trusted                                         | Design only; remote Docker contexts refused                                                           |
-| Piblo              | Separate bridge mapping its scoped capabilities and control/identity contract                    | Existing Piblo owner authorizes sharing; its shared-bot desktop is not falsely described as isolated per bot | Future integration; no production/QA Piblo connection made                                            |
+| Piblo              | Separate bridge mapping its scoped capabilities and control/identity contract                    | Existing Piblo owner authorizes sharing; its shared-bot desktop is not falsely described as isolated per bot | Piblo stdio browser adapter exercised in isolated local QA; no production switch                      |
 
-## Integration with Piblo later
+## Piblo integration boundary
 
 [Host QA](HOST-VALIDATION.md) records the exact Windows/Linux versions, functional
 results and preservation-check failure. SSH was only the tester's transport to
@@ -55,3 +55,24 @@ Remote transports need their own authentication, replay protection, request body
 limits, idempotency/ambiguous-result handling, token rotation and access revocation.
 A hostname alone is not computer identity. Hosted deployment/provisioning remains
 out of scope for this repo.
+
+### Browser observation interoperability — 17 October 2026
+
+Piblo now has an optional stdio adapter to this project, rather than importing
+its runtime, identities or persistence. This repository adds safe HTTP(S) link
+`url` fields and bounded unique CSS paths for visible browser controls, including
+controls without IDs. Password/hidden/file fields are omitted; input values are
+not returned. Existing tool names, schemas and browser action results stay
+compatible. Selectors are observations, not permission to perform effects.
+
+An isolated Piblo owner API → module → real MCP bridge completed the local
+practice form, observed the saved result and wrote its own Library proof. Piblo
+released control after each action; a separate session holding control blocked
+its navigation. Its read-only external MCP could observe but could not mutate.
+No existing Piblo/SER9 workspace or Computer MCP review guest was changed.
+
+The Piblo adapter currently exposes browser operations only. Computer MCP owns
+its own files, terminal, screen sharing and Teach console. One workspace uses one
+configured executor; per-bot assignments, whole-job leases and Teach import are
+not supplied by this observation change. The existing remote Docker prohibition
+and host/guest platform support remain unchanged.
