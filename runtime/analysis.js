@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { requireThat } from './errors.js';
 import { instructions } from './teach.js';
+import { normalizeTaskParameters } from '../src/skill-use.js';
 
 export const revision = (workflow) => workflow.revision || workflow.id;
 export function assertRevision(workflow, expected) {
@@ -69,6 +70,9 @@ export function proposeWorkflow(workflow, input, actor) {
     uncertainties: input.uncertainties.trim(),
     proposedAt: new Date().toISOString(),
     actor,
+    ...(input.parameters === undefined
+      ? {}
+      : { parameters: normalizeTaskParameters(input.parameters, requireThat) }),
   };
   next.revision = randomUUID();
   next.instructions = instructions(next);

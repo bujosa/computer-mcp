@@ -1,5 +1,11 @@
 # Real Claude Code and Codex validation
 
+The newer [17 October learning evaluation](LEARNING-EVALUATION.md) records actual
+task-input proposals, owner-edited v5 exports, native operator v8/task loading,
+cross-harness reuse, invalid-report handling and stale-review stops. Its
+restricted-mode skill-loading failure and corrected interpretation are explicit;
+the earlier observations below retain their original versions and scope.
+
 On 13 October 2026 UTC, actual logged-in local CLIs used the private Sendtry
 Computer MCP over stdio. These were model-driven tool calls, not SDK fixtures or
 scripted browser replay. The owned Linux guest was `review-mvp`; its computer

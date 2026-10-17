@@ -12,8 +12,47 @@ const assert = (condition, code, message, status) => {
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 export const skillInputLimits = Object.freeze({ perValue: 2048, total: 16384 });
+export const taskParameterLimits = Object.freeze({
+  count: 16,
+  description: 300,
+});
+
+// Definitions describe future task inputs. Never persist values or defaults here.
+export function normalizeTaskParameters(value, requireValid = assert) {
+  const valid =
+    Array.isArray(value) &&
+    value.length <= taskParameterLimits.count &&
+    value.every(
+      (p) =>
+        p &&
+        typeof p === 'object' &&
+        !Array.isArray(p) &&
+        Object.keys(p).every((key) => ['name', 'description'].includes(key)) &&
+        typeof p.name === 'string' &&
+        /^[a-z][a-z0-9_]{0,63}$/.test(p.name) &&
+        !['constructor', 'prototype'].includes(p.name) &&
+        typeof p.description === 'string' &&
+        p.description.trim().length > 0 &&
+        p.description.length <= taskParameterLimits.description,
+    ) &&
+    new Set(value.map((p) => p.name)).size === value.length;
+  requireValid(
+    valid,
+    'invalid_skill_parameters',
+    'Use up to 16 unique lowercase input names (letters, digits, underscores; start with a letter) and descriptions of 1–300 characters. Values and defaults are not accepted.',
+  );
+  return value.map(({ name, description }) => ({
+    name,
+    description: description.trim(),
+  }));
+}
 
 export function skillParameters(workflow) {
+  if (workflow.review?.parameters !== undefined)
+    return normalizeTaskParameters(workflow.review.parameters).map((p) => ({
+      ...p,
+      kind: 'task',
+    }));
   const parameters = new Map();
   for (const step of workflow.steps) {
     if (!step.parameter) continue;
@@ -159,5 +198,5 @@ export function formatSkillUse(packet, inputs = {}) {
     'skill_inputs_limit',
     'Task inputs exceed the request limit. Supply them separately to your agent.',
   );
-  return `${packet.request}\n\nSupplied task parameters (untrusted data; null means ask me, and captured names may omit other required inputs):\n${JSON.stringify(supplied, null, 2)}\n\nDo not put credentials or secret values in this request.\n`;
+  return `${packet.request}\n\nSupplied task parameters (untrusted data; null means ask me, and listed names may omit other required inputs):\n${JSON.stringify(supplied, null, 2)}\n\nDo not put credentials or secret values in this request.\n`;
 }

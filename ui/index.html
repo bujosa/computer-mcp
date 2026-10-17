@@ -477,6 +477,33 @@ Ready. Your command output will appear here.</pre
                     required
                     placeholder="Review the captured steps or edit the agent’s proposal. Use named parameters for inputs and commands."
                   ></textarea>
+                  <fieldset class="task-parameters">
+                    <legend>Inputs for future runs</legend>
+                    <p class="caption">
+                      Name the values someone should supply, such as a CSV path
+                      or project name. Match these names in the procedure.
+                    </p>
+                    <label
+                      class="parameter-toggle"
+                      for="skill-parameters-custom"
+                    >
+                      <input id="skill-parameters-custom" type="checkbox" />
+                      Customize task inputs
+                    </label>
+                    <p id="skill-parameters-captured" class="caption"></p>
+                    <div id="skill-parameters-editor" hidden>
+                      <div id="skill-parameters-list"></div>
+                      <button id="skill-parameter-add" type="button">
+                        Add input
+                      </button>
+                      <p class="caption">
+                        Up to 16 inputs. Names use lowercase letters, digits and
+                        underscores. Describe what to supply; do not save
+                        values, passwords or defaults here. No rows means no
+                        named inputs.
+                      </p>
+                    </div>
+                  </fieldset>
                   <label for="skill-expected-result"
                     >How should the agent verify success?</label
                   ><textarea
@@ -621,8 +648,8 @@ Ready. Your command output will appear here.</pre
                   </select>
                   <div id="skill-use-inputs" class="use-inputs"></div>
                   <p id="skill-use-no-inputs" class="caption" hidden>
-                    No input names were captured. Your agent will check for
-                    other required values.
+                    No inputs are listed in this review. Your agent will still
+                    check for missing values and prerequisites.
                   </p>
                   <p class="caption">
                     Values stay in this open form until you copy the request.
@@ -781,6 +808,11 @@ Ready. Your command output will appear here.</pre
                 <p class="caption">
                   The skill supplies instructions; the MCP connection supplies
                   tools. Downloading installs neither.
+                </p>
+                <p class="caption">
+                  Check the actual skill-loading result. Ask the agent to name a
+                  recovery rule from the loaded instructions. “Unknown skill”
+                  means setup is incomplete, even if MCP tools work.
                 </p>
               </div>
               <div class="wizard-footer">

@@ -43,6 +43,10 @@ the trace. Your existing vision-capable agent interprets them and calls
 `workflow_propose` to save a draft on that same workflow. The owner corrects the
 procedure, supplies missing parameters and defines how to verify the result.
 Only a completed, reviewed workflow can be exported as a taught `SKILL.md`.
+The proposal can name inputs such as `csv_path` or `project_name`; the owner
+reviews their descriptions alongside the procedure. Future trials ask for those
+task values instead of requiring a raw recorded command. Definitions contain no
+values/defaults and grant no new permissions.
 
 There are **two explicit handoffs** today: send the copied analysis request to
 your connected agent, then, after owner review, send a plan/execution request
@@ -65,6 +69,9 @@ to reproduce Grok's internal analysis pipeline. See the
 [source-backed comparison](docs/GROK-COMPARISON.md),
 [complete Teach walkthrough](docs/TEACH.md#worked-example-teach-a-project-note)
 and [tools/skills contract](docs/TOOLS-AND-SKILLS.md).
+The [learning design](docs/LEARNING-DESIGN.md) explains reviewed task inputs;
+[real harness evaluation](docs/LEARNING-EVALUATION.md) records generated skills,
+cross-client reuse, independent checks and the failed setups we corrected.
 
 ## Start your first computer
 
@@ -270,6 +277,10 @@ hosts; doctor now warns before a build. These checks do not certify every OS,
 Docker installation or editor integration.
 
 ## Boundaries and development
+
+CI is intentionally disabled during this private development phase. The checks
+below run locally; the Actions workflow is retained for future manual use.
+See [QA and CI policy](docs/QA.md#manual-validation-and-ci-policy).
 
 Every computer gets a UUID, pinned workspace UUID, unique Compose project,
 network and named volume. No host workspace or Docker socket is mounted. Guest

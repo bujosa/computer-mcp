@@ -1558,6 +1558,58 @@ code {
 .review-panel button {
   margin-top: 16px;
 }
+.task-parameters {
+  container-type: inline-size;
+  container-name: task-inputs;
+  min-width: 0;
+  padding: 16px;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.task-parameters legend {
+  padding: 0 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.review-panel .parameter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+.parameter-toggle input {
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
+}
+.task-parameter-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(160px, 2fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.review-panel .task-parameter-row label {
+  margin: 0;
+  min-width: 0;
+}
+.review-panel .task-parameter-row textarea {
+  min-height: 70px;
+}
+.review-panel .task-parameter-row button {
+  margin-top: 24px;
+}
+@container task-inputs (max-width: 440px) {
+  .task-parameter-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .review-panel .task-parameter-row button {
+    margin: 0;
+    justify-self: start;
+  }
+}
 .use-panel .section-bar {
   flex-wrap: wrap;
   gap: 12px;

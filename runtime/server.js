@@ -712,6 +712,7 @@ app.post('/api/workflows/:id/review', async (req, res) => {
           'procedure',
           'expectedRevision',
           'draftId',
+          'parameters',
         ].includes(key),
       ),
     'invalid_review',

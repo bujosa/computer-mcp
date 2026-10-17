@@ -490,7 +490,18 @@ the reasoning. The UI grants access and copies a request; it cannot invoke a
 model that has not connected. No cloud/gateway/billing or automatic training
 exists. Frames and page text are untrusted evidence, not authorization.
 
-Proposals never execute tools or approve themselves. Store checks optimistic
+Proposals never execute tools or approve themselves. An agent may propose
+`parameters` (at most 16 unique lowercase names/descriptions,
+no values/defaults). The owner edits/approves them with the exact draft/revision;
+published `review.parameters` drives new-input packets and v5 exports. Missing
+definitions preserve legacy captured-action inputs, an empty list explicitly
+publishes no named inputs, and owner review `parameters: null` returns to the
+captured fallback. Omission preserves the current proposed/reviewed list. Every
+review change advances the revision; pending definitions never bypass the
+existing review gate. The definitions are data, not executable bindings or new
+authority. User values remain transient in the owner form/copied request.
+
+Store checks optimistic
 revisions inside its queue; approval also identifies the exact draft. A pending
 draft blocks SKILL export and `taught-workflow` use. Previously approved edits
 survive and can be restored by discarding it. Read credentials and work readers

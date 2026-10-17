@@ -123,7 +123,7 @@ export const tools = {
   },
   workflow_propose: {
     description:
-      'Save an agent-proposed procedure from an owner-authorized video analysis. Requires the exact source revision; stores a draft for owner correction/review, never approves or executes a skill. Mark missing parameters, uncertainties, failures and unsupported desktop actions.',
+      'Save an agent-proposed procedure from an owner-authorized video analysis. Requires the exact source revision; stores a draft for owner correction/review, never approves or executes a skill. Optionally propose up to 16 task-level parameters (name and description only, no defaults/values), such as csv_path or project_name, used consistently in the procedure. Owner review must approve them before handoff/export. Mark uncertainties, failures and unsupported actions.',
     schema: z
       .object({
         id: z.uuid(),
@@ -131,6 +131,21 @@ export const tools = {
         procedure: z.string().min(1).max(12000),
         expectedResult: z.string().min(1).max(1000),
         uncertainties: z.string().max(5000),
+        parameters: z
+          .array(
+            z.strictObject({
+              name: z
+                .string()
+                .regex(/^[a-z][a-z0-9_]{0,63}$/)
+                .refine((name) => !['constructor', 'prototype'].includes(name)),
+              description: z.string().max(300).trim().min(1),
+            }),
+          )
+          .max(16)
+          .refine(
+            (items) => new Set(items.map((p) => p.name)).size === items.length,
+          )
+          .optional(),
       })
       .strict(),
   },
