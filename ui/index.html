@@ -57,6 +57,10 @@
       <symbol id="i-menu" viewBox="0 0 24 24">
         <path d="M4 6h16M4 12h16M4 18h16" />
       </symbol>
+      <symbol id="i-task" viewBox="0 0 24 24">
+        <rect x="4" y="3" width="16" height="18" rx="2" />
+        <path d="m8 9 1.5 1.5L12 8m-4 7 1.5 1.5L12 14m3-4.5h2m-2 6h2" />
+      </symbol>
     </svg>
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -82,6 +86,9 @@
           <p class="nav-label">Workspace</p>
           <button class="tab active" data-view="desktop" aria-current="page">
             <svg class="icon"><use href="#i-computer" /></svg>Screen
+          </button>
+          <button class="tab" data-view="tasks">
+            <svg class="icon"><use href="#i-task" /></svg>Tasks
           </button>
           <button class="tab" data-view="teach">
             <svg class="icon"><use href="#i-skill" /></svg>Teach &amp;
@@ -126,6 +133,14 @@
           </div>
           <div class="session-control">
             <span id="owner">Checking control…</span>
+            <button
+              id="owner-task"
+              type="button"
+              class="quiet owner-task"
+              hidden
+            >
+              View task
+            </button>
             <div class="actions">
               <button id="take" class="primary" disabled>Take control</button>
               <button id="release" disabled hidden>Release</button>
@@ -200,9 +215,228 @@
             <button id="desktop-teach" class="quiet">
               <svg class="icon"><use href="#i-skill" /></svg>Teach a task
             </button>
+            <button id="desktop-tasks" class="quiet">
+              <svg class="icon"><use href="#i-task" /></svg>Assign a task
+            </button>
             <button id="desktop-connect" class="quiet">
               <svg class="icon"><use href="#i-connect" /></svg>Connect an agent
             </button>
+          </div>
+        </section>
+        <section id="tasks" class="view" data-task-view="list" hidden>
+          <button id="task-back" type="button">
+            <svg class="icon"><use href="#i-arrow" /></svg>Back to tasks
+          </button>
+          <div class="section-bar library-bar tasks-bar">
+            <div>
+              <strong>Assigned tasks</strong>
+              <p id="tasks-summary">
+                Tasks for named work connections on this computer.
+              </p>
+            </div>
+            <div class="actions">
+              <button id="tasks-refresh" type="button">Refresh</button
+              ><button id="task-new" type="button">
+                <svg class="icon"><use href="#i-task" /></svg>New task
+              </button>
+            </div>
+          </div>
+          <p id="tasks-error" class="inline-error" role="alert" hidden></p>
+          <div class="skill-layout task-layout">
+            <div class="panel saved task-list-panel">
+              <ol id="tasks-list" class="task-list" aria-label="Recent tasks">
+                <li class="caption">Loading tasks…</li>
+              </ol>
+            </div>
+            <div class="panel task-detail">
+              <form id="task-form" class="custom-task-form">
+                <div>
+                  <h2 id="task-form-title" tabindex="-1">Assign a task.</h2>
+                  <p class="subtitle">
+                    Describe the outcome. The agent behind the chosen connection
+                    picks the steps using this computer’s tools.
+                  </p>
+                  <p id="task-identity" class="caption"></p>
+                </div>
+                <div>
+                  <label for="task-connection">Send to</label>
+                  <select id="task-connection" required></select>
+                  <p id="task-connection-hint" class="caption"></p>
+                </div>
+                <div id="task-name-field">
+                  <label for="task-name">Task name</label>
+                  <input
+                    id="task-name"
+                    maxlength="120"
+                    autocomplete="off"
+                    placeholder="Summarize the project CSV"
+                  />
+                </div>
+                <div>
+                  <label for="task-goal">What should the agent do?</label>
+                  <textarea
+                    id="task-goal"
+                    rows="3"
+                    maxlength="4000"
+                    required
+                    placeholder="Read my project CSV, create a summary report and save a browser note with the result."
+                  ></textarea>
+                </div>
+                <div>
+                  <label for="task-result">What does success look like?</label>
+                  <textarea
+                    id="task-result"
+                    rows="2"
+                    maxlength="2000"
+                    required
+                    placeholder="The report reconciles with the source rows, and the note remains after reloading."
+                  ></textarea>
+                </div>
+                <details class="task-scope-options">
+                  <summary>Scope and limits (optional)</summary>
+                  <label for="task-scope">Allowed work and boundaries</label>
+                  <textarea
+                    id="task-scope"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Use only reports/ and the local practice page. Keep existing files. No installs or external actions."
+                  ></textarea>
+                </details>
+                <p id="task-control-hint" class="caption" role="status"></p>
+                <p id="task-error" class="inline-error" role="alert" hidden></p>
+                <div class="actions">
+                  <button id="task-copy" type="submit" class="primary" disabled>
+                    Assign task &amp; copy request
+                  </button>
+                  <button id="task-clear" type="button">Clear</button>
+                </div>
+                <p id="task-caption" class="caption">
+                  Keep secrets out of tasks. Assigned requirements are saved
+                  privately on this computer, separate from Activity.
+                </p>
+                <details class="instruction-preview task-preview">
+                  <summary>Review the exact request</summary>
+                  <pre
+                    id="task-request"
+                    tabindex="0"
+                    aria-label="Agent task request"
+                  >
+Add a goal and a success criterion to prepare a request.</pre
+                  >
+                </details>
+              </form>
+              <div id="task-selected" hidden>
+                <div class="section-bar">
+                  <div>
+                    <h2 id="task-title" tabindex="-1"></h2>
+                    <p id="task-meta"></p>
+                  </div>
+                  <div class="task-badges">
+                    <span id="task-status" class="task-status"></span
+                    ><span id="task-verdict" class="task-status" hidden></span>
+                  </div>
+                </div>
+                <p id="task-outdated" class="inline-warning" hidden>
+                  The taught skill changed after this task was assigned. Its
+                  request can’t be copied to run; assign a new trial from the
+                  current review in Teach &amp; skills.
+                </p>
+                <dl id="task-facts" class="task-facts"></dl>
+                <div class="task-requirements">
+                  <h3>Goal</h3>
+                  <p id="task-goal-text" class="task-text"></p>
+                  <h3>Success criterion</h3>
+                  <p id="task-result-text" class="task-text"></p>
+                  <h3>Scope</h3>
+                  <p id="task-scope-text" class="task-text"></p>
+                </div>
+                <section
+                  id="task-report"
+                  class="review-panel"
+                  aria-labelledby="task-report-title"
+                >
+                  <div class="section-bar">
+                    <div>
+                      <h3 id="task-report-title">Agent report</h3>
+                      <p id="task-report-outcome"></p>
+                    </div>
+                    <span id="task-report-unverified" class="small-badge"
+                      >Not verified</span
+                    >
+                  </div>
+                  <p id="task-report-summary" class="task-text"></p>
+                  <div id="task-evidence-section">
+                    <h3>Evidence references</h3>
+                    <ul id="task-report-evidence" class="task-evidence"></ul>
+                  </div>
+                  <p class="caption">
+                    Reported by the agent. References are shown as text; open
+                    files or pages yourself in Files or Screen before you check
+                    the result.
+                  </p>
+                </section>
+                <section
+                  id="task-check"
+                  class="review-panel"
+                  aria-labelledby="task-check-title"
+                  hidden
+                >
+                  <h3 id="task-check-title" tabindex="-1">Your check</h3>
+                  <div id="task-verification" hidden>
+                    <p id="task-verification-summary"></p>
+                    <p id="task-verification-notes" class="task-text"></p>
+                  </div>
+                  <div id="task-verify-form">
+                    <p class="caption">
+                      Inspect the actual files, pages or screen first. These
+                      buttons record your verdict only; Sendtry doesn’t inspect
+                      or certify the result. Notes are saved privately with the
+                      task; keep secrets out.
+                    </p>
+                    <label for="task-verify-notes">What did you check?</label>
+                    <textarea
+                      id="task-verify-notes"
+                      rows="3"
+                      maxlength="2000"
+                      placeholder="Opened reports/summary.md; totals match the source rows."
+                    ></textarea>
+                    <div class="actions">
+                      <button id="task-verify" type="button" class="primary">
+                        Mark checked</button
+                      ><button id="task-reject" type="button">
+                        Mark rejected
+                      </button>
+                    </div>
+                  </div>
+                </section>
+                <div class="actions">
+                  <button id="task-request-copy" type="button" class="primary">
+                    Copy agent request</button
+                  ><button id="task-retry" type="button">
+                    Retry as new task</button
+                  ><button id="task-cancel" type="button">Cancel task</button>
+                </div>
+                <div id="task-cancel-confirm" class="confirm-panel" hidden>
+                  <p>
+                    Cancelling stops this task’s current action and keeps it
+                    from starting again. Changes already made stay on this
+                    computer.
+                  </p>
+                  <div class="actions">
+                    <button
+                      id="task-cancel-confirm-button"
+                      type="button"
+                      class="danger"
+                    >
+                      Confirm cancel</button
+                    ><button id="task-cancel-keep" type="button">
+                      Keep task
+                    </button>
+                  </div>
+                </div>
+                <p id="task-action-hint" class="caption" role="status"></p>
+              </div>
+            </div>
           </div>
         </section>
         <section id="files" class="view" hidden>
@@ -646,6 +880,11 @@ Ready. Your command output will appear here.</pre
                     <option value="plan">Prepare a plan first</option>
                     <option value="execute">Do the reviewed task</option>
                   </select>
+                  <div id="skill-use-assign" hidden>
+                    <label for="skill-use-connection">Assign to</label>
+                    <select id="skill-use-connection"></select>
+                    <p id="skill-use-connection-hint" class="caption"></p>
+                  </div>
                   <div id="skill-use-inputs" class="use-inputs"></div>
                   <p id="skill-use-no-inputs" class="caption" hidden>
                     No inputs are listed in this review. Your agent will still
@@ -664,10 +903,12 @@ Ready. Your command output will appear here.</pre
                   </details>
                   <div class="actions">
                     <button id="skill-use-copy" class="primary" disabled>
-                      Copy agent request
+                      Copy agent request</button
+                    ><button id="skill-use-task" type="button" hidden>
+                      View task
                     </button>
                   </div>
-                  <p class="caption">
+                  <p id="skill-use-caption" class="caption">
                     Copying does not run the task. The agent checks this saved
                     revision and computer, uses its existing permissions and
                     verifies the result. You can observe or take control in
@@ -689,9 +930,9 @@ Ready. Your command output will appear here.</pre
                 type="button"
                 data-connect-step="1"
                 aria-current="step"
-                aria-label="1 Configure MCP"
+                aria-label="1 Create a named connection"
               >
-                <span class="step-number">1</span>MCP
+                <span class="step-number">1</span>Connection
               </button>
             </li>
             <li>
@@ -715,8 +956,30 @@ Ready. Your command output will appear here.</pre
           </ol>
           <div class="connect-grid">
             <div id="connect-setup" class="panel">
-              <h2>Add the MCP server.</h2>
-              <div class="config-options">
+              <h2>Create a named connection.</h2>
+              <p class="subtitle">
+                Give each agent its own grant for this computer. You choose the
+                label; it names the grant, not a verified person or model.
+              </p>
+              <div class="config-options connection-create">
+                <div>
+                  <label for="connection-label">Connection label</label
+                  ><input
+                    id="connection-label"
+                    maxlength="40"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="claude-laptop"
+                    aria-describedby="connection-label-hint"
+                  />
+                </div>
+                <div>
+                  <label for="connection-access">Access</label
+                  ><select id="connection-access">
+                    <option value="work">Work · tracked tasks</option>
+                    <option value="read">Read · inspect only</option>
+                  </select>
+                </div>
                 <div>
                   <label for="client-format">Your agent</label
                   ><select id="client-format">
@@ -726,16 +989,30 @@ Ready. Your command output will appear here.</pre
                     <option value="generic">Other stdio client · JSON</option>
                   </select>
                 </div>
-                <div>
-                  <label for="client-access">Agent access</label
-                  ><select id="client-access">
-                    <option value="work">Work · view and operate</option>
-                    <option value="read">Read · inspect only</option>
-                  </select>
-                </div>
               </div>
-              <p id="config-status" class="caption">
-                Loading host configuration…
+              <p id="connection-label-hint" class="caption">
+                Lowercase letters, digits and hyphens, starting with a letter.
+              </p>
+              <details class="instruction-preview">
+                <summary>Inspect the host command</summary>
+                <pre
+                  id="connection-command"
+                  tabindex="0"
+                  aria-label="Create connection command"
+                ></pre>
+              </details>
+              <div class="actions">
+                <button id="connection-copy" class="primary" disabled>
+                  Copy create command</button
+                ><button id="connections-refresh" type="button">
+                  Refresh list
+                </button>
+              </div>
+              <p class="caption">
+                Run it on your host. It saves a private connection file and
+                prints an MCP configuration without a token, keyed to this
+                computer and connection so it can sit beside your other servers.
+                This console never runs host commands or shows credentials.
               </p>
               <p id="config-guide" class="setup-guide"></p>
               <a
@@ -747,24 +1024,77 @@ Ready. Your command output will appear here.</pre
                 >Official setup guide
                 <svg class="icon"><use href="#i-arrow" /></svg
               ></a>
-              <details id="config-preview" class="instruction-preview">
-                <summary>Inspect exact MCP configuration</summary>
-                <pre
-                  id="client-config"
-                  tabindex="0"
-                  aria-label="MCP configuration"
-                ></pre>
+              <section
+                class="connection-list-section"
+                aria-labelledby="connections-title"
+              >
+                <div class="section-bar">
+                  <div>
+                    <strong id="connections-title" tabindex="-1"
+                      >Connections to this computer</strong
+                    >
+                    <p id="connections-status">Loading connections…</p>
+                  </div>
+                </div>
+                <ol id="connections-list" class="connection-list"></ol>
+                <details
+                  id="revoked-connections"
+                  class="connection-history"
+                  hidden
+                >
+                  <summary id="revoked-connections-title">
+                    Revoked connections
+                  </summary>
+                  <ol
+                    id="revoked-connections-list"
+                    class="connection-list"
+                  ></ol>
+                </details>
+              </section>
+              <details id="legacy-connection" class="legacy-details">
+                <summary>Legacy shared connection · not recommended</summary>
+                <p id="legacy-state" class="caption" role="status"></p>
+                <div class="actions">
+                  <button id="legacy-toggle" type="button" hidden>
+                    Turn on legacy access</button
+                  ><button
+                    id="legacy-confirm"
+                    type="button"
+                    class="danger"
+                    hidden
+                  >
+                    Confirm</button
+                  ><button id="legacy-keep" type="button" hidden>Keep</button>
+                </div>
+                <p id="legacy-confirm-note" class="caption" hidden></p>
+                <div class="legacy-config">
+                  <label for="client-access">Shared access</label
+                  ><select id="client-access">
+                    <option value="work">Work · view and operate</option>
+                    <option value="read">Read · inspect only</option>
+                  </select>
+                </div>
+                <p id="config-status" class="caption">
+                  Loading host configuration…
+                </p>
+                <details id="config-preview" class="instruction-preview">
+                  <summary>Inspect exact MCP configuration</summary>
+                  <pre
+                    id="client-config"
+                    tabindex="0"
+                    aria-label="MCP configuration"
+                  ></pre>
+                </details>
+                <div class="actions">
+                  <button id="config-copy" disabled>Copy configuration</button
+                  ><button id="config-download" disabled>Download</button>
+                </div>
+                <p class="caption">
+                  Shared entries give every agent that holds them the same work
+                  or read credential. Their actions are recorded, but they can’t
+                  be assigned tasks or shown under a connection label.
+                </p>
               </details>
-              <div class="actions">
-                <button id="config-copy" class="primary" disabled>
-                  Copy configuration</button
-                ><button id="config-download" disabled>Download</button>
-              </div>
-              <p class="caption">
-                Copying does not install or connect the server. Keep your other
-                MCP servers. This configuration runs over stdio and includes no
-                API key; private credentials stay in the host state file.
-              </p>
               <div class="wizard-footer">
                 <span>Added it in your agent? Reconnect its MCP server.</span
                 ><button id="connect-to-skill" type="button">
@@ -835,26 +1165,22 @@ Ready. Your command output will appear here.</pre
             <div class="task-choice">
               <h2 id="first-task-title">Start working.</h2>
               <div>
-                <label for="agent-task-kind">What would you like to do?</label>
-                <select id="agent-task-kind">
-                  <option value="check">Check the connection</option>
-                  <option value="custom">Give your own task</option>
-                </select>
+                <label for="check-connection">Check with</label>
+                <select id="check-connection"></select>
               </div>
             </div>
             <div id="connect-quick-check" class="first-task-panel">
               <div class="first-task-intro">
-                <h3>Try a quick check.</h3>
+                <h3 id="check-title">Try a quick check.</h3>
                 <p id="agent-step"></p>
                 <p id="agent-control-hint" class="caption" role="status"></p>
                 <div class="actions">
                   <button id="agent-copy" class="primary" disabled>
                     Copy first task
-                    <svg class="icon"><use href="#i-arrow" /></svg>
                   </button>
                   <button id="connect-activity">View activity</button>
                 </div>
-                <p class="caption">
+                <p id="check-caption" class="caption">
                   Send this request to your agent after reconnecting its MCP
                   server. Copying starts no execution.
                 </p>
@@ -870,78 +1196,13 @@ Authorize this console to prepare a task for its computer.</pre
                 >
               </div>
             </div>
-            <div id="connect-custom-task" hidden>
-              <form id="task-form" class="custom-task-form">
-                <p>
-                  Describe the outcome. Your connected agent chooses the steps
-                  using this computer's tools.
-                </p>
-                <p id="task-identity" class="caption"></p>
-                <div>
-                  <label for="task-goal">What should the agent do?</label>
-                  <textarea
-                    id="task-goal"
-                    rows="3"
-                    maxlength="4000"
-                    required
-                    placeholder="Read my project CSV, create a summary report and save a browser note with the result."
-                  ></textarea>
-                </div>
-                <div>
-                  <label for="task-result">What does success look like?</label>
-                  <textarea
-                    id="task-result"
-                    rows="2"
-                    maxlength="2000"
-                    required
-                    placeholder="The report reconciles with the source rows, and the note remains after reloading."
-                  ></textarea>
-                </div>
-                <details class="task-scope-options">
-                  <summary>Scope and limits (optional)</summary>
-                  <label for="task-scope">Allowed work and boundaries</label>
-                  <textarea
-                    id="task-scope"
-                    rows="3"
-                    maxlength="2000"
-                    placeholder="Use only reports/ and the local practice page. Keep existing files. No installs or external actions."
-                  ></textarea>
-                </details>
-                <div>
-                  <label for="task-intent">Ask your agent to</label>
-                  <select id="task-intent">
-                    <option value="plan">Prepare a plan first</option>
-                    <option value="execute">Do the task</option>
-                  </select>
-                </div>
-                <p id="task-control-hint" class="caption" role="status"></p>
-                <p id="task-error" class="inline-error" role="alert" hidden></p>
-                <div class="actions">
-                  <button id="task-copy" type="submit" class="primary" disabled>
-                    Copy task request
-                    <svg class="icon"><use href="#i-arrow" /></svg>
-                  </button>
-                  <button id="task-clear" type="button">Clear</button>
-                  <button id="task-activity" type="button">
-                    View activity
-                  </button>
-                </div>
-                <p class="caption">
-                  Send the request to your agent after connecting MCP. Copying
-                  starts no execution. These fields stay in this page and clear
-                  when you leave Connect agent; keep secrets out of the request.
-                </p>
-              </form>
-              <details class="instruction-preview task-preview">
-                <summary>Review the exact task request</summary>
-                <pre
-                  id="task-request"
-                  tabindex="0"
-                  aria-label="Custom agent task"
-                >
-Add a goal and a success criterion to prepare a request.</pre
-                >
-              </details>
+            <div class="wizard-footer">
+              <span
+                >Ready for real work? Assign tasks to a named work connection,
+                then review the agent’s report.</span
+              ><button id="connect-to-tasks" type="button">
+                Open Tasks <svg class="icon"><use href="#i-arrow" /></svg>
+              </button>
             </div>
           </section>
           <div class="panel capability-panel">
