@@ -95,6 +95,13 @@ no-effect attempt; restart/start and late finish were rejected for that terminal
 request. The disabled legacy policy persisted and the second PC was unaffected.
 The rebuilt guest exported the actual v6 taught skill through its API.
 
+The full existing `scripts/integration.mjs` also passed on assign-b with legacy
+access explicitly enabled for that compatibility fixture: 16 tools, modern and
+legacy stdio, read/owner boundaries, identity, contained files, process limits,
+PNG/browser, Teach/export and takeover/cancellation. The owner restored disabled
+legacy policy in a finally block. This is runtime compatibility acceptance, not
+an additional legacy model-quality trial or the entire lifecycle test:e2e suite.
+
 Focused tests additionally cover both Store queue orderings, revocation while
 activation waits, cancellation drain interleavings, SQLite identity/schema/capacity
 fail-closed behavior, atomic private grant-file publication and audit migration.
