@@ -1163,6 +1163,16 @@ app.use(
   }),
 );
 app.use('/demo', express.static('/opt/computer-mcp/ui/demo'));
+app.get('/skills/sendtry-computer/SKILL.md', (_req, res) =>
+  res
+    .type('text/markdown')
+    .sendFile('/opt/computer-mcp/skills/sendtry-computer/SKILL.md'),
+);
+app.get('/skills/sendtry-computer/LICENSE.txt', (_req, res) =>
+  res
+    .type('text/plain')
+    .sendFile('/opt/computer-mcp/skills/sendtry-computer/LICENSE.txt'),
+);
 app.use(express.static('/opt/computer-mcp/ui', { dotfiles: 'deny' }));
 app.use((error, req, res, _next) => {
   activityFault(req, error);

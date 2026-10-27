@@ -94,7 +94,16 @@ The design separates computer capabilities (MCP tools) from procedural knowledge
 (skills). The owner's console configures the existing bridge and exports existing
 Teach data; it does not create a second agent runtime or a Piblo backend.
 
-`skill` reads the fixed repository asset `ui/skills/sendtry-computer/SKILL.md` and
+The canonical generic operator lives in `skills/sendtry-computer/`: a self-contained
+MIT `SKILL.md`, its matching `LICENSE.txt` and optional harness display metadata.
+The fixed console URLs serve only the operator and MIT notice; no user path or
+credential enters those routes. Docker/npm include that same folder. The dev-only
+`check:skill` gate parses YAML, validates its Agent Skills metadata and exact asset
+inventory, rejects symlinks/extra private files and checks canonical attribution.
+It installs nothing and never connects to an MCP or model provider. Taught skill
+exports remain a separate owner-content/binding contract, not a public template.
+
+`skill` reads the fixed repository asset `skills/sendtry-computer/SKILL.md` and
 prints it unchanged. It runs before catalog selection, needs no computer/Docker
 and creates no state. The owner chooses where to save it in a harness project;
 printing does not install a skill, approve an MCP connection or grant control.
@@ -634,6 +643,17 @@ There is no production deployment, default-branch change or public package.
 
 [Adapter contract](docs/ADAPTERS.md), [reuse assessment](docs/REUSE.md),
 [security limits](SECURITY.md) and [validation record](docs/VALIDATION.md) record
-implemented guarantees separately from future work. Native permissions, VM guest
-services, remote authentication and open-source licensing/packaging require
-separate design and authorization.
+implemented guarantees separately from future work. Code and the generic operator
+use MIT with separate Sendtry brand terms. Native permissions, VM guest services,
+remote authentication and public packaging/release require separate design and
+authorization.
+
+### JSON checkpoint failure handling
+
+Host config/catalog and guest workflow checkpoints share `atomicJSON`. It creates
+only its random exclusive 0600 staging file, writes and syncs complete content,
+closes it, then renames it over the intended target. Handled write/sync/close/rename
+failures preserve the previous target and attempt to remove only that staging
+file. Process death or filesystem cleanup failure can still leave an orphan;
+directory power-loss durability is not guaranteed. The SQLite stores keep their
+existing fail-closed transaction/durability policies. There is no data migration.

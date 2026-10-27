@@ -328,10 +328,7 @@ test('operator skill is available through the actual CLI before setup, without c
   assert.equal(result.stderr, '');
   assert.equal(
     result.stdout,
-    await fs.readFile(
-      path.resolve('ui/skills/sendtry-computer/SKILL.md'),
-      'utf8',
-    ),
+    await fs.readFile(path.resolve('skills/sendtry-computer/SKILL.md'), 'utf8'),
   );
   assert.match(result.stdout, /^---\r?\nname: sendtry-computer\r?\n/);
   await assert.rejects(fs.access(root));

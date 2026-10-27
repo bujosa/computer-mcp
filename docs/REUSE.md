@@ -55,11 +55,11 @@ checked-in script. This does not change desktop codecs, permissions or Teach
 video storage. See the [upstream file](https://github.com/novnc/noVNC/blob/v1.6.0/core/util/browser.js)
 and [WebCodecs resource lifecycle](https://www.w3.org/TR/webcodecs/#dom-videoframe-close).
 
-This private code is `UNLICENSED`; dependency licenses still apply. Before any
-public/open-source distribution, decide this repository’s license, audit
-third-party source/notice requirements (including noVNC MPL-2.0 and Linux image
-packages), and establish packaging, signing, update and release policy. There
-has been no public package release, visibility change or license assertion.
+The code and generic operator use [MIT](../LICENSE), selected on 27 October 2026;
+dependency licenses still apply. [Third-party notices](../THIRD_PARTY_NOTICES.md)
+record the source dependency boundary. Exact Linux image notices/source duties,
+signing and public release/update policy need separate review before distributing
+a binary image. No public package release or visibility change is implied.
 
 ## Sendtry brand reuse
 

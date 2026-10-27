@@ -436,7 +436,7 @@ async function main() {
   if (command === 'skill') {
     process.stdout.write(
       await fs.readFile(
-        new URL('../ui/skills/sendtry-computer/SKILL.md', import.meta.url),
+        new URL('../skills/sendtry-computer/SKILL.md', import.meta.url),
         'utf8',
       ),
     );

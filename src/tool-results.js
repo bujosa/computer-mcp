@@ -161,6 +161,22 @@ export const outputSchemas = {
         text: z.string(),
         selector: z.string().nullable(),
         inputType: z.string().nullable(),
+        url: z
+          .string()
+          .url()
+          .refine((value) => {
+            try {
+              const url = new URL(value);
+              return (
+                ['http:', 'https:'].includes(url.protocol) &&
+                !url.username &&
+                !url.password
+              );
+            } catch {
+              return false;
+            }
+          })
+          .optional(),
       }),
     ),
   }),

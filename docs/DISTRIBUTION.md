@@ -1,5 +1,12 @@
 # MCP distribution and release preparation
 
+Current update, 27 October 2026: code and generic skill now use MIT. The
+operator has a standard `skills/sendtry-computer/` package; see
+[publication and local installation](PUBLICATION.md). Repository visibility,
+default-branch publication and public artifacts remain pending. The dated
+research/private-artifact record below is historical, including its then-current
+UNLICENSED metadata; it does not override the current root LICENSE.
+
 Research checked 14 October 2026 against primary project documentation and
 [pinned GitHub metadata](research/distribution-20261014.json). This is a
 distribution study, not a customer survey or reliability comparison. Competitor
@@ -60,8 +67,9 @@ remain separate actions.
   `package-lock.json` is not packaged. Docker now consumes the same lock in a
   checkout and installed artifact. See [npm's CLI lock guidance](https://docs.npmjs.com/cli/v11/configuring-npm/npm-shrinkwrap-json/).
 - A non-published [Registry template](registry/server.template.json), using the
-  official dated schema, exact package version, required private state path and
-  observation-only default. It declares no remote endpoint. The proposed
+  official dated schema, exact package version and required private named-connection file.
+  Create a read grant for observation; work grants need owner-assigned tasks.
+  The template no longer points at owner state or offers an access override. It declares no remote endpoint. The proposed
   `io.github.bujosa/computer-mcp` name has not been registered/reserved.
 - Private contributor, bug-report and PR guidance, including safe diagnostics,
   explicit QA ownership, validation and rollout notes.
@@ -142,8 +150,9 @@ pending; earlier source-host evidence is not reused as package acceptance.
 
 ## Gates still pending before publication
 
-1. David selects a code license and separate Sendtry trademark/asset rules;
-   approve exact dependency/image notices and a usable private security channel.
+1. Code/skill MIT and separate Sendtry brand terms are delivered. Approve the exact
+   image notices before any binary image release and enable/verify the private
+   GitHub security-reporting channel for public access.
 2. Verify npm scope/package and Registry namespace ownership. A future Sendtry npm
    scope must be proven; metadata does not reserve it. Do not rename or publish
    based on the display brand alone.

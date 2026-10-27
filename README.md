@@ -6,7 +6,10 @@ A computer to work in. Skills to work with.
 
 Give your MCP agent a dedicated computer, and share its screen when you want to help.
 
-This private MVP runs a dedicated **Linux desktop in Docker**, with Chromium,
+Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-the-operator-from-a-reviewed-checkout).
+It requires a configured MCP connection; installation alone does not grant a computer.
+
+This developer preview runs a dedicated **Linux desktop in Docker**, with Chromium,
 a bounded command runner, a workspace file explorer, screenshots, bounded guest
 mouse/keyboard input and **Teach**: record a demonstration, review reusable instructions and export
 a `SKILL.md` pinned to its computer, workspace and reviewed revision. A small Node CLI
@@ -20,7 +23,9 @@ Current product assessment, GitHub comparison and what remains before a public
 preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 [executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
-maps computer/Teach behavior, practical use and truthful gaps. Licensing/publication remains pending.
+maps computer/Teach behavior, practical use and truthful gaps. Code and skills use
+[MIT](LICENSE); [Sendtry marks](TRADEMARKS.md) have separate terms. Repository
+visibility, the default-branch release and public distribution are still pending.
 
 [Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
@@ -231,7 +236,12 @@ flow, see [Tools and skills](docs/TOOLS-AND-SKILLS.md).
 
 ## Give the agent skills
 
-Install the [operator skill](ui/skills/sendtry-computer/SKILL.md) in your
+The [generic operator](skills/sendtry-computer/SKILL.md) is packaged at
+`skills/sendtry-computer/` with an MIT notice and optional harness UI metadata.
+It contains no computer credentials or local PC binding. A taught export is a
+separate, owner-reviewed task bound to its computer/workspace/revision.
+
+Install the [operator skill](skills/sendtry-computer/SKILL.md) in your
 harness's project skill directory and verify that the client loads it.
 **Connect agent** offers the same file; `node src/cli.js skill` prints it even
 before setup. Downloading does not install it or authorize an MCP connection.
@@ -354,10 +364,12 @@ the tools → computer → taught-skill flow. Read
 [arquitecture.md](arquitecture.md) for modules, identity, permissions, execution
 and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 
-**Private preview.** `private: true`, `UNLICENSED`. An open-source license,
-dependency notice review, public packaging and release policy remain decisions
-for a future explicitly authorized release. Nothing here publishes a package or
-changes repository visibility.
+**Developer preview, MIT code and skill.** See [LICENSE](LICENSE),
+[Sendtry brand rules](TRADEMARKS.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
+The npm package remains `private: true`; no public npm/Registry/container release
+exists. GitHub visibility and release of the reviewed branch remain separate
+publication steps. [Public skill preparation](docs/PUBLICATION.md) explains the
+installable operator, supported boundaries and release gates.
 The [distribution policy](docs/DISTRIBUTION.md) records primary-market research,
 the private artifact check and a schema-checked draft Registry manifest. The
 package is not on a public registry; use this authorized checkout today.
