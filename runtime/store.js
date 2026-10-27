@@ -5,11 +5,26 @@ import { requireThat } from './errors.js';
 
 export async function atomicJSON(target, value) {
   const temporary = `${target}.${randomUUID()}.tmp`;
-  await fs.writeFile(temporary, JSON.stringify(value, null, 2) + '\n', {
-    mode: 0o600,
-    flag: 'wx',
-  });
-  await fs.rename(temporary, target);
+  let handle;
+  let created = false;
+  try {
+    handle = await fs.open(temporary, 'wx', 0o600);
+    created = true;
+    await handle.writeFile(JSON.stringify(value, null, 2) + '\n');
+    await handle.sync();
+    await handle.close();
+    handle = undefined;
+    await fs.rename(temporary, target);
+  } finally {
+    try {
+      await handle?.close();
+    } finally {
+      if (created)
+        await fs.unlink(temporary).catch((error) => {
+          if (error.code !== 'ENOENT') throw error;
+        });
+    }
+  }
 }
 export class Store {
   constructor(root) {
