@@ -6,6 +6,11 @@ A computer to work in. Skills to work with.
 
 Give your MCP agent a dedicated computer, and share its screen when you want to help.
 
+**First time?** Follow the [complete local stdio walkthrough](docs/WALKTHROUGH.md)
+or the [guía completa en español](docs/es/GUIA.md): setup, client connection,
+first verified task, Teach and daily use. Browse the [documentation hub](docs/README.md)
+for task guides and reference material.
+
 Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-from-github).
 It requires a configured MCP connection; installation alone does not grant a computer.
 
@@ -19,8 +24,8 @@ owner-assigned tasks, report their outcome and leave verification to the owner.
 There is no model subscription, chatbot, gateway, cloud provisioning or Piblo
 backend dependency.
 
-Current product assessment, GitHub comparison and what remains before a public
-preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
+Product assessment, GitHub comparison and earlier preview readiness work:
+[market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 [executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
 maps computer/Teach behavior, practical use and truthful gaps. Code and the generic operator use
