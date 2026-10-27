@@ -67,13 +67,43 @@ const readAPI = new RuntimeClient({
     .digest('hex'),
 });
 try {
+  mcp = new Client({ name: 'teach-video-contract', version: '0.1.0' });
+  const transport = new StdioClientTransport({
+    command: process.execPath,
+    args: [
+      fileURLToPath(new URL('../src/cli.js', import.meta.url)),
+      'mcp',
+      '--state',
+      path.resolve(process.argv[2]),
+    ],
+    stderr: 'pipe',
+  });
+  transport.stderr.resume();
+  await mcp.connect(transport);
   await owner('/api/control/take', {});
   await invoke('terminal_run', { command: `mkdir ${nested}` });
-  await owner('/api/teach/start', {
+  const recording = await owner('/api/teach/start', {
     name: 'Reviewed file procedure with video',
     goal: 'Create and verify a note in a nested workspace folder.',
     video: true,
   });
+  const active = await mcp.callTool({
+    name: 'workflow_get',
+    arguments: { id: recording.id },
+  });
+  assert.ok(!active.isError);
+  assert.equal(active.structuredContent.status, 'recording');
+  assert.equal(active.structuredContent.reviewed, false);
+  assert.deepEqual(
+    active.structuredContent,
+    JSON.parse(active.content[0].text),
+  );
+  const activeInfo = await mcp.callTool({
+    name: 'computer_info',
+    arguments: {},
+  });
+  assert.ok(!activeInfo.isError);
+  assert.equal(activeInfo.structuredContent.teach.active, true);
   await invoke('files_write', {
     path: `${nested}/note.txt`,
     text: `omitted-content-${proof}`,
@@ -188,18 +218,6 @@ try {
     enabled: true,
     expectedRevision: saved.revision,
   });
-  mcp = new Client({ name: 'teach-video-contract', version: '0.1.0' });
-  const transport = new StdioClientTransport({
-    command: process.execPath,
-    args: [
-      fileURLToPath(new URL('../src/cli.js', import.meta.url)),
-      'mcp',
-      '--state',
-      path.resolve(process.argv[2]),
-    ],
-    stderr: 'pipe',
-  });
-  await mcp.connect(transport);
   const prompt = await mcp.getPrompt({
     name: 'analyze-demonstration',
     arguments: { id: saved.id },
@@ -214,6 +232,8 @@ try {
     JSON.stringify(analyzed.content.filter((item) => item.type === 'text')),
   );
   const context = JSON.parse(analyzed.content[0].text);
+  assert.deepEqual(analyzed.structuredContent, context);
+  assert.ok(context.frames.every((frame) => !Object.hasOwn(frame, 'data')));
   const images = analyzed.content.filter((item) => item.type === 'image');
   assert.ok(images.length > 0 && images.length <= 3);
   for (const [index, frame] of images.entries()) {
@@ -238,6 +258,10 @@ try {
     },
   });
   assert.ok(!proposed.isError);
+  assert.deepEqual(
+    proposed.structuredContent,
+    JSON.parse(proposed.content[0].text),
+  );
   saved = JSON.parse(proposed.content[0].text);
   assert.ok(saved.draft && !saved.review);
   assert.equal(

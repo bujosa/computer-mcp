@@ -34,8 +34,13 @@ export async function readAssignedConnection(file) {
   absoluteFile(file);
   let handle;
   try {
-    if ((await fs.lstat(file)).isSymbolicLink()) throw new Error();
-    handle = await fs.open(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+    const entry = await fs.lstat(file);
+    if (!entry.isFile() || entry.isSymbolicLink()) throw new Error();
+    // Never block opening a FIFO if the path changes between lstat and open.
+    handle = await fs.open(
+      file,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
+    );
     const stat = await handle.stat();
     if (
       !stat.isFile() ||
@@ -43,8 +48,12 @@ export async function readAssignedConnection(file) {
       (process.platform !== 'win32' && (stat.mode & 0o077) !== 0)
     )
       throw new Error();
+    // A concurrent writer can grow the file after fstat. Bound the actual read.
+    const buffer = Buffer.alloc(16385);
+    const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+    if (bytesRead > 16384) throw new Error();
     const parsed = assignedConnectionSchema.safeParse(
-      JSON.parse(await handle.readFile('utf8')),
+      JSON.parse(buffer.subarray(0, bytesRead).toString('utf8')),
     );
     if (!parsed.success) throw new Error();
     return parsed.data;
