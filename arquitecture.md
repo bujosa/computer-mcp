@@ -632,14 +632,16 @@ export can become available.
 
 ## Compatibility, rollout and future seams
 
-No existing Piblo state is imported or migrated. This is a new private repo with
-versioned fresh state. Incompatible schemas fail rather than silently resetting.
+No existing Piblo state is imported or migrated. This standalone public project
+uses versioned fresh state. Incompatible schemas fail rather than silently
+resetting.
 The optional owner catalog metadata extends the setup contract. Rebuild an older
 guest with `start --rebuild` after updating the checkout; it may otherwise reject
 the new fields. Ready `start` does not silently apply source/runtime updates.
 Rollback can stop the owned computer and use a previous reviewed image/source
 with a compatible schema; backups include the volume and private host config.
-There is no production deployment, default-branch change or public package.
+The reviewed source stack is on `main` and public under MIT. There is no
+production deployment or public npm/Registry/image package.
 
 [Adapter contract](docs/ADAPTERS.md), [reuse assessment](docs/REUSE.md),
 [security limits](SECURITY.md) and [validation record](docs/VALIDATION.md) record

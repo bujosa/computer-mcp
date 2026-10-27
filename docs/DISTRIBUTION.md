@@ -2,8 +2,9 @@
 
 Current update, 27 October 2026: code and generic skill now use MIT. The
 operator has a standard `skills/sendtry-computer/` package; see
-[publication and local installation](PUBLICATION.md). Repository visibility,
-default-branch publication and public artifacts remain pending. The dated
+[public source/skill installation](PUBLICATION.md). The full repository/history
+and reviewed default branch are public. npm, Registry, GitHub Releases and
+prebuilt images remain unpublished. The dated
 research/private-artifact record below is historical, including its then-current
 UNLICENSED metadata; it does not override the current root LICENSE.
 
@@ -148,11 +149,12 @@ new MCP connection. Private logs/reports are ignored under
 test harness was added. New artifact installation on Windows/Linux hosts remains
 pending; earlier source-host evidence is not reused as package acceptance.
 
-## Gates still pending before publication
+## Gates before npm, Registry or image publication
 
 1. Code/skill MIT and separate Sendtry brand terms are delivered. Approve the exact
-   image notices before any binary image release and enable/verify the private
-   GitHub security-reporting channel for public access.
+   image notices before any binary image release. The private GitHub
+   security-reporting channel is now enabled; public status and sign-in redirect
+   are verified, with no external-account test submission.
 2. Verify npm scope/package and Registry namespace ownership. A future Sendtry npm
    scope must be proven; metadata does not reserve it. Do not rename or publish
    based on the display brand alone.
@@ -160,13 +162,13 @@ pending; earlier source-host evidence is not reused as package acceptance.
    named editor/desktop setup; test update, backup and exact-owned uninstall.
    Docker/Chromium remain prerequisites and a substantial guest download. A small
    source tarball is not a light desktop image or ten-minute cold-install proof.
-4. Restore executable CI; pin a reviewed version, record changelog/support policy,
+4. Decide the separately authorized CI/release policy; pin a reviewed version, record changelog/support policy,
    hashes and provenance. No release/publish workflow is enabled in this change.
 5. Publish only after explicit authorization, then register the actual released
    package using verified ownership and current Registry requirements. No
    speculative registry badge, one-click public install or hosted-service URL.
 
-Private checkout use is available now. Public npm, prebuilt OCI/MCPB artifacts,
+Public source checkout and generic skill installation are available now. Public npm, prebuilt OCI/MCPB artifacts,
 GitHub releases and Registry publication remain pending. An OCI image containing
 the MCP bridge alone is not an owned desktop; mounting a Docker socket into it
 would add host authority and needs a separate architecture review.

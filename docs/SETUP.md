@@ -1,8 +1,16 @@
 # Setup and harness integration
 
-## Install/run from this private checkout
+## Install/run from the public source
 
-Use Node 22.13+ and `npm ci`. No package publication or global installation is
+Use Node 22.13+.
+
+```sh
+git clone https://github.com/bujosa/computer-mcp.git
+cd computer-mcp
+npm ci
+```
+
+No package publication or global installation is
 needed. Commands are `node src/cli.js <command>`. `npm start -- <command>` is also
 available for owner commands. `init` (`setup` is a compatible alias) checks a local
 Docker Linux engine, creates private computer state and registers it in a local

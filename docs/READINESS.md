@@ -2,7 +2,8 @@
 
 Updated 27 October 2026 after [public-preview review](PUBLIC-PREVIEW-REVIEW.md).
 MIT code/skill terms, standard operator packaging and security dependency fixes
-are delivered; public visibility/default-branch release remain pending.
+are delivered. The full repository/history and reviewed stack are now public on
+`main`; [publication acceptance](PUBLIC-LAUNCH.md) records anonymous installation.
 The 17 October acceptance covers named assignments, actual stdio readiness checks
 and schema-backed MCP results. [Connection acceptance](MCP-READINESS-VALIDATION.md)
 records the new bounded checks; [recovery](RECOVERY.md) covers operator actions.
@@ -14,7 +15,7 @@ The market assessment originates at `3f5c6fc`,
 This is a product/architecture review, not a release,
 security certification, customer study or promise to implement every item here.
 Recommendations below remain proposals except where explicitly marked delivered.
-Source access remains private during preparation; code and the operator use MIT; [market evidence](MARKET.md) and
+Source access is public; code and the operator use MIT; [market evidence](MARKET.md) and
 [validation](VALIDATION.md) separate
 observations from hypotheses and executed checks.
 
@@ -28,7 +29,7 @@ Claude prompt invocation and graceful CLI-disconnect cleanup. These are bounded
 synthetic checks, not a reliability rate or all-client/host support.
 The [official Grok comparison](GROK-COMPARISON.md) maps the intended provider scope.
 
-The private developer MVP has a coherent working loop: a persistent dedicated
+The developer preview has a coherent working loop: a persistent dedicated
 Linux guest, an existing agent connected by stdio, a shared owner console,
 exclusive control, demonstration evidence, reviewed instructions and real reuse
 with new inputs. Recorded/reviewed tasks and independent operator acceptance
@@ -99,9 +100,10 @@ and MCP display metadata, native VS Code configuration output, a private package
 allowlist/check, canonical packaged shrinkwrap, contributor/report guidance and
 a schema-valid unpublished Registry template. An actual private artifact built
 a new guest and passed SDK read/work acceptance outside the checkout on macOS
-ARM64. These close specific packaging failures; license, ownership, multi-host
-artifact/editor setup, supported update/uninstall and public distribution gates
-remain pending. No public package or Registry entry was created.
+ARM64. These close specific packaging failures. MIT, brand terms, public source
+installation and private security reporting are delivered; package ownership,
+multi-host artifact/editor setup and supported update/uninstall remain pending.
+No public npm package or Registry entry was created.
 
 “Before public preview” means before claiming the corresponding supported path,
 not authorization to publish. A narrower first release can advertise only
@@ -114,7 +116,7 @@ platforms/harnesses actually exercised. Later items are conditional on pilot nee
 | 3 — first Teach pilot              | Demonstrations make repeated tasks more useful than an ordinary prompt                   | `runtime/analysis.js`, `teach.js`, `skill.js`, operator v9; historical reviewed reuse and fresh-input checks        | A bounded private Teach evaluation with explicit corrections, observed results and uncertainty; analysis stays in the external harness.                                                                                     | Proposed 60 taught trials plus matched baselines using the same environments/models. Record interruption, selectors, corrections, budgets and independently checked outcomes. No pass rate claimed; paid model scope must be authorized first.                                                                                                                     |
 | 4 — assigned-task acceptance       | Live recovery evidence for the implemented task/attempt/report/verdict binding           | `runtime/operations.js`, `assignments.js`, exact review/session/lease binding and separate private storage          | Exercise new saved assignments with actual harnesses and owner verification; record source/image boundaries and partial effects.                                                                                            | Wrong PC/grant/task, stale review, duplicate start/finish, lease loss, restart, cancellation and rejected reports. New requests are explicit retries; no automatic replay or historical Activity relabeling.                                                                                                                                                       |
 | 5 — named-sharing acceptance       | Live multi-PC/agent evidence for implemented separate grants and revocation              | Private host connection files, hashed guest credentials, namespaced sessions and default-disabled new legacy access | Exercise multiple named read/work grants, separate PC defaults/availability and one-grant revocation; inspect credentials and private file handling.                                                                        | Revocation interrupts only its attempt/control; other grants keep intended scope. Copied session IDs do not cross grants. Legacy compatibility stays explicit. No verified model/person, organization IAM or cloud identity claim.                                                                                                                                 |
-| 6 — before public distribution     | Users can legally build on the code and know how to contribute/get help                  | `private: true`, MIT, `SECURITY.md`, separate brand rules and dependency notices                                    | MIT, brand rules, contribution/changelog and source notices delivered; verify exact binary-image notices, support policy and private reporting before public access                                                         | Approved license/notices/brand rules, reproducible versioned artifact/setup, clean supported-host checks, credential-free diagnostics and no secrets/customer recordings in examples. Existing private-contact wording must be replaced with a usable reporting path before publication.                                                                           |
+| 6 — before public distribution     | Users can legally build on the code and know how to contribute/get help                  | `private: true`, MIT, `SECURITY.md`, separate brand rules and dependency notices                                    | MIT, brand rules, public source/skill installation, contribution/changelog, source notices and private reporting delivered; verify exact binary-image notices and support policy                                            | Approved license/notices/brand rules, reproducible versioned artifact/setup, clean supported-host checks, credential-free diagnostics and no secrets/customer recordings in examples. GitHub private reporting is enabled; an external-account test submission remains unexercised.                                                                                |
 | 7 — after pilot demand             | A skill can be shared or discovered without silently binding to a stranger's PC          | Reviewed exports, Resources/prompts and identity/revision pins                                                      | Separate reusable template from local computer binding; reviewed import/rebinding with capability checks. Evaluate optional Skills over MCP only after actual host/SDK support                                              | Imported instructions treated as untrusted; no video/credentials copied; new owner approves bindings/review; foreign/stale pins fail; manifests/caches preserve source identity. Existing export/download remains fallback. A download is not proof that a harness loaded a skill.                                                                                 |
 | 8 — after supported core is useful | Additional machines/OSes without misleading isolation claims                             | Adapter seams in [ADAPTERS.md](ADAPTERS.md)                                                                         | One demanded VM/remote/native adapter at a time with its own auth, lifecycle and ownership contract                                                                                                                         | Actual guest OS and host/harness version tested; reconnect/identity/stop/persistence verified. Native mode explicitly controls an existing host, needs specific OS permissions and is not agent-owned isolation. No broad host permissions or exposure are authorized by this review.                                                                              |
 
@@ -208,8 +210,9 @@ keep its explicit warning that visible secrets can enter video/model frames.
 
 Community work is product work: contribution setup, architectural boundaries,
 bug templates with safe diagnostics, releases/support policy and external
-contributor experience. License and trademark decisions remain David's pending
-release choices; this review selects neither license nor publication date.
+contributor experience. David selected MIT, separate Sendtry brand terms and full
+repository/history publication. Package/image release and support policy remain
+separate decisions.
 
 ## Pilot and decision evidence
 
@@ -227,7 +230,7 @@ If repeated taught attempts fail or require as much correction as a fresh prompt
 improve evidence/parameters/verification before expanding features. A pilot can
 invalidate the positioning hypothesis; GitHub stars cannot settle it.
 
-Hosted CI is intentionally disabled during private development. This product
+Hosted CI remains intentionally disabled for this public source preview. This product
 has no billing/subscription feature, and Activity
 timings are not charges. Historical healthy Docker capacity is not a guarantee
 for the next build. This document changes no Docker defaults/resources,
