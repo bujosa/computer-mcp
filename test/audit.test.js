@@ -747,7 +747,10 @@ test('graceful audit shutdown closes pending observations and tolerates late net
   assert.throws(() => f.audit.start(req, 'tool.files_write'), {
     code: 'audit_unavailable',
   });
-  const reopened = new Audit(f.root, f.identity);
+  const reopened = new Audit(f.root, f.identity, {
+    now: f.audit.now,
+    monotonic: f.audit.monotonic,
+  });
   await reopened.init();
   const event = reopened.export().events.find((e) => e.id === id);
   assert.equal(event.outcome, 'interrupted');
