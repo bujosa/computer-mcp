@@ -23,6 +23,49 @@ maps computer/Teach behavior, practical use and truthful gaps. Licensing/publica
 [Setup](docs/SETUP.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
 
+## How a demonstration becomes a skill
+
+Show the task on the agent's computer, let your connected agent understand the
+evidence, review its proposed method, then ask it to do the task with new inputs.
+This is the demonstration-to-skill experience we provide.
+
+```mermaid
+flowchart TD
+    A[Demonstration: trace and optional video] -->|Owner shares evidence| B[Agent analysis: proposed procedure]
+    B --> C[Owner review: published skill]
+    C -->|New inputs and task request| D[Agent execution: verify and report outcome]
+```
+
+Finishing a recording saves a **completed workflow**, not a running analysis job.
+It has a stable ID, name, goal, action trace and revision, with optional local
+WebM evidence. With owner consent, `workflow_analyze` returns sampled images and
+the trace. Your existing vision-capable agent interprets them and calls
+`workflow_propose` to save a draft on that same workflow. The owner corrects the
+procedure, supplies missing parameters and defines how to verify the result.
+Only a completed, reviewed workflow can be exported as a taught `SKILL.md`.
+
+There are **two explicit handoffs** today: send the copied analysis request to
+your connected agent, then, after owner review, send a plan/execution request
+with new inputs. Allowing frames, finishing a recording or copying a request
+does not start inference or perform the task. Without video, the owner can
+review the captured trace directly.
+
+| Part               | What it does                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Your agent/harness | Supplies the model, image reasoning, conversation and tool calls.                                                 |
+| Computer MCP       | Supplies one pinned Linux guest, evidence, bounded tools, access and control checks.                              |
+| Operator skill     | Explains how to operate the computer and handle reviews, leases and failures.                                     |
+| Taught skill       | Describes one owner-reviewed procedure, parameters and expected result, bound to the computer/workspace/revision. |
+| A new task request | Asks the agent to plan or execute that procedure with current inputs; it is not a background job.                 |
+
+[Grok Bot's documented Teach flow](https://docs.x.ai/grok-bot/skills-routines-and-automations#teach-a-workflow-by-demonstration)
+also turns a demonstration into a draft skill for review/testing. Grok bundles
+the Bot and orchestration; Sendtry uses your existing MCP agent. We do not claim
+to reproduce Grok's internal analysis pipeline. See the
+[source-backed comparison](docs/GROK-COMPARISON.md),
+[complete Teach walkthrough](docs/TEACH.md#worked-example-teach-a-project-note)
+and [tools/skills contract](docs/TOOLS-AND-SKILLS.md).
+
 ## Start your first computer
 
 Requirements: Node **22.13+**, Docker Engine **28+** with Compose v2 and a **local
@@ -35,11 +78,18 @@ npm ci
 node src/cli.js --version
 node src/cli.js doctor --context desktop-linux
 node src/cli.js init --name my-computer --context desktop-linux
-node src/cli.js start --open
+node src/cli.js start --name my-computer --open
 node src/cli.js list
 ```
 
-On Linux with a local Docker Engine, use `--context default` for init instead.
+On Linux with a local Docker Engine, replace the doctor/init commands with:
+
+```sh
+node src/cli.js doctor --context default
+node src/cli.js init --name my-computer --context default
+```
+
+Use the name of your validated local context if it differs from `default`.
 The CLI always supplies the saved context explicitly and never changes your
 Docker default. Remote SSH/TCP contexts are refused. When the machine’s default
 context points at another computer, it is not used automatically on macOS or
@@ -95,9 +145,9 @@ registered PCs and copies exact owner commands. [Full command reference](docs/SE
 Start the computer first, then generate a credential-free stdio configuration:
 
 ```sh
-node src/cli.js config --name my-computer
-node src/cli.js config --name my-computer --client codex
-node src/cli.js config --name my-computer --client vscode
+node src/cli.js config --name my-computer --access work
+node src/cli.js config --name my-computer --client codex --access work
+node src/cli.js config --name my-computer --client vscode --access work
 node src/cli.js skill
 ```
 
@@ -138,54 +188,37 @@ Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 resource and `computer-task`, `taught-workflow` and `analyze-demonstration` prompts.
 `computer-task` prepares the same pinned plan/task as the console for clients
 supporting prompts; retrieval performs no task. See [the prompt contract](docs/TASKS.md#prepare-a-task-directly-through-mcp).
+For each tool's access, inputs, limits, control requirements and skill execution
+flow, see [Tools and skills](docs/TOOLS-AND-SKILLS.md).
 
 ## Give the agent skills
 
-MCP supplies tools; a skill supplies a reviewed procedure using those tools.
-In **Teach & skills**, **Try with new inputs** prepares a plan or execution request pinned to
-the saved review and owning computer/workspace. Supply task parameters, inspect
-the request and send it to your connected agent. Inputs remain in the open form
-until copy and clear on close/navigation; preparation does not start execution.
-**Connect agent** provides pinned JSON/TOML configuration and the
-[Sendtry operator skill](ui/skills/sendtry-computer/SKILL.md). Downloads do not
-install settings or change your existing host computer.
-`node src/cli.js skill` prints the exact operator Markdown from the checkout,
-even before a PC is created. Save it at your client's project skill path without
-overwriting existing work; load it explicitly. In Cursor, approve the exact MCP
-server separately from loading the skill. See [client setup](docs/SETUP.md).
+Install the [operator skill](ui/skills/sendtry-computer/SKILL.md) in your
+harness's project skill directory and verify that the client loads it.
+**Connect agent** offers the same file; `node src/cli.js skill` prints it even
+before setup. Downloading does not install it or authorize an MCP connection.
+See [client-specific setup](docs/SETUP.md#console-connection-and-skills).
 
-In **Teach & skills**, take control, name the task and start recording. Demonstrate it
-on the shared Linux guest, then choose **Finish demonstration** to save its evidence
-and return to Skills. The guide shows the next step for the current recording or
-selected saved skill. **Reviewed** means approved instructions, not a verified
-successful task.
-The action trace captures browser events and file/terminal markers, omitting
-input values, commands and file contents. Working directories and command
-outcomes remain visible for review.
+For a taught skill, complete the Teach loop above. **Confirm review** enables
+**Export SKILL.md**. Save the export in the exact named skill folder shown by the
+console. It pins computer/workspace/workflow/revision; re-export after review
+changes. Review approval is not a verified successful run.
 
-Optionally include a local guest video (no audio; five-minute capture deadline,
-20 MiB per clip, 200 MiB total). Review its visible content before choosing
-**Allow agent analysis**. Copy the analysis request to your connected vision
-agent: `workflow_analyze` supplies sampled frames and the trace;
-`workflow_propose` saves its procedure, expected result and uncertainties.
-The server adds no model account, API key or cloud inference service. Your
-harness/model must support MCP images and perform the reasoning; the console
-cannot launch an unconnected agent by itself.
+In **Try with new inputs**, supply task parameters and choose a plan (default)
+or execution request. Send it to your connected agent. After acquiring control,
+the agent must await another `workflow_get` ready/reviewed/exact-revision check
+before any mutation, then verify the actual outcome and release its lease.
+These review checks are instructions; generic action tools do not atomically
+bind each effect to a workflow revision.
 
-Correct the proposed procedure, parameterize inputs, remove secrets and define
-how to verify success. **Confirm review** enables **Export SKILL.md**. You can
-discard a proposal while keeping your previous reviewed procedure, revoke frame
-access, or explicitly delete just the video while retaining the skill. Material
-already received by an agent/model provider cannot be recalled. Pending drafts
-are hidden from read-only connections.
-
-This is analysis of sampled evidence, not model training or proof that every
-frame/action was understood. Ordinary trace review works without video or a
-vision model. The agent can operate guest windows with bounded mouse/keyboard
-`desktop_action` input and fresh screenshots. Coordinate replay needs review;
-there is no automatic desktop action inference or blind replay.
-See [the desktop tools](docs/DESKTOP.md).
-See [the Teach guide](docs/TEACH.md) and [setup](docs/SETUP.md).
+Video is optional, silent and local to the guest: five-minute capture deadline,
+20 MiB per clip and 200 MiB total. Agent access delivers sampled PNGs, not the
+owner-only raw WebM. Sampling can miss actions; it is not model training or
+automatic coordinate replay. Consent applies to connected work agents for that
+workflow. You can revoke future frame access or delete the video while retaining
+the procedure; material already sent to a harness/provider cannot be recalled.
+See [Teach privacy, states and recovery](docs/TEACH.md) and
+[guest desktop limits](docs/DESKTOP.md).
 
 ## Review usage and activity
 

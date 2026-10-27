@@ -272,8 +272,9 @@ Each taught export pins the computer, workspace and saved reviewed revision.
 Its instructions require fetching the current `workflow_get` record before
 effects; a different revision, pending proposal or unavailable record stops
 reuse. Download the skill again after changes instead of using older embedded
-instructions. Re-export pre-version-3 downloads to include these checks. This
-is agent guidance; credential scopes, identity pins and leases are the enforced
+instructions. Re-export pre-version-4 downloads to include the explicit
+post-acquisition review check; await it before any mutation, including navigation.
+This is agent guidance; credential scopes, identity pins and leases are the enforced
 tool boundaries.
 
 The format follows the [Agent Skills specification](https://agentskills.io/specification):

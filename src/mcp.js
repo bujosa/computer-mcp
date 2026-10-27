@@ -63,7 +63,12 @@ export async function serveMCP(config) {
           readOnlyHint: !!tool.read || name === 'workflow_analyze',
           destructiveHint: !tool.read && name !== 'workflow_analyze',
           idempotentHint: !!tool.read,
-          openWorldHint: ['browser_action', 'terminal_run'].includes(name),
+          openWorldHint: [
+            'browser_snapshot',
+            'browser_action',
+            'desktop_action',
+            'terminal_run',
+          ].includes(name),
         },
       },
       async (args, ctx) => {

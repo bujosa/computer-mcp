@@ -90,6 +90,81 @@ const requirements = {
     'Report totals reconcile with the source; the source remains unchanged.',
 };
 
+for (const access of ['read', 'work'])
+  test(`stdio discovery exposes the ${access} tool, prompt and identity contracts`, async (t) => {
+    const { client, config, requests } = await bridge(t, { access });
+    requests.length = 0;
+    const [{ tools }, { prompts }, { resources }] = await Promise.all([
+      client.listTools(),
+      client.listPrompts(),
+      client.listResources(),
+    ]);
+    const names = (entries) => entries.map(({ name }) => name).sort();
+    const observation = [
+      'computer_info',
+      'browser_snapshot',
+      'desktop_screenshot',
+      'files_list',
+      'files_read',
+      'workflow_list',
+      'workflow_get',
+    ];
+    const work = [
+      'control_acquire',
+      'control_renew',
+      'control_release',
+      'browser_action',
+      'desktop_action',
+      'terminal_run',
+      'files_write',
+      'workflow_analyze',
+      'workflow_propose',
+    ];
+    assert.deepEqual(
+      names(tools),
+      (access === 'read' ? observation : [...observation, ...work]).sort(),
+    );
+    const descriptors = Object.fromEntries(
+      tools.map((tool) => [tool.name, tool]),
+    );
+    for (const name of observation)
+      assert.equal(descriptors[name].annotations.readOnlyHint, true, name);
+    // Observation of a live web page is still open-world. Hints guide clients;
+    // they do not grant network, credential or control permissions.
+    assert.equal(descriptors.browser_snapshot.annotations.openWorldHint, true);
+    assert.equal(descriptors.files_read.annotations.openWorldHint, false);
+    if (access === 'work') {
+      for (const name of ['browser_action', 'desktop_action', 'terminal_run']) {
+        assert.equal(descriptors[name].annotations.openWorldHint, true, name);
+        assert.equal(descriptors[name].annotations.readOnlyHint, false, name);
+        assert.equal(descriptors[name].annotations.destructiveHint, true, name);
+      }
+      assert.equal(descriptors.workflow_analyze.annotations.readOnlyHint, true);
+      assert.equal(
+        descriptors.workflow_propose.annotations.readOnlyHint,
+        false,
+      );
+      assert.equal(descriptors.files_write.annotations.openWorldHint, false);
+    }
+    assert.deepEqual(
+      names(prompts),
+      (access === 'read'
+        ? ['computer-task', 'taught-workflow']
+        : ['analyze-demonstration', 'computer-task', 'taught-workflow']
+      ).sort(),
+    );
+    assert.equal(resources.length, 1);
+    const uri = `computer://${config.computerId}/identity`;
+    assert.equal(resources[0].uri, uri);
+    assert.equal(resources[0].mimeType, 'application/json');
+    assert.equal(requests.length, 0, 'Discovery must not call the runtime.');
+    const identity = await client.readResource({ uri });
+    const info = JSON.parse(identity.contents[0].text);
+    assert.equal(info.computerId, config.computerId);
+    assert.equal(info.workspaceId, config.workspaceId);
+    assert.deepEqual(requests, [{ path: '/api/info', method: 'GET' }]);
+  });
+
 for (const modern of [false, true])
   test(`computer-task is discovered and prepares plan/work requests without effects (${modern ? 'modern' : 'legacy'} stdio)`, async (t) => {
     const { client, config, requests } = await bridge(t, { modern });
