@@ -21,8 +21,9 @@ data; Sendtry's delivery backend and Piblo's bot/billing layers are not dependen
 
 The code and generic operator skill use [MIT](../LICENSE), selected by David
 on 27 October 2026. [Sendtry brand terms](../TRADEMARKS.md) are separate. The
-repository remains private during [publication preparation](PUBLICATION.md),
-and the npm manifest retains `private: true`. Source notices are recorded; exact
+repository and history are public; [publication](PUBLICATION.md) records verified
+source/skill installation. The npm manifest retains `private: true`. Source notices
+are recorded; exact
 binary-image notices, public release policy and managed lifecycle remain open.
 
 ## Experience

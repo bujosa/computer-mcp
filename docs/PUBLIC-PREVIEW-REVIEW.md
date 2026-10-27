@@ -1,5 +1,10 @@
 # Product and commit review — 27 October 2026
 
+Publication update: the owner subsequently authorized the complete repository
+and history. The reviewed stack is on public `main`; see
+[source publication acceptance](PUBLIC-LAUNCH.md). The private/publication-pending
+statements below record the preparation stage and are superseded by that acceptance.
+
 Review baseline: `68eca5a`, on `bujosa/mcp-readiness-contracts`; the local
 default-branch reference was `a0b282d`. A read-only remote check found actual
 `main` at `6d2c0e3` (PR #11, merged 17 October), also reviewed below.

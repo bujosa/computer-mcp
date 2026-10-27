@@ -122,15 +122,19 @@ service or a substitute for a VM. No native host control adapter is installed.
 
 ## Reporting
 
-Before public access, enable GitHub private vulnerability reporting and verify
-[Report a vulnerability](https://github.com/bujosa/computer-mcp/security/advisories/new)
-from an external account. This endpoint has not been verified as available for
-outside reporters while the repository is private. That remains a publication
-gate; do not describe the link as an active public reporting channel yet.
+Use [Report a vulnerability](https://github.com/bujosa/computer-mcp/security/advisories/new)
+to report privately to the maintainers. GitHub sign-in is required. Private
+vulnerability reporting is enabled: the public status API and anonymous redirect
+to GitHub sign-in were verified on 27 October 2026. No test report was submitted;
+an independent external-account submission has not been exercised.
 
-During the private preview, authorized collaborators can contact the repository
-owner through its existing private collaboration channel. Do not open public
-issues for vulnerabilities. Include the affected commit/version, host/guest OS,
+GitHub secret scanning and push protection are enabled. They complement the
+local redacted scans; they do not establish absence of secrets or vulnerabilities.
+The hosted CI workflow remains disabled; this is separate from private reporting
+and GitHub's secret protection.
+
+Do not open public issues for vulnerabilities. Include the affected commit/version,
+host/guest OS,
 minimal synthetic reproduction and impact. Do not attach credential files,
 Docker environment dumps, secret screenshots, customer data or raw recordings.
 No response-time SLA or external security certification is claimed.

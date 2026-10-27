@@ -1,4 +1,4 @@
-# Reproduce the private MVP checks
+# Reproduce the developer preview checks
 
 ## Manual validation and CI policy
 

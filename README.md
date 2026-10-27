@@ -6,7 +6,7 @@ A computer to work in. Skills to work with.
 
 Give your MCP agent a dedicated computer, and share its screen when you want to help.
 
-Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-the-operator-from-a-reviewed-checkout).
+Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-from-github).
 It requires a configured MCP connection; installation alone does not grant a computer.
 
 This developer preview runs a dedicated **Linux desktop in Docker**, with Chromium,
@@ -23,9 +23,10 @@ Current product assessment, GitHub comparison and what remains before a public
 preview: [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 [executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
-maps computer/Teach behavior, practical use and truthful gaps. Code and skills use
-[MIT](LICENSE); [Sendtry marks](TRADEMARKS.md) have separate terms. Repository
-visibility, the default-branch release and public distribution are still pending.
+maps computer/Teach behavior, practical use and truthful gaps. Code and the generic operator use
+[MIT](LICENSE); [Sendtry marks](TRADEMARKS.md) have separate terms. The complete
+source and skill are public on GitHub. npm, Registry and prebuilt images remain
+unpublished; use the source setup below.
 
 [Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
@@ -85,9 +86,11 @@ cross-client reuse, independent checks and the failed setups we corrected.
 Requirements: Node **22.13+**, Docker Engine **28+** with Compose v2 and a **local
 Linux container engine**. On macOS/Windows, install Docker Desktop and start it.
 The first build downloads Chromium and Linux desktop dependencies; later starts
-reuse the image and data. Run these commands inside this private checkout:
+reuse the image and data. Clone the public source, then create your computer:
 
 ```sh
+git clone https://github.com/bujosa/computer-mcp.git
+cd computer-mcp
 npm ci
 node src/cli.js --version
 node src/cli.js doctor --context desktop-linux
@@ -323,7 +326,7 @@ Docker installation or editor integration.
 
 ## Boundaries and development
 
-CI is intentionally disabled during this private development phase. The checks
+CI is intentionally disabled during this developer preview. The checks
 below run locally; the Actions workflow is retained for future manual use.
 See [QA and CI policy](docs/QA.md#manual-validation-and-ci-policy).
 
@@ -366,10 +369,10 @@ and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 
 **Developer preview, MIT code and skill.** See [LICENSE](LICENSE),
 [Sendtry brand rules](TRADEMARKS.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
-The npm package remains `private: true`; no public npm/Registry/container release
-exists. GitHub visibility and release of the reviewed branch remain separate
-publication steps. [Public skill preparation](docs/PUBLICATION.md) explains the
-installable operator, supported boundaries and release gates.
+The source and generic skill are public on GitHub. The npm manifest remains
+`private: true`; no public npm/Registry/container release exists.
+[Installation and publication](docs/PUBLICATION.md) explains the verified public
+skill install, supported boundaries and separate package-release gates.
 The [distribution policy](docs/DISTRIBUTION.md) records primary-market research,
 the private artifact check and a schema-checked draft Registry manifest. The
-package is not on a public registry; use this authorized checkout today.
+package is not on a public registry; use the public source checkout today.

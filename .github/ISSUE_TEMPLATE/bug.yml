@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible private-preview failure using sanitized metadata.
+description: Report a reproducible developer-preview failure using sanitized metadata.
 title: '[Bug]: '
 body:
   - type: markdown

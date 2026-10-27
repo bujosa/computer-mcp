@@ -2,9 +2,9 @@
 
 The code and generic operator skill use [MIT](LICENSE). Sendtry marks and SVG
 artwork have [separate terms](TRADEMARKS.md); dependency notices are in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Repository access remains
-restricted during publication preparation. See [publication](docs/PUBLICATION.md)
-for the current release gates; a license does not publish a package or merge a PR.
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The complete repository and
+history are public. See [publication](docs/PUBLICATION.md) for source installation
+and the separate npm/Registry/image release gates.
 
 ## Development
 
@@ -22,8 +22,8 @@ npm run check:skill
 ```
 
 The package check is a dry-run inventory, not publication or a Docker test.
-GitHub's `Check` workflow is intentionally disabled for this private development
-phase; its repository trigger is manual-only in this change. Run these local
+GitHub's `Check` workflow remains intentionally disabled for this developer
+preview; its repository trigger is manual-only. Run these local
 gates before a commit/PR. No deployment or publishing workflow is enabled. See
 [manual validation and CI policy](docs/QA.md#manual-validation-and-ci-policy).
 For an authorized, new QA computer on a local engine, see [QA](docs/QA.md).
@@ -52,13 +52,13 @@ Do not make a harness connection provision a computer or choose another user's P
 
 ## Safe reports
 
-Use the private issue templates for bugs and proposals. Include package/client
+Use the issue templates for bugs and proposals. Include package/client
 versions, host and actual guest OS, expected/observed behavior and reproducible
 steps. Share only sanitized diagnostic status/check summaries. Private state,
 tokens, owner URLs, Docker environment dumps, workspace paths, recordings and
 customer data do not belong in issues or PRs. Security reports follow
-[SECURITY.md](SECURITY.md). Enable and verify GitHub private vulnerability reporting
-before opening the repository to external users; do not use public issues for vulnerabilities.
+[SECURITY.md](SECURITY.md). GitHub private vulnerability reporting is enabled;
+do not use public issues for vulnerabilities.
 
 ## Distribution
 

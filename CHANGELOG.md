@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.1.0 — unreleased developer preview
+## 0.1.0 — public source preview (27 October 2026)
+
+The complete GitHub source/history and generic skill are public under MIT.
+This is a source preview, with no npm, Registry, prebuilt image or GitHub Release.
 
 - Dedicated local Linux desktop, visible browser, guest files/terminal/screenshots
   and bounded native guest mouse/keyboard tools over stdio MCP.
