@@ -2,8 +2,9 @@
 
 The dated [market review](MARKET.md) and [design review](DESIGN-REVIEW.md) record
 the positioning hypothesis, observed UX gaps and ordered next slices. The guided
-Teach/connection slice is now implemented below; task-result records, new adapters
-and Skills over MCP remain proposals.
+Teach/connection and named assignment slices are implemented below. New adapters
+and Skills over MCP remain proposals. [Actual two-PC acceptance](ASSIGNMENT-VALIDATION.md)
+records Claude/Codex demonstrations, reviewed reuse and independent owner checks.
 The [readiness review](READINESS.md) prioritizes installation, measured resources,
 repeated Teach usefulness, result attribution and public distribution gates.
 The current [screen-first direction](DESIGN-DIRECTION.md), informed by an Opus 5.5
@@ -26,17 +27,18 @@ code/assets.
 
 ## Experience
 
-The console has seven working views:
+The console has eight working views:
 
-| View           | Owner's job                                                                             |
-| -------------- | --------------------------------------------------------------------------------------- |
-| Screen         | Watch the real guest screen, take/release control and open the offline practice task    |
-| Files          | Browse the contained workspace and read/save bounded text files                         |
-| Terminal       | Execute/cancel a focused guest command and inspect exit status, deadline and truncation |
-| Teach & skills | Teach, search, review, prepare an agent request and export a completed procedure        |
-| Computers      | Inspect the registered catalog/default and copy owner create/start/open/use commands    |
-| Connect agent  | Choose work/read access, copy exact MCP configuration and download the operator skill   |
-| Activity       | Inspect sessions, control/tool time, outcomes and private local history exports         |
+| View           | Owner's job                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| Screen         | Watch the real guest screen, take/release control and open the offline practice task           |
+| Tasks          | Assign bounded work to a named connection, inspect its report and record your own verdict      |
+| Files          | Browse the contained workspace and read/save bounded text files                                |
+| Terminal       | Execute/cancel a focused guest command and inspect exit status, deadline and truncation        |
+| Teach & skills | Teach, search, review, prepare an agent request and export a completed procedure               |
+| Computers      | Inspect the registered catalog/default and copy owner create/start/open/use commands           |
+| Connect agent  | Create/revoke named read/work access through safe host commands and install the operator skill |
+| Activity       | Inspect sessions, control/tool time, outcomes and private local history exports                |
 
 The flow is **create computer → connect agent → work together → teach a task →
 optional agent video analysis → review → reuse**. MCP tools are capabilities. Skills are procedural instructions.
@@ -62,12 +64,14 @@ only to its owner session and are never exposed by agent credentials. No API
 keys appear in copy/download output. The console reports actual guest capabilities
 and lease state; it does not claim that a specific harness is connected.
 
-Connect agent follows three selectable steps: configure MCP, install the operator
-skill and start working. Stage three supports a connection check or a custom
-goal/outcome/scope, with plan-first default and execution disabled for read
-access. Requests freshly check both UUIDs before copying; fields stay in page
-memory and clear on exit. Copy starts no agent or task job. Screen/Activity and
-artifact checks establish what actually happened. See [task assignment](TASKS.md).
+Connect agent follows three selectable steps: create a named connection, install
+the operator skill and start working. Its connection check opens a prefilled
+tracked task for named work access. The dedicated Tasks view owns custom
+name/goal/outcome/scope and assignment selection. Read/plan and explicit legacy
+paths remain available. Saving a named task persists its explicit requirements;
+copying never dispatches an agent. Reports are agent claims; owner checks are
+separate recorded verdicts after inspecting actual artifacts. Teach trial inputs
+remain local to the copied request, not automatically stored in the assignment. See [task assignment](TASKS.md).
 Client selection provides the configuration format,
 local project skill path and official setup/skills guides for Claude Code, Cursor
 and Codex. Other stdio clients receive a neutral path placeholder. The request

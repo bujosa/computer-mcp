@@ -8,6 +8,8 @@ available for owner commands. `init` (`setup` is a compatible alias) checks a lo
 Docker Linux engine, creates private computer state and registers it in a local
 catalog. It refuses to replace an existing config. Names contain lowercase
 letters, digits and hyphens; each computer gets a distinct console port.
+New PCs disable legacy shared MCP access. Create named work/read grants after
+starting the PC; each grant can be revoked independently.
 
 macOS/Windows defaults to context `desktop-linux`; Linux defaults to `default`.
 Pass an explicit local `--context` if your Docker installation uses another
@@ -35,6 +37,20 @@ node src/cli.js start --name web --open
 The new guest can then reach the Internet and potentially LAN/host services
 reachable from Docker. There is no implicit native host control or filesystem
 sharing. A new owned named volume is used; there is no project/volume reuse.
+
+If Docker's automatic pools cannot allocate another owned network, choose an
+unused aligned private IPv4 /24 for a **new** PC:
+
+```sh
+node src/cli.js init --name coding-ipam --context desktop-linux --subnet 10.234.80.0/24
+```
+
+Inspect LAN/VPN routes before choosing the block. Setup checks overlap with
+Docker subnets and local interfaces, which is not complete route discovery.
+Isolated mode splits that /24 into two /25s for the guest and loopback console
+relay; Internet mode uses the /24. Existing PCs without a subnet retain Docker
+allocation. The CLI does not change daemon pools, prune networks or repair an
+existing PC by changing its network.
 
 ## Computers, availability and default selection
 
@@ -73,24 +89,30 @@ node src/cli.js list
 node src/cli.js use web
 node src/cli.js status
 node src/cli.js start --open
-node src/cli.js config --client codex
+node src/cli.js connection list --all
+node src/cli.js connection create web-codex --name web --access work --client codex
 node src/cli.js stop
 ```
 
-| Command                   | Behavior                                                                                                |
-| ------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `init --name <name>`      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`       |
-| `list` / `list --json`    | Probe registered identities without claiming control; mark default with `*` / `isDefault`               |
-| `use <name>`              | Persist selection for future CLI invocations; can select a currently stopped PC                         |
-| `register --state <path>` | Register existing version-1 state without copying its data or overwriting credentials                   |
-| `start`                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases     |
-| `start --open`            | Start, then authorize/open the same owner's console                                                     |
-| `start --rebuild`         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions       |
-| `status`                  | JSON availability, pinned identity, network, context and active controller kind                         |
-| `doctor`                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards |
-| `config`                  | Generate stdio configuration fixed to the selected absolute state                                       |
-| `skill`                   | Print the exact operator SKILL.md without requiring/creating computer state or contacting Docker        |
-| `mcp`                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                       |
+| Command                                                   | Behavior                                                                                                |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `init --name <name>`                                      | Create/register; allocate an unused loopback port from 17670–17925, or validate explicit `--port`       |
+| `list` / `list --json`                                    | Probe registered identities without claiming control; mark default with `*` / `isDefault`               |
+| `use <name>`                                              | Persist selection for future CLI invocations; can select a currently stopped PC                         |
+| `register --state <path>`                                 | Register existing version-1 state without copying its data or overwriting credentials                   |
+| `start`                                                   | Build/start only the selected owned computer; already ready computers keep boot identity and leases     |
+| `start --open`                                            | Start, then authorize/open the same owner's console                                                     |
+| `start --rebuild`                                         | Rebuild/recreate after a source update; an explicit restart invalidates leases and owner sessions       |
+| `status`                                                  | JSON availability, pinned identity, network, context and active controller kind                         |
+| `doctor`                                                  | Read-only prerequisites before creation; saved context, ownership and running guest capacity afterwards |
+| `connection create <label> --name PC --access work\|read` | Create a private named grant and print its credential-free MCP entry                                    |
+| `connection list --all`                                   | Report each registered PC independently, including unavailable PCs and its scoped grant list            |
+| `connection revoke <UUID> --name PC`                      | Revoke that PC's named grant and interrupt its work                                                     |
+| `connection legacy enable\|disable --name PC`             | Set shared legacy-access policy explicitly                                                              |
+| `config --connection <file>`                              | Reprint a named entry using only its absolute private grant file                                        |
+| `config --name PC`                                        | Generate legacy shared configuration pinned to the selected state; runtime policy must enable it        |
+| `skill`                                                   | Print the exact operator SKILL.md without requiring/creating computer state or contacting Docker        |
+| `mcp`                                                     | Run the stdio bridge for a harness; does not build/start Docker or open a browser                       |
 
 `list` reports **ready** (reachable, pinned, no lease), **busy** (reachable with
 an exclusive lease), **starting** (runtime's authenticated `not_ready` response),
@@ -111,14 +133,17 @@ to include it in `list`. Custom old state directories require explicit registrat
 node src/cli.js register --state /absolute/existing/private/state
 ```
 
-All commands accept `--root /absolute/private/catalog` to keep an independent
+Catalog/owner commands accept `--root /absolute/private/catalog` to keep an independent
 catalog and default, useful for development/test ownership. Default creation
 paths then become `<root>/computers/<name>`. Use that root consistently for
 catalog commands. An absolute `--state` in generated MCP config remains usable
 even when a different root/default is selected or its catalog becomes corrupt.
 Existing MCP bridges also retain their session and owning computer across `use`.
-To connect an agent to another PC, generate a new explicit config and reconnect
-its MCP server; changing the CLI default does not retarget an agent.
+To connect an agent to another PC, create a grant on that PC and reconnect
+its MCP server; changing the CLI default does not retarget an agent. Named
+`config`/`mcp --connection` read only their scoped file, even if the catalog or
+owner config is absent/damaged. They reject `--root`, `--name`, `--state` and
+`--access`; authority comes entirely from the file.
 
 State paths contain owner/work credentials: do not commit, share or paste their
 contents. Protect Windows directories with appropriate user ACLs. In PowerShell
@@ -136,30 +161,99 @@ The agent's work/read credentials cannot create an owner session or read
 owner-only host connection metadata. Do not share
 the private host state or copy an authorization URL.
 
+## Create and manage named connections
+
+Run these commands on the trusted CLI host, after starting the selected PC:
+
+```sh
+node src/cli.js connection create claude-work --name coding --access work
+node src/cli.js connection create codex-work --name coding --access work --client codex
+node src/cli.js connection create observer --name coding --access read --client vscode
+node src/cli.js connection list --name coding
+node src/cli.js connection list --all
+```
+
+Labels are unique on that PC, start with a lowercase letter and use lowercase
+letters, digits or hyphens, at most 40 characters. Create/revoke/legacy commands
+require explicit `--name PC` or `--state /absolute/private/state`. With a custom
+catalog, add its `--root /absolute/private/catalog` to these owner commands.
+`connection list --all` takes no name/state and retains per-PC error/availability
+results instead of selecting a different PC. No host catalog or another PC's
+credentials enter a guest.
+
+Creation writes `<root>/connections/<computerId>/<connectionId>.json`: private
+0700 directories and a 0600 file on POSIX; protect Windows paths with user ACLs.
+The file contains one random scoped token and PC/workspace/port/access metadata,
+with no owner credential or shared work secret. The runtime stores its credential
+hash. Publication is exclusive and file-synced; POSIX also syncs the directory.
+Windows has no portable Node directory-fsync guarantee. A failed save attempts
+to revoke the new grant; if compensation fails, the sanitized error gives its
+public UUID and exact revoke command. Inspect that result before retrying.
+
+Stdout contains only the MCP configuration. Stderr identifies the label, private
+file path and setup hint. Keep the file local; copy the printed entry into your
+harness. The generated server key is unique to the PC/grant, such as
+`computer-coding-0123456789ab`, so preserve it when adding multiple connections.
+For an existing grant, reprint the same configuration without creating another:
+
+```sh
+node src/cli.js config --connection /absolute/private/connection.json --client generic
+node src/cli.js config --connection /absolute/private/connection.json --client codex
+node src/cli.js config --connection /absolute/private/connection.json --client vscode
+```
+
+Replace the illustrative path with the exact file reported by creation. Access
+cannot be overridden on a named file; create the intended grant and revoke the
+old one when replacing authority:
+
+```sh
+node src/cli.js connection revoke CONNECTION_UUID --name coding
+```
+
+Use the actual UUID from `connection list`. Revocation rejects future requests,
+cancels that grant's running operation and interrupts its attempt; it does not
+revoke another session's control. A label or declared client name does not
+authenticate a human/model. [Full connection/task contract](ASSIGNMENTS.md).
+
+### Legacy compatibility
+
+Existing `computer.json` files without `legacyAccess` retain enabled compatibility.
+For a new SDK-only compatibility fixture, opt in explicitly with
+`init --name legacy-qa --context desktop-linux --legacy-access`. The owner can
+later set runtime policy with `connection legacy enable --name coding` or
+`connection legacy disable --name coding`.
+
+When enabled, `config --name coding --access work|read` and the saved
+`mcp --state ... --access ...` format remain available, using the legacy shared
+credential and derived read token. Legacy work is unassigned and cannot claim
+named task identity. New PCs reject that access by default. Use named files for
+independent attribution/revocation; enabling legacy is a deliberate authority
+choice, not a requirement for owner status/start/open.
+
 ## Claude Code / Cursor / generic stdio
 
-For VS Code, run `node src/cli.js config --name coding --client vscode`
-(optionally `--access read`). Merge the emitted `servers.computer` entry into
+For VS Code, create a grant with `--client vscode`, or reprint its file using
+`config --connection /absolute/private/connection.json --client vscode`.
+Merge the emitted `servers.<generated-key>` entry into
 the intended user/workspace `mcp.json` through VS Code's MCP configuration UI.
 Review/approve that exact server separately. Generation writes no editor file,
 changes no trust setting and prints no credentials. Do not overwrite other
 servers. The JSON/stdio contract is tested; persistent VS Code editor setup is
 not certified. See [official VS Code configuration](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
 
-Run `node src/cli.js config --name coding`. It emits:
+Named creation (or `config --connection /absolute/private/connection.json`)
+emits this shape:
 
 ```json
 {
   "mcpServers": {
-    "computer": {
+    "computer-coding-0123456789ab": {
       "command": "/absolute/path/to/node",
       "args": [
         "/absolute/path/to/computer-mcp/src/cli.js",
         "mcp",
-        "--state",
-        "/absolute/private/state",
-        "--access",
-        "work"
+        "--connection",
+        "/absolute/private/connection.json"
       ]
     }
   }
@@ -173,30 +267,33 @@ merge the full JSON into a local project `.mcp.json`, or use its
 In Cursor merge it into `.cursor/mcp.json` in your project, or use its
 [MCP settings](https://cursor.com/docs/mcp). Approve/enable this exact server;
 loading the skill alone does not approve its MCP connection. In Cursor CLI use
-`agent mcp enable computer`, then `agent mcp list-tools computer` to inspect its
+`agent mcp enable computer-coding-0123456789ab`, then
+`agent mcp list-tools computer-coding-0123456789ab` to inspect its
 actual tools. The [official CLI guide](https://cursor.com/docs/cli/mcp) distinguishes
 server approval from tool permissions. Preserve existing entries and keep
 these absolute machine-specific paths local. Keep credentials out of harness
 config and restart/reload its MCP connection after changing entries. Do not use
 `npm start` as the MCP command: npm emits informational stdout; invoke Node
 and `src/cli.js mcp` directly. Standard SDK stdio interoperability is tested;
-Actual Claude Code and Cursor CLI loading, operator skills and model-driven
+Historical Claude Code and Cursor CLI loading, operator skills and model-driven
 read/work paths passed with temporary project configuration. Claude busy/Take
 over paths also passed. Cursor editor and Claude Desktop UI registration were
 not tested. See [client acceptance](CLIENT-VALIDATION.md) and
-[earlier harness validation](HARNESS-VALIDATION.md).
+[earlier harness validation](HARNESS-VALIDATION.md). Use your actual generated
+key in client commands. Those earlier runs do not establish acceptance of the new
+named-assignment contract.
 
 ## Codex
 
-`node src/cli.js config --name coding --client codex` emits a TOML
-`[mcp_servers.computer]` entry with absolute command/args. Add it using your
+`node src/cli.js config --connection /absolute/private/connection.json --client codex`
+emits a TOML `[mcp_servers.<generated-key>]` entry with absolute command/args. Add it using your
 Codex installation’s [documented MCP configuration flow](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Do not overwrite other
-servers. Actual Codex CLI loading and model-driven work/read/busy paths passed
+servers. Historical Codex CLI loading and model-driven work/read/busy paths passed
 with per-invocation MCP configuration. Persistent TUI/IDE setup is not tested;
 see [real harness validation](HARNESS-VALIDATION.md). The server protocol does not
 depend on an OpenAI API key or SDK.
 
-For read access, add `--access read` to the generator. The server exposes only
+For read access, create a separate grant with `--access read`. The server exposes only
 read tools and uses a scoped credential enforced at the guest API. Read mode
 still reveals the guest’s screen/files/workflows, so it is observation authority,
 not public anonymous access.
@@ -209,20 +306,19 @@ commands. Run those on the host; the guest UI cannot run Docker or change the
 catalog. Other PCs are labelled registered, not assumed online. Reopen after
 catalog changes; use the copied `list` command for current availability.
 
-**Connect agent** provides the same exact
-machine-specific configuration as `config`. Choose Claude Code, Cursor, Codex or
-another stdio client, select work/read authority, then copy or download. Client
-selection explains where to add the configuration and save the operator skill.
-It shows runtime capabilities separately from the selected credential scope,
-not a guessed provider-connection status. The first-task preview checks **both
-computer and workspace IDs**. Work requests create/read a fresh uniquely named
-check file, run `pwd`, observe browser/desktop and release acquired control; an
-existing different file must not be overwritten. Read requests only observe.
-Stage three, **Start working**, also offers **Give your own task**: goal, success
-criterion and optional limits. Planning is the default; read access disables
-execution. Copy freshly checks both identities and starts no execution. Review
-the agent's actual result and Activity. See [task assignment](TASKS.md).
-Registration in a specific harness UI still needs separate validation.
+**Connect agent** prepares the exact host create command for the selected label,
+work/read access and client format. Copy and run it on the host; the console
+neither executes host commands nor receives/displays the scoped secret. It lists
+grants and recently observed sessions, and offers per-grant revocation. Recent
+presence does not prove a live agent, human attention or model identity.
+
+Use **Tasks → New task** for named work, or assign a reviewed Teach trial to an
+active work connection. Requirements are saved only when explicitly assigning.
+Copying a request does not launch a model. `task_start` takes exclusive control;
+`task_finish` records a report and releases only that attempt's lease. The owner
+checks the actual result separately. [Task assignment](TASKS.md) describes the
+flow and privacy. A legacy shared configuration is available separately when
+the owner enables it. Registration in a specific harness UI still needs validation.
 
 The operator skill downloads as `SKILL.md`. Place it in a folder named
 `sendtry-computer` in your local harness's supported skills directory.
@@ -284,12 +380,14 @@ Each taught export pins the computer, workspace and saved reviewed revision.
 Its instructions require fetching the current `workflow_get` record before
 effects; a different revision, pending proposal or unavailable record stops
 reuse. Download the skill again after changes instead of using older embedded
-instructions. Re-export pre-version-5 downloads after reviewing task inputs.
-Version 4 added the explicit post-acquisition review check; await it before any
-mutation, including navigation. Version 5 exports the owner's named task inputs
-when present, with the captured-input fallback for older reviews.
-This is agent guidance; credential scopes, identity pins and leases are the enforced
-tool boundaries.
+instructions. Re-export pre-version-6 downloads after reviewing task inputs.
+Version 4 added the explicit post-acquisition review check; version 5 added named
+task-input descriptions. Version 6 explains named assignments, `task_start`,
+reports and own-attempt cleanup. The operator is version 9. On named work,
+execution also needs an owner assignment pinned to the reviewed workflow;
+tracked effects are bound to that active task/session/lease, and the method
+cannot change during its running attempt. Inputs and outcome verification still
+require careful agent/owner inspection.
 
 The format follows the [Agent Skills specification](https://agentskills.io/specification):
 a skill folder containing YAML-frontmatter `SKILL.md` and Markdown instructions.
@@ -306,6 +404,16 @@ by download.
   to load the updated runtime/UI. A ready `start` preserves its existing runtime
   deliberately. Older guests may reject new owner setup metadata until rebuilt;
   host config and volume identities are retained.
+- **Legacy access disabled**: create a named work/read connection on the trusted
+  host. A named file is the recommended setup; old `--state` MCP entries work
+  only when the owner explicitly enables their runtime policy.
+- **Named grant revoked or mismatched**: inspect `connection list --name coding`
+  and the selected file's public scope. Create a fresh grant when authorized;
+  do not paste credentials into settings or alter identity pins to retarget it.
+- **Assignment required/interrupted**: choose the right queued assignment with
+  `task_list`/`task_get`, then use `task_start`. An interrupted/finished request
+  cannot restart; inspect partial state and ask the owner for a new assignment.
+  A lost finish response calls for `task_get` before any identical report retry.
 - **Old taught skill needs review**: existing procedures are retained, but export
   now requires owner review and a success criterion. Missing legacy working
   directories are marked `CONFIRM_WORKING_DIRECTORY`, not assumed to be root.
@@ -314,8 +422,8 @@ by download.
   copied request to a connected vision-capable agent; enabling consent does not
   itself invoke a model. Refresh the selected skill to see a new proposal.
 - **Cursor has the skill but no computer tools**: from that project inspect
-  `agent mcp list-tools computer`. If this exact configured server is unapproved,
-  use `agent mcp enable computer` and reconnect. Trust the intended project only;
+  `agent mcp list-tools GENERATED_SERVER_KEY`. If this exact configured server is unapproved,
+  use `agent mcp enable GENERATED_SERVER_KEY` and reconnect. Trust the intended project only;
   do not enable unrelated servers to fix this connection.
 - **Demonstration changed**: refresh the selected skill and review the current
   draft/revision; do not automatically retry a stale write.

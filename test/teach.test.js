@@ -110,6 +110,11 @@ test('Teach retains cwd/outcomes/file parameters, deduplicates inputs and requir
     skill.content.includes(longPath) && skill.content.includes('text content'),
   );
   assert.ok(skill.content.includes('## Verify success'));
+  assert.match(skill.content, /version: "6"/);
+  assert.match(skill.content, /owner-assigned task/);
+  assert.match(skill.content, /task_start/);
+  assert.match(skill.content, /task_finish/);
+  assert.match(skill.content, /separate owner verification/);
   assert.equal(workflow.review, undefined);
   const legacy = reviewWorkflow(
     { ...workflow, steps: [{ type: 'file_write', path: 'old.txt' }] },

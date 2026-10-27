@@ -140,6 +140,7 @@ try {
         docker.context,
         '--network',
         network,
+        '--legacy-access', // This suite exercises the explicit compatibility path.
       ]);
       const entry = (await readRegistry(root)).computers.find(
         (pc) => pc.name === name,

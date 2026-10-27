@@ -155,6 +155,39 @@ export const tools = {
     schema: z.object({ id: z.uuid() }).strict(),
     read: true,
   },
+  task_list: {
+    description:
+      'List task requests assigned to this named connection only. Reports and owner verification are separate. Does not start work.',
+    schema: empty,
+    read: true,
+    assigned: true,
+  },
+  task_get: {
+    description:
+      'Read one task assigned to this named connection, its attempt/report and independent owner verification. A queued request has not run. Stop on an outdated workflow or terminal/interrupted state.',
+    schema: z.strictObject({ id: z.uuid() }),
+    read: true,
+    assigned: true,
+  },
+  task_start: {
+    description:
+      'Start your queued owner-assigned task and atomically take exclusive control. Named work connection only. Checks exact reviewed workflow; fails busy without takeover. A repeated call from the same bound session returns the same running attempt. Interrupted/completed requests cannot restart.',
+    schema: z.strictObject({ id: z.uuid() }),
+    assigned: true,
+    idempotent: true,
+  },
+  task_finish: {
+    description:
+      'Finish your running assigned task with an observed success/failure/uncertain report and evidence references, not raw payloads or secrets. This is not owner verification. Releases only this attempt’s control. Exact duplicate reports are idempotent; a lost response requires inspecting task_get before retrying.',
+    schema: z.strictObject({
+      id: z.uuid(),
+      outcome: z.enum(['success', 'failure', 'uncertain']),
+      summary: z.string().max(2000).trim().min(1),
+      evidence: z.array(z.string().max(500).trim().min(1)).max(10).default([]),
+    }),
+    assigned: true,
+    idempotent: true,
+  },
 };
 export function parseTool(name, args) {
   const tool = tools[name];

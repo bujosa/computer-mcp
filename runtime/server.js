@@ -34,6 +34,14 @@ import { Fault, requireThat } from './errors.js';
 import { tools } from '../src/catalog.js';
 import { Audit, auditLimits } from './audit.js';
 import { activityMiddleware, activityFault } from './audit-http.js';
+import {
+  Operations,
+  actorForConnection,
+  actorForLegacy,
+  operationsLimits,
+} from './operations.js';
+import { formatAssignedTask } from '../src/assigned-task.js';
+import { Assignments } from './assignments.js';
 
 const computerId = process.env.COMPUTER_ID;
 const expectedHost = `127.0.0.1:${process.env.PUBLIC_PORT || '17670'}`;
@@ -60,9 +68,29 @@ const audit = await new Audit('/data/control/activity', {
   ...identity,
   bootId,
 }).init();
+const operations = await new Operations(
+  '/data/control/operations',
+  {
+    ...identity,
+    bootId,
+  },
+  { legacyEnabled: process.env.LEGACY_ACCESS !== '0' },
+).init();
 const lease = new Lease({
-  onChange: (previous, current, reason) =>
-    audit.control(previous, current, reason),
+  onChange: (previous, current, reason) => {
+    try {
+      audit.control(previous, current, reason);
+    } finally {
+      if (
+        previous &&
+        previous.kind === 'agent' &&
+        (!current ||
+          previous.owner !== current.owner ||
+          previous.generation !== current.generation)
+      )
+        operations.interruptActor(previous.owner, reason);
+    }
+  },
 });
 const video = new Video('/data/control/videos', {
   identity: { computerId, workspaceId: identity.workspaceId, bootId },
@@ -90,8 +118,17 @@ audit.onFailure = () => {
     /* revocation still aborts */
   }
   desktop.disconnect({ code: 1011, reason: 'Activity storage unavailable' });
-  for (const controller of analyses.values()) controller.abort();
+  for (const analysis of analyses.values()) analysis.controller.abort();
 };
+operations.onFailure = audit.onFailure;
+store.beforeUpdate = (id) => operations.assertWorkflowIdle(id);
+const assignments = new Assignments({
+  operations,
+  store,
+  lease,
+  identity,
+  sync: syncSockets,
+});
 const publicWorkflow = (workflow, req) => {
   const result = {
     ...workflow,
@@ -125,7 +162,7 @@ desktopInput.onFailure = () => {
     /* still aborts */
   }
   desktop.disconnect({ code: 1011, reason: 'Guest input cleanup failed' });
-  for (const controller of analyses.values()) controller.abort();
+  for (const analysis of analyses.values()) analysis.controller.abort();
 };
 const app = express();
 app.disable('x-powered-by');
@@ -252,10 +289,67 @@ app.post('/api/ui/session', (req, res) => {
   res.json({ actor, identity });
 });
 app.use('/api', (req, res, next) => {
-  if (
-    equal(req.get('authorization'), `Bearer ${token}`) ||
-    equal(req.get('authorization'), `Bearer ${readToken}`)
-  ) {
+  const ownerAPI = req.path.startsWith('/owner/');
+  const bearer = /^Bearer ([0-9a-f]{64})$/.exec(
+    req.get('authorization') || '',
+  )?.[1];
+  const legacy = equal(bearer, token) || equal(bearer, readToken);
+  if (ownerAPI) {
+    requireThat(
+      (req.method === 'GET' &&
+        ['/owner/info', '/owner/connections'].includes(req.path)) ||
+        (req.method === 'POST' &&
+          ['/owner/connections', '/owner/legacy'].includes(req.path)) ||
+        (req.method === 'POST' &&
+          /^\/owner\/connections\/[0-9a-f-]{36}\/revoke$/.test(req.path)),
+      'owner_route_not_found',
+      'This owner operation is not exposed.',
+      404,
+    );
+    requireThat(
+      equal(bearer, ownerToken),
+      'owner_required',
+      'Trusted host owner credential required.',
+      401,
+    );
+    requireThat(
+      req.get('x-computer-id') === computerId,
+      'computer_mismatch',
+      'Computer identity mismatch.',
+      409,
+    );
+    requireThat(
+      req.get('x-workspace-id') === identity.workspaceId ||
+        (req.path === '/owner/info' && !req.get('x-workspace-id')),
+      'workspace_mismatch',
+      'Workspace identity mismatch.',
+      409,
+    );
+    const session = req.get('x-session-id');
+    requireThat(
+      /^[0-9a-f-]{36}$/.test(session || ''),
+      'session_required',
+      'Valid owner operation identity required.',
+      401,
+    );
+    req.actor = `human:${session}`;
+    req.kind = 'human';
+    req.ownerAPI = true;
+  } else if (legacy || bearer) {
+    const connection = legacy ? null : operations.authenticate(bearer);
+    requireThat(
+      legacy || connection,
+      'unauthorized',
+      'Local owner session or computer credential required.',
+      401,
+    );
+    if (legacy)
+      requireThat(
+        operations.getLegacyEnabled(),
+        'legacy_access_disabled',
+        'Shared legacy access is disabled. Create a named connection with the owner CLI.',
+        403,
+      );
     const session = req.get('x-session-id');
     requireThat(
       /^[0-9a-f-]{36}$/.test(session || ''),
@@ -276,9 +370,22 @@ app.use('/api', (req, res, next) => {
       'Workspace identity mismatch.',
       409,
     );
-    req.actor = `agent:${session}`;
+    if (connection)
+      requireThat(
+        !req.get('x-connection-id') ||
+          req.get('x-connection-id') === connection.id,
+        'connection_mismatch',
+        'Connection identity mismatch.',
+        409,
+      );
+    req.computerConnection = connection;
+    req.actor = connection
+      ? actorForConnection(connection.id, session)
+      : actorForLegacy(bearer, session);
     req.kind = 'agent';
-    req.readOnly = equal(req.get('authorization'), `Bearer ${readToken}`);
+    req.readOnly = connection
+      ? connection.access === 'read'
+      : equal(bearer, readToken);
   } else {
     req.actor = human(req);
     req.kind = 'human';
@@ -292,8 +399,50 @@ app.use('/api', (req, res, next) => {
   requireThat(ready, 'not_ready', 'Computer is still starting.', 503);
   next();
 });
-app.use('/api', activityMiddleware(audit));
-function info() {
+app.use(
+  '/api',
+  activityMiddleware(audit, {
+    prepare(req) {
+      operations.assertHealthy();
+      if (req.computerConnection) {
+        operations.touch(req.computerConnection.id, req.actor, req.auditClient);
+        req.connectionId = req.computerConnection.id;
+        const active = operations.activeAttempt(
+          req.actor,
+          req.computerConnection.id,
+        );
+        req.taskId = active?.taskId;
+        req.attemptId = active?.id;
+        req.auditWorkflowId = active?.workflow?.id;
+      }
+      const requested =
+        typeof req.body?.name === 'string' && req.body.name.startsWith('task_')
+          ? req.body?.args?.id
+          : req.kind === 'human' && req.path.startsWith('/tasks/')
+            ? req.path.split('/')[2]
+            : null;
+      if (requested && /^[0-9a-f-]{36}$/.test(requested)) {
+        try {
+          const task = operations.task(requested, req.computerConnection?.id);
+          req.taskId = task.id;
+          req.attemptId = task.attempt?.id;
+          req.auditWorkflowId = task.workflow?.id;
+        } catch (error) {
+          if (!(error instanceof Fault) || error.status >= 500) throw error;
+          // Rejected targets are attempts, not authenticated assignment identity.
+        }
+      }
+    },
+  }),
+);
+function info(req) {
+  const held = lease.status();
+  const principal = held ? operations.controller(held.owner) : null;
+  const attempt =
+    held?.kind === 'agent' ? operations.activeAttempt(held.owner) : null;
+  const canAttribute =
+    req?.kind === 'human' ||
+    (principal && req?.computerConnection?.id === principal.id);
   return {
     ...identity,
     bootId,
@@ -302,9 +451,39 @@ function info() {
     isolation: 'dedicated-container',
     hostControl: false,
     network: process.env.COMPUTER_NETWORK || 'isolated',
-    lease: lease.status(),
+    operationsVersion: 1,
+    legacyEnabled: operations.getLegacyEnabled(),
+    connection: req?.computerConnection
+      ? {
+          id: req.computerConnection.id,
+          label: req.computerConnection.label,
+          access: req.computerConnection.access,
+          requiresTask: req.computerConnection.requiresTask,
+        }
+      : null,
+    lease: held && {
+      ...held,
+      controller: {
+        kind:
+          held.kind === 'human' ? 'owner' : principal ? 'assigned' : 'legacy',
+        ...(principal && canAttribute
+          ? { connectionId: principal.id, label: principal.label }
+          : {}),
+        ...(attempt && canAttribute
+          ? { taskId: attempt.taskId, attemptId: attempt.id }
+          : {}),
+      },
+    },
     teach: teach.status(),
-    capabilities: Object.keys(tools),
+    capabilities: Object.entries(tools)
+      .filter(
+        ([, tool]) =>
+          (!tool.assigned ||
+            req?.computerConnection ||
+            req?.kind === 'human') &&
+          (!req?.readOnly || tool.read),
+      )
+      .map(([name]) => name),
     limits: {
       commandMs: 30000,
       outputBytes: 65536,
@@ -315,6 +494,7 @@ function info() {
       teachingVideo: videoLimits,
       analysisFrames: frameLimits,
       activity: auditLimits,
+      operations: operationsLimits,
       desktopInput: desktopInputLimits,
     },
     desktop: desktopSize,
@@ -362,6 +542,17 @@ async function screenshot() {
     await fs.unlink(file).catch(() => {});
   }
 }
+function assertAgentAuthorization(req) {
+  if (req.computerConnection)
+    operations.assertConnectionActive(req.computerConnection.id);
+  else if (req.kind === 'agent')
+    requireThat(
+      operations.getLegacyEnabled(),
+      'legacy_access_disabled',
+      'Shared legacy access is disabled. Use an owner-created named connection.',
+      403,
+    );
+}
 async function call(req, name, args, signal) {
   const tool = Object.hasOwn(tools, name) ? tools[name] : undefined;
   requireThat(tool, 'unknown_tool', 'Unknown tool.', 404);
@@ -374,13 +565,38 @@ async function call(req, name, args, signal) {
     403,
   );
   const input = parsed.data;
-  if (name === 'computer_info') return info();
+  assertAgentAuthorization(req);
+  requireThat(
+    !tool.assigned || req.computerConnection,
+    'named_connection_required',
+    'Assigned task tools require a named connection.',
+    403,
+  );
+  if (name === 'computer_info') return info(req);
+  if (name === 'task_list')
+    return { tasks: await assignments.list(req.computerConnection.id) };
+  if (name === 'task_get')
+    return assignments.get(input.id, req.computerConnection.id);
+  if (name === 'task_start') return assignments.start(req, input.id, signal);
+  if (name === 'task_finish') return assignments.finish(req, input);
   if (name === 'control_acquire') {
+    if (req.computerConnection) {
+      requireThat(
+        operations.activeAttempt(req.actor, req.computerConnection.id),
+        'task_required',
+        'Use task_start for an owner-assigned task before acquiring control.',
+        409,
+      );
+      assignments.effect(req);
+    }
     const result = lease.claim(req.actor, req.kind);
     syncSockets();
     return result;
   }
-  if (name === 'control_renew') return lease.renew(req.actor);
+  if (name === 'control_renew') {
+    if (req.computerConnection) assignments.effect(req);
+    return lease.renew(req.actor);
+  }
   if (name === 'control_release') {
     requireThat(
       !teach.active || teach.active.owner !== req.actor,
@@ -399,9 +615,10 @@ async function call(req, name, args, signal) {
     return publicWorkflow(await store.get(input.id), req);
   if (name === 'workflow_propose')
     return publicWorkflow(
-      await store.update(input.id, (workflow) =>
-        proposeWorkflow(workflow, input, req.actor),
-      ),
+      await store.update(input.id, (workflow) => {
+        assertAgentAuthorization(req);
+        return proposeWorkflow(workflow, input, req.actor);
+      }),
       req,
     );
   if (name === 'workflow_analyze') {
@@ -415,7 +632,12 @@ async function call(req, name, args, signal) {
     const abort = () => controller.abort();
     signal?.addEventListener('abort', abort, { once: true });
     if (signal?.aborted) abort();
-    analyses.set(input.id, controller);
+    const extraction = {
+      controller,
+      actor: req.actor,
+      connectionId: req.computerConnection?.id || null,
+    };
+    analyses.set(input.id, extraction);
     try {
       const workflow = await store.get(input.id);
       assertAnalysis(workflow);
@@ -427,6 +649,7 @@ async function call(req, name, args, signal) {
         controller.signal,
       );
       const current = await store.get(input.id);
+      assertAgentAuthorization(req);
       assertRevision(current, sourceRevision);
       assertAnalysis(current);
       requireThat(
@@ -448,74 +671,83 @@ async function call(req, name, args, signal) {
       };
     } finally {
       signal?.removeEventListener('abort', abort);
-      if (analyses.get(input.id) === controller) analyses.delete(input.id);
+      if (analyses.get(input.id) === extraction) analyses.delete(input.id);
     }
   }
   if (name === 'browser_snapshot') return browser.snapshot(input.pageId);
   if (name === 'desktop_screenshot') return screenshot();
+  if (req.computerConnection) assignments.effect(req);
   return lease.run(
     req.actor,
     async (signal) => {
-      if (name === 'desktop_action') {
-        let incomplete = false;
-        const perform = async () => {
-          const result = await desktopInput.perform(input, signal);
-          if (req.kind === 'human' && !signal.aborted)
-            await teach.append({ type: 'desktop', input });
-          return result;
-        };
-        try {
-          const result =
-            req.kind === 'human' && teach.active
-              ? await browser.withDesktopRecording(perform, () => {
-                  incomplete = true;
-                })
-              : await perform();
-          return incomplete ? { ...result, teachingInterrupted: true } : result;
-        } finally {
-          if (incomplete && teach.active?.owner === req.actor) {
-            teach.active.limitReached = true;
-            await teach.stop(req.actor, { interrupted: true });
+      if (req.computerConnection) assignments.effect(req);
+      const perform = async () => {
+        if (name === 'desktop_action') {
+          let incomplete = false;
+          const perform = async () => {
+            const result = await desktopInput.perform(input, signal);
+            if (req.kind === 'human' && !signal.aborted)
+              await teach.append({ type: 'desktop', input });
+            return result;
+          };
+          try {
+            const result =
+              req.kind === 'human' && teach.active
+                ? await browser.withDesktopRecording(perform, () => {
+                    incomplete = true;
+                  })
+                : await perform();
+            return incomplete
+              ? { ...result, teachingInterrupted: true }
+              : result;
+          } finally {
+            if (incomplete && teach.active?.owner === req.actor) {
+              teach.active.limitReached = true;
+              await teach.stop(req.actor, { interrupted: true });
+            }
           }
         }
-      }
-      if (name === 'browser_action') return browser.action(input, signal);
-      if (name === 'files_write') {
-        const result = await files.write(input.path, input.text);
-        if (req.kind === 'human')
-          await teach.append({ type: 'file_write', path: input.path });
-        return result;
-      }
-      if (name === 'terminal_run') {
-        const cwd = await files.resolve(input.cwd, { directory: true });
-        const result = await execute(input.command, {
-          cwd,
-          timeoutMs: input.timeoutMs,
-          signal,
-          uid: 1000,
-          gid: 1000,
-          home: '/data/home',
-        });
-        req.auditOutcome = {
-          outcome:
-            result.stopped === 'cancelled'
-              ? 'cancelled'
-              : result.stopped || result.exitCode !== 0
-                ? 'failed'
-                : 'success',
-          code:
-            result.stopped || (result.exitCode !== 0 ? 'nonzero_exit' : null),
-          exitCode: result.exitCode,
-        };
-        if (req.kind === 'human')
-          await teach.append({
-            type: 'terminal',
-            cwd: input.cwd,
-            outcome: result,
+        if (name === 'browser_action') return browser.action(input, signal);
+        if (name === 'files_write') {
+          const result = await files.write(input.path, input.text);
+          if (req.kind === 'human')
+            await teach.append({ type: 'file_write', path: input.path });
+          return result;
+        }
+        if (name === 'terminal_run') {
+          const cwd = await files.resolve(input.cwd, { directory: true });
+          const result = await execute(input.command, {
+            cwd,
+            timeoutMs: input.timeoutMs,
+            signal,
+            uid: 1000,
+            gid: 1000,
+            home: '/data/home',
           });
-        return result;
-      }
-      throw new Fault('unknown_tool', 'Unknown tool.');
+          req.auditOutcome = {
+            outcome:
+              result.stopped === 'cancelled'
+                ? 'cancelled'
+                : result.stopped || result.exitCode !== 0
+                  ? 'failed'
+                  : 'success',
+            code:
+              result.stopped || (result.exitCode !== 0 ? 'nonzero_exit' : null),
+            exitCode: result.exitCode,
+          };
+          if (req.kind === 'human')
+            await teach.append({
+              type: 'terminal',
+              cwd: input.cwd,
+              outcome: result,
+            });
+          return result;
+        }
+        throw new Fault('unknown_tool', 'Unknown tool.');
+      };
+      const result = await perform();
+      if (req.computerConnection) assignments.effect(req);
+      return result;
     },
     req.get('x-operation-id'),
     signal,
@@ -535,7 +767,113 @@ app.post('/api/cancel', (req, res) => {
     lease.active.controller.abort();
   res.json({ cancelled: true });
 });
-app.get('/api/info', (_req, res) => res.json(info()));
+app.get(['/api/info', '/api/owner/info'], (req, res) => res.json(info(req)));
+function ownerOnly(req) {
+  requireThat(
+    req.kind === 'human',
+    'human_only',
+    'This operation is private to the computer owner.',
+    403,
+  );
+}
+function emptyBody(req) {
+  requireThat(
+    req.body &&
+      typeof req.body === 'object' &&
+      !Array.isArray(req.body) &&
+      Object.keys(req.body).length === 0,
+    'invalid_request',
+    'This operation accepts an empty object.',
+  );
+}
+app.get(['/api/connections', '/api/owner/connections'], (req, res) => {
+  ownerOnly(req);
+  res.json({
+    connections: operations.connections(),
+    legacyEnabled: operations.getLegacyEnabled(),
+  });
+});
+app.post('/api/owner/connections', (req, res) => {
+  ownerOnly(req);
+  // Raw credential is returned once to the trusted host, never to owner UI metadata.
+  res.json(operations.createConnection(req.body, req.actor));
+});
+app.post(
+  ['/api/connections/:id/revoke', '/api/owner/connections/:id/revoke'],
+  async (req, res) => {
+    ownerOnly(req);
+    emptyBody(req);
+    const prior = operations.connection(req.params.id);
+    const held = lease.status();
+    const principal = held && operations.controller(held.owner);
+    const activePrincipal =
+      lease.active && operations.controller(lease.active.owner);
+    const pending = activePrincipal?.id === prior.id ? lease.active.done : null;
+    const connection = operations.revokeConnection(prior.id, req.actor);
+    const writes = store.pending;
+    if (principal?.id === prior.id) lease.revoke('connection_revoked');
+    for (const analysis of analyses.values())
+      if (analysis.connectionId === prior.id) analysis.controller.abort();
+    for (const session of prior.sessions.filter((session) => !session.endedAt))
+      audit.end({
+        actor: session.actor,
+        kind: 'agent',
+        readOnly: prior.access === 'read',
+      });
+    syncSockets();
+    await Promise.allSettled([pending, writes]);
+    res.json({ connection });
+  },
+);
+app.post(['/api/legacy', '/api/owner/legacy'], async (req, res) => {
+  ownerOnly(req);
+  requireThat(
+    req.body &&
+      Object.keys(req.body).length === 1 &&
+      typeof req.body.enabled === 'boolean',
+    'invalid_legacy_policy',
+    'Choose enabled true or false.',
+  );
+  const enabled = operations.setLegacyEnabled(req.body.enabled, req.actor);
+  if (!enabled) {
+    const held = lease.status();
+    const legacyControl =
+      held?.kind === 'agent' && !operations.controller(held.owner);
+    const pending =
+      lease.active?.owner.startsWith('agent:') &&
+      !operations.controller(lease.active.owner)
+        ? lease.active.done
+        : null;
+    const writes = store.pending;
+    if (legacyControl) lease.revoke('legacy_disabled');
+    for (const analysis of analyses.values())
+      if (!analysis.connectionId) analysis.controller.abort();
+    syncSockets();
+    await Promise.allSettled([pending, writes]);
+  }
+  res.json({ enabled });
+});
+app.get('/api/tasks', async (req, res) => {
+  ownerOnly(req);
+  res.json({ tasks: await assignments.list() });
+});
+app.get('/api/tasks/:id', async (req, res) => {
+  ownerOnly(req);
+  const task = await assignments.get(req.params.id);
+  res.json({ task, request: formatAssignedTask(task) });
+});
+app.post('/api/tasks', async (req, res) => {
+  ownerOnly(req);
+  res.json(await assignments.create(req.body, req.actor));
+});
+app.post('/api/tasks/:id/cancel', async (req, res) => {
+  ownerOnly(req);
+  res.json(await assignments.cancel(req.params.id, req.body, req.actor));
+});
+app.post('/api/tasks/:id/verify', (req, res) => {
+  ownerOnly(req);
+  res.json(assignments.verify(req.params.id, req.body, req.actor));
+});
 app.post('/api/session/end', (req, res) => {
   requireThat(
     req.kind === 'agent',
@@ -547,6 +885,7 @@ app.post('/api/session/end', (req, res) => {
     lease.release(req.actor);
     syncSockets();
   }
+  if (req.computerConnection) operations.endSession(req.actor);
   audit.end(req);
   res.json({ ended: true });
 });
@@ -742,7 +1081,7 @@ app.post('/api/workflows/:id/analysis', async (req, res) => {
   const next = await store.update(req.params.id, (workflow) =>
     grantAnalysis(workflow, req.body),
   );
-  analyses.get(req.params.id)?.abort();
+  analyses.get(req.params.id)?.controller.abort();
   res.json(publicWorkflow(next));
 });
 app.post('/api/workflows/:id/draft/discard', async (req, res) => {
@@ -814,7 +1153,7 @@ app.delete('/api/workflows/:id/video', async (req, res) => {
     workflow.revision = randomUUID();
     return workflow;
   });
-  analyses.get(req.params.id)?.abort();
+  analyses.get(req.params.id)?.controller.abort();
   res.json(publicWorkflow(workflow));
 });
 app.use(
@@ -936,11 +1275,12 @@ async function shutdown() {
   }
   syncSockets();
   desktop.disconnect();
-  for (const controller of analyses.values()) controller.abort();
+  for (const analysis of analyses.values()) analysis.controller.abort();
   if (teach.active)
     await teach.stop(teach.active.owner, { interrupted: true }).catch(() => {});
   await browser.context?.close().catch(() => {});
   try {
+    operations.close();
     audit.close();
   } catch {
     /* preserve fail-closed evidence for recovery */

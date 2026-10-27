@@ -2,12 +2,21 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
+import { computerSubnets, assertSubnetAvailability } from './network.js';
 export const root = fileURLToPath(new URL('../', import.meta.url));
 export const projectName = (config) => `cmcp-${config.computerId}`;
 export function buildPathAdvice(stderr) {
   return /x-docker-expose-session-(?:sharedkey|name)/.test(stderr) &&
     stderr.includes('non-printable ASCII')
     ? 'BuildKit rejected the source checkout path. Use an ASCII-only checkout path (spaces are allowed), then retry with the same explicit private state. Do not delete or recreate the computer to recover.'
+    : '';
+}
+export function networkCapacityAdvice(stderr) {
+  return /(?:address pools.*fully subnetted|could not find an available.*address pool)/i.test(
+    stderr,
+  )
+    ? 'Docker has no free default subnet pool. No global cleanup is performed. Create a new computer with --subnet <unused-private-/24> after checking LAN/VPN routes; this configures only its owned networks. Existing computers and Docker defaults must be preserved.'
     : '';
 }
 export function runDocker(
@@ -44,7 +53,7 @@ export function runDocker(
         ? resolve(output)
         : reject(
             new Error(
-              `Docker command failed (${code ?? 'timeout'}). ${capture ? errorOutput : ''} ${buildPathAdvice(errorOutput)}`.trim(),
+              `Docker command failed (${code ?? 'timeout'}). ${capture ? errorOutput : ''} ${buildPathAdvice(errorOutput)} ${networkCapacityAdvice(errorOutput)}`.trim(),
             ),
           );
     });
@@ -91,6 +100,7 @@ export async function checkDocker(config) {
 }
 export function compose(config) {
   const project = projectName(config);
+  const subnets = computerSubnets(config.subnet, config.network);
   const spec = {
     name: project,
     services: {
@@ -115,6 +125,7 @@ export function compose(config) {
           OWNER_TOKEN: '${OWNER_TOKEN:?Start through computer-mcp}',
           PUBLIC_PORT: String(config.port),
           COMPUTER_NETWORK: config.network || 'isolated',
+          LEGACY_ACCESS: config.legacyAccess === false ? '0' : '1',
           DISPLAY: ':1',
         },
         ports: [`127.0.0.1:${config.port}:7070`],
@@ -193,7 +204,52 @@ export function compose(config) {
       },
     };
   }
+  for (const [name, subnet] of Object.entries(subnets))
+    spec.networks[name].ipam = { config: [{ subnet }] };
   return spec;
+}
+
+export async function checkSubnetAvailability(
+  config,
+  run = runDocker,
+  interfaces = os.networkInterfaces(),
+) {
+  if (!config.subnet) return;
+  computerSubnets(config.subnet, config.network);
+  const ids = (
+    await run(config, ['network', 'ls', '--format', '{{.ID}}'], {
+      capture: true,
+      timeoutMs: 10000,
+    })
+  )
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (ids.length > 1000)
+    throw new Error(
+      'Too many Docker networks to verify safely. Inspect subnet capacity before setup.',
+    );
+  const occupied = Object.values(interfaces)
+    .flat()
+    .filter(Boolean)
+    .filter((item) => item.family === 'IPv4')
+    .map((item) => item.cidr)
+    .filter(Boolean);
+  for (let index = 0; index < ids.length; index += 25) {
+    const reports = JSON.parse(
+      await run(
+        config,
+        ['network', 'inspect', ...ids.slice(index, index + 25)],
+        { capture: true, timeoutMs: 10000 },
+      ),
+    );
+    if (!Array.isArray(reports))
+      throw new Error('Cannot inspect Docker network capacity.');
+    for (const report of reports)
+      for (const item of report.IPAM?.Config || [])
+        if (item.Subnet) occupied.push(item.Subnet);
+  }
+  assertSubnetAvailability(config.subnet, occupied);
 }
 export async function composeFile(state, config) {
   const file = path.join(state, 'compose.json');
@@ -262,58 +318,57 @@ export async function checkVolume(config) {
     throw new Error('Volume ownership does not match. Refusing to attach it.');
 }
 
-export async function checkNetwork(config) {
-  const name = `${projectName(config)}-network`;
-  const exists = (
-    await runDocker(
-      config,
-      ['network', 'ls', '--filter', `name=^${name}$`, '--format', '{{.Name}}'],
-      { capture: true, timeoutMs: 10000 },
-    )
-  ).trim();
-  if (!exists) return;
-  const [network] = JSON.parse(
-    await runDocker(config, ['network', 'inspect', name], {
-      capture: true,
-      timeoutMs: 10000,
-    }),
-  );
-  if (
-    network.Labels?.['computer-mcp.owner'] !== config.computerId ||
-    network.Internal !== (config.network !== 'internet')
-  )
-    throw new Error(
-      'Network ownership/policy does not match. Refusing to attach it.',
-    );
-  if (config.network === 'isolated') {
-    const consoleName = `${projectName(config)}-console`;
-    const present = (
-      await runDocker(
+export async function checkNetwork(config, run = runDocker) {
+  const subnets = computerSubnets(config.subnet, config.network);
+  const policies = [
+    {
+      key: 'owned',
+      name: `${projectName(config)}-network`,
+      internal: config.network !== 'internet',
+    },
+    ...(config.network === 'isolated'
+      ? [
+          {
+            key: 'console',
+            name: `${projectName(config)}-console`,
+            internal: false,
+          },
+        ]
+      : []),
+  ];
+  for (const policy of policies) {
+    const exists = (
+      await run(
         config,
         [
           'network',
           'ls',
           '--filter',
-          `name=^${consoleName}$`,
+          `name=^${policy.name}$`,
           '--format',
           '{{.Name}}',
         ],
         { capture: true, timeoutMs: 10000 },
       )
     ).trim();
-    if (present) {
-      const [consoleNetwork] = JSON.parse(
-        await runDocker(config, ['network', 'inspect', consoleName], {
-          capture: true,
-          timeoutMs: 10000,
-        }),
+    if (!exists) continue;
+    const [network] = JSON.parse(
+      await run(config, ['network', 'inspect', policy.name], {
+        capture: true,
+        timeoutMs: 10000,
+      }),
+    );
+    if (
+      network?.Labels?.['computer-mcp.owner'] !== config.computerId ||
+      network.Internal !== policy.internal ||
+      (subnets[policy.key] &&
+        !network.IPAM?.Config?.some(
+          (item) => item.Subnet === subnets[policy.key],
+        ))
+    )
+      throw new Error(
+        'Network ownership/policy/subnet does not match. Refusing to attach it.',
       );
-      if (
-        consoleNetwork.Labels?.['computer-mcp.owner'] !== config.computerId ||
-        consoleNetwork.Internal
-      )
-        throw new Error('Console network ownership/policy mismatch.');
-    }
   }
 }
 

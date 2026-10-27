@@ -11,6 +11,8 @@ a bounded command runner, a workspace file explorer, screenshots, bounded guest
 mouse/keyboard input and **Teach**: record a demonstration, review reusable instructions and export
 a `SKILL.md` pinned to its computer, workspace and reviewed revision. A small Node CLI
 starts the computer; your harness launches a separate MCP bridge over stdio.
+Named read/work connections can be revoked separately. Work connections execute
+owner-assigned tasks, report their outcome and leave verification to the owner.
 There is no model subscription, chatbot, gateway, cloud provisioning or Piblo
 backend dependency.
 
@@ -21,7 +23,7 @@ keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GR
 maps computer/Teach behavior, practical use and truthful gaps. Licensing/publication remains pending.
 
 [Setup](docs/SETUP.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
-[Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
+[Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
 
 ## How a demonstration becomes a skill
 
@@ -60,7 +62,7 @@ review the captured trace directly.
 | Computer MCP       | Supplies one pinned Linux guest, evidence, bounded tools, access and control checks.                              |
 | Operator skill     | Explains how to operate the computer and handle reviews, leases and failures.                                     |
 | Taught skill       | Describes one owner-reviewed procedure, parameters and expected result, bound to the computer/workspace/revision. |
-| A new task request | Asks the agent to plan or execute that procedure with current inputs; it is not a background job.                 |
+| A saved assignment | Saves owner requirements for one named work connection; one attempt reports a result for the owner to check.      |
 
 [Grok Bot's documented Teach flow](https://docs.x.ai/grok-bot/skills-routines-and-automations#teach-a-workflow-by-demonstration)
 also turns a demonstration into a draft skill for review/testing. Grok bundles
@@ -130,6 +132,7 @@ reachable LAN/host services; it is not an outbound security firewall.
 ```sh
 node src/cli.js init --name research --context desktop-linux --network internet
 node src/cli.js list                 # Available, busy, unreachable; * is default
+node src/cli.js connection list --all # Per-PC grants and availability
 node src/cli.js use research         # Default for future CLI commands
 node src/cli.js start --open
 node src/cli.js status
@@ -147,54 +150,70 @@ isolates development/test catalogs. See [the local review workspace](docs/LOCAL-
 for the existing demo computers. The **Computers** console view shows
 registered PCs and copies exact owner commands. [Full command reference](docs/SETUP.md#computers-availability-and-default-selection).
 
+When Docker address pools are exhausted, `init --subnet 10.234.80.0/24` can use an
+explicit unused private /24 for a new owned PC. Setup checks Docker networks and
+local interfaces; first inspect your LAN/VPN routes too. This option does not
+change existing networks or Docker's global pools. [IPAM details](docs/SETUP.md).
+
 ## Connect an agent
 
-Start the computer first, then generate a credential-free stdio configuration:
+Start the computer first, then create a separate named connection for each agent:
 
 ```sh
-node src/cli.js config --name my-computer --access work
-node src/cli.js config --name my-computer --client codex --access work
-node src/cli.js config --name my-computer --client vscode --access work
+node src/cli.js connection create claude-work --name my-computer --access work
+node src/cli.js connection create codex-work --name my-computer --access work --client codex
+node src/cli.js connection create observer --name my-computer --access read --client vscode
 node src/cli.js skill
 ```
 
-Copy the JSON `mcpServers.computer` entry into your harness’s MCP settings (Claude
-Code, Cursor or another stdio client). The second command emits a Codex TOML
-entry; the third emits VS Code `servers` JSON. All use absolute Node/CLI/state paths, so harness working directories do
-not matter. See [setup and harness notes](docs/SETUP.md). Real Claude Code and
-Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
+Creation saves a private scoped credential file under
+`<catalog>/connections/<computerId>/<connectionId>.json` and prints only the
+credential-free MCP configuration to stdout. Copy its unique server entry into
+your harness settings, preserving its generated `computer-…` key and absolute
+paths. The second command emits Codex TOML; the third emits VS Code JSON.
+To reprint an existing grant's configuration in another format, use
+`config --connection /absolute/private/connection.json --client codex`.
+The file supplies PC/workspace/access and cannot be combined with
+`--root`, `--name`, `--state` or `--access`.
+
+Keep credential files private. They contain only that grant's token and scope,
+with no owner credential or shared work secret. The runtime retains its hash.
+Read grants observe; work grants need a saved assignment and an active attempt
+for effects. New PCs disable legacy shared access by default. Older saved PCs
+without that policy flag retain compatibility. Use
+`connection legacy disable --name my-computer` to disable it.
+[Full setup and legacy options](docs/SETUP.md).
+
+Earlier Claude Code and Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
 see [harness validation](docs/HARNESS-VALIDATION.md) for versions and evidence.
 Cursor CLI also passed actual project skill loading, read/work tasks and timeout
 recovery. See [client acceptance](docs/CLIENT-VALIDATION.md), including initial
-approval/cap failures and independent result checks. Persistent desktop/IDE
-registration remains untested.
+approval/cap failures and independent result checks. Those historical runs used
+the preceding connection/task contract; they do not prove this named-assignment
+slice. Persistent desktop/IDE registration remains untested.
 
-For observation-only access, generate configuration with `--access read`. The
-bridge uses a distinct derived credential; the guest enforces that scope as well
-as filtering the tool catalog. No runtime credential is printed in either
-configuration. Keep the local state directory private: the owner’s credential
-lives there, and any process able to read it has computer authority.
-
-In **Connect agent → Start working**, check the connection, then choose
-**Give your own task**. Describe the goal, success criterion and optional limits;
-plan first or prepare an execution request and send it to your connected agent.
-Both computer/workspace IDs are pinned. Copying starts no execution. Actual
-Claude/Codex agents generated reports and reused taught tasks; see
-[task assignment and recovery](docs/TASKS.md).
+In **Tasks → New task**, choose an active named work connection and supply the
+goal, success criterion and optional scope. **Assign task & copy request** saves
+requirements for that grant; send the request to your existing agent. The console
+does not launch a model. Inspect its eventual report and actual files/pages before
+recording your own checked or rejected verdict. [Task assignment and recovery](docs/TASKS.md).
 
 For a small first task, ask your agent to:
 
-> Read computer_info, acquire control, explore the browser, write hello.txt in
-> the workspace and run a command to read it. Capture a desktop screenshot and
-> release control when finished.
+> Read computer_info and task_get for this assignment. Use task_start to take
+> control, write a new hello.txt in the workspace and read it back. Capture a
+> screenshot, inspect the result and report with task_finish.
 
 Tools: `computer_info`, `control_acquire`, `control_renew`, `control_release`,
 `browser_snapshot`, `browser_action`, `desktop_screenshot`, `desktop_action`, `terminal_run`,
 `files_list`, `files_read`, `files_write`, `workflow_list`, `workflow_get`,
-`workflow_analyze`, `workflow_propose`. MCP also exposes a pinned identity
-resource and `computer-task`, `taught-workflow` and `analyze-demonstration` prompts.
-`computer-task` prepares the same pinned plan/task as the console for clients
-supporting prompts; retrieval performs no task. See [the prompt contract](docs/TASKS.md#prepare-a-task-directly-through-mcp).
+`workflow_analyze`, `workflow_propose`, plus named `task_list`, `task_get`,
+`task_start`, `task_finish`. Named work/read expose 20/9 tools; legacy work/read
+retain 16/7. MCP also exposes a pinned identity resource and an `assigned-task`
+prompt for named work. `computer-task` and `taught-workflow` still prepare plans;
+their execute intent is rejected on named connections. `analyze-demonstration`
+prepares authorized Teach analysis. Retrieving a prompt starts no task.
+See [the prompt contract](docs/TASKS.md#prepare-a-task-directly-through-mcp).
 For each tool's access, inputs, limits, control requirements and skill execution
 flow, see [Tools and skills](docs/TOOLS-AND-SKILLS.md).
 
@@ -211,12 +230,14 @@ For a taught skill, complete the Teach loop above. **Confirm review** enables
 console. It pins computer/workspace/workflow/revision; re-export after review
 changes. Review approval is not a verified successful run.
 
-In **Try with new inputs**, supply task parameters and choose a plan (default)
-or execution request. Send it to your connected agent. After acquiring control,
-the agent must await another `workflow_get` ready/reviewed/exact-revision check
-before any mutation, then verify the actual outcome and release its lease.
-These review checks are instructions; generic action tools do not atomically
-bind each effect to a workflow revision.
+In **Try with new inputs**, supply task parameters and choose a plan or assign
+execution to a named work connection. Execution saves the exact reviewed
+workflow/revision. After `task_start`, the agent must await another
+`workflow_get` check before its first effect. The runtime binds tracked effects
+to the active assignment, session and lease and blocks method changes while the
+attempt runs. `task_finish` releases only that attempt's lease. Teach form values
+are not automatically saved in task definitions or Activity. Read observations
+and owner-consented Teach analysis/proposals need no task or lease.
 
 Video is optional, silent and local to the guest: five-minute capture deadline,
 20 MiB per clip and 200 MiB total. Agent access delivers sampled PNGs, not the
@@ -236,13 +257,15 @@ for your own future evaluations. History persists in that computer's private
 volume across stops and rebuilds. It starts with this feature; older actions
 are not reconstructed.
 
-The bridge records the MCP client's declared name/version, access and session
-ID. These identify a connection, not a verified person or model; shared
-credentials can impersonate session IDs. Commands, paths, file content,
+Activity records the MCP client's declared name/version, access and session ID,
+plus trusted connection/task/attempt UUIDs when present. A grant label names
+authority, not a verified person or model. Named actors are scoped to their
+grant; legacy shared credentials still allow session impersonation. Commands, paths, file content,
 screenshots, video and raw errors are excluded from activity records. Exports
 require the owner console; agent credentials cannot read history. Local
 retention is bounded, and these timings are not billing or proof of task
-success. See [the activity contract](docs/ACTIVITY.md).
+success. Explicit task requirements, agent reports and owner notes are private
+content saved separately from Activity. See [the activity contract](docs/ACTIVITY.md).
 
 ## Try the offline practice task
 

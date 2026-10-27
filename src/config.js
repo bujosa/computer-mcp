@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { atomicJSON } from '../runtime/store.js';
+import { computerSubnets } from './network.js';
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
@@ -17,12 +18,22 @@ export function statePath(name = 'my-computer', override) {
 }
 export async function setup(
   state,
-  { name, context, port = 17670, network = 'isolated' },
+  {
+    name,
+    context,
+    port = 17670,
+    network = 'isolated',
+    subnet,
+    legacyAccess = false,
+  },
 ) {
   if (!['isolated', 'internet'].includes(network))
     throw new Error('Network must be isolated or internet.');
   if (!Number.isInteger(port) || port < 1024 || port > 65535)
     throw new Error('Port must be 1024–65535.');
+  computerSubnets(subnet, network);
+  if (typeof legacyAccess !== 'boolean')
+    throw new Error('Legacy access must be a boolean.');
   await fs.mkdir(state, { recursive: true, mode: 0o700 });
   const config = {
     version: 1,
@@ -31,6 +42,8 @@ export async function setup(
     context,
     port,
     network,
+    legacyAccess,
+    ...(subnet === undefined ? {} : { subnet }),
     token: randomBytes(32).toString('hex'),
     ownerToken: randomBytes(32).toString('hex'),
     workspaceId: null,
@@ -65,9 +78,12 @@ export async function readConfig(state) {
     config.port > 65535 ||
     typeof config.context !== 'string' ||
     !config.context ||
-    !/^[a-z][a-z0-9-]{0,39}$/.test(config.name)
+    !/^[a-z][a-z0-9-]{0,39}$/.test(config.name) ||
+    (config.legacyAccess !== undefined &&
+      typeof config.legacyAccess !== 'boolean')
   )
     throw new Error('Invalid local computer configuration.');
+  computerSubnets(config.subnet, config.network);
   return config;
 }
 export async function saveConfig(state, config) {

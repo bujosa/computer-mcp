@@ -48,6 +48,31 @@ export function activityAction(req) {
   if (routes[req.path]) return routes[req.path];
   if (req.path.startsWith('/activity') && req.kind !== 'human')
     return 'activity.denied';
+  const ownerPath = req.path.replace(/^\/owner(?=\/)/, '');
+  if (/^\/(?:connections|legacy)(?:\/|$)/.test(ownerPath)) {
+    if (req.kind !== 'human') return 'connection.denied';
+    if (req.path === '/owner/connections' && req.method === 'POST')
+      return 'connection.create';
+    if (
+      /^\/connections\/[^/]+\/revoke$/.test(ownerPath) &&
+      req.method === 'POST'
+    )
+      return 'connection.revoke';
+    if (ownerPath === '/legacy' && req.method === 'POST')
+      return 'connection.legacy';
+    return null;
+  }
+  if (/^\/(?:tasks|attempts)(?:\/|$)/.test(ownerPath)) {
+    if (req.kind !== 'human')
+      return ownerPath.startsWith('/attempts')
+        ? 'attempt.denied'
+        : 'task.denied';
+    if (ownerPath === '/tasks' && req.method === 'POST') return 'task.assign';
+    const task = ownerPath.match(/^\/tasks\/[^/]+(?:\/(cancel|verify))?$/);
+    if (task && req.method === (task[1] ? 'POST' : 'GET'))
+      return task[1] ? `task.${task[1]}` : 'task.read';
+    return null;
+  }
   const match = req.path.match(
     /^\/workflows\/[^/]+(?:\/(skill|use|review|analysis|draft\/discard|video))?$/,
   );
@@ -70,11 +95,12 @@ export function activityAction(req) {
     }[suffix] || 'skill.read'
   );
 }
-export function activityMiddleware(audit) {
+export function activityMiddleware(audit, { prepare = () => {} } = {}) {
   return (req, res, next) => {
     try {
       audit.assertHealthy();
       clientMetadata(req);
+      prepare(req);
       const action = activityAction(req);
       if (!action) {
         audit.touch(req);
@@ -82,9 +108,13 @@ export function activityMiddleware(audit) {
       }
       const id = audit.start(req, action, {
         operationId: req.get('x-operation-id'),
-        workflowId: req.path.startsWith('/workflows/')
-          ? req.path.split('/')[2]
-          : req.body?.args?.id,
+        workflowId:
+          req.auditWorkflowId ||
+          (req.path.startsWith('/workflows/')
+            ? req.path.split('/')[2]
+            : req.path === '/call' && req.body?.name?.startsWith('workflow_')
+              ? req.body?.args?.id
+              : undefined),
       });
       let finished = false;
       const finish = (disconnected = false) => {

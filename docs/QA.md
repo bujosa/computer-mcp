@@ -47,6 +47,9 @@ desktop support on another platform.
 ## What the real end-to-end runner owns
 
 `scripts/e2e.mjs` creates a fresh private `artifacts/e2e-*` directory and catalog.
+It explicitly opts its fixtures into legacy shared access to exercise the
+existing 16/7-tool compatibility suite. New product PCs still default to named
+connections with legacy disabled. Use the named acceptance below for that path.
 It creates two new UUID computers: one with explicit internet access and one
 isolated/offline. Each has its own volume, network and image tags. Console ports
 are published on loopback only. No existing computer or profile is adopted.
@@ -104,6 +107,10 @@ state. Do not commit or publicly share the artifact directory.
 
 ## Focused Teach integration
 
+This existing script exercises the legacy compatibility path. Use a newly owned
+fixture explicitly created with `init --legacy-access`; do not enable shared
+access on a personal or active PC just to run a test.
+
 For an idle, explicitly owned QA computer whose browser is on `/demo`:
 
 ```sh
@@ -116,6 +123,24 @@ reopens that QA guest's Chromium as a regression check. It issues an owner cooki
 in memory without printing it; do not target a personal/shared active computer.
 Its fixed test proposal checks the protocol, not a model's interpretation quality.
 Manual vision review is separate. Generated media/frames/skills remain private.
+
+## Named connections and assigned tasks
+
+Create/start two new isolated QA PCs using an explicit local context and a
+separate private catalog. Supply their absolute saved state paths:
+
+```sh
+npm run test:assignments-integration -- /private/catalog/computers/qa-a /private/catalog/computers/qa-b /private/artifacts/named-check
+```
+
+Both must be idle and have legacy disabled. The script checks exact ownership
+before work, creates synthetic grants/tasks/files and reviewed workflow fixtures,
+and uses real CLI/API/stdio contracts. Generated scoped connection files stay
+inside the supplied artifact directory's own catalog, never the default catalog.
+Only its newly created grants are revoked in cleanup; PCs/volumes and private
+evidence remain for inspection. It does not start a model or automate console UI.
+Actual Claude/Codex model calls and manual desktop/compact console acceptance
+are recorded in [the named validation record](ASSIGNMENT-VALIDATION.md).
 
 ## Manual product review
 

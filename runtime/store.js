@@ -15,6 +15,7 @@ export class Store {
   constructor(root) {
     this.root = root;
     this.pending = Promise.resolve();
+    this.beforeUpdate = () => {};
   }
   async init(computerId) {
     await fs.mkdir(this.root, { recursive: true, mode: 0o700 });
@@ -56,17 +57,30 @@ export class Store {
     const snapshot = structuredClone(workflow);
     const write = this.pending
       .catch(() => {})
-      .then(() => atomicJSON(this.workflowPath(snapshot.id), snapshot));
+      .then(() => {
+        this.beforeUpdate(snapshot.id);
+        return atomicJSON(this.workflowPath(snapshot.id), snapshot);
+      });
     this.pending = write;
     await write;
   }
   async get(id) {
     return JSON.parse(await fs.readFile(this.workflowPath(id), 'utf8'));
   }
+  // Coordinates task activation with queued review/proposal updates. The
+  // callback must not enqueue another operation on this same store.
+  async withWorkflow(id, read) {
+    const operation = this.pending
+      .catch(() => {})
+      .then(async () => read(await this.get(id)));
+    this.pending = operation;
+    return operation;
+  }
   async update(id, transform) {
     const write = this.pending
       .catch(() => {})
       .then(async () => {
+        this.beforeUpdate(id);
         const next = await transform(await this.get(id));
         await atomicJSON(this.workflowPath(id), next);
         return next;

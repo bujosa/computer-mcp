@@ -34,7 +34,8 @@ async function temporary(t) {
 async function runtime(t, state, options = {}) {
   let response = { lease: null };
   const server = http.createServer((req, res) => {
-    assert.equal(req.headers.authorization, `Bearer ${config.token}`);
+    assert.equal(req.url, '/api/owner/info');
+    assert.ok(req.headers.authorization === `Bearer ${config.ownerToken}`);
     res.writeHead(options.status || 200, {
       'content-type': 'application/json',
     });
