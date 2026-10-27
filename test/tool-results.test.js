@@ -78,6 +78,56 @@ test('a recording can be observed before reusable instructions exist', () => {
   assert.equal(observed.instructions, undefined);
 });
 
+test('browser results preserve the additive main-branch link contract and accept older guests', () => {
+  const snapshot = {
+    title: 'Observed page',
+    text: 'Documentation',
+    url: 'https://example.org/',
+    pageId: '1',
+    pages: [{ id: '1', url: 'https://example.org/', title: 'Observed page' }],
+    elements: [
+      {
+        tag: 'a',
+        role: null,
+        text: 'Documentation',
+        selector: 'body > a',
+        inputType: null,
+        url: 'https://example.org/guide',
+      },
+    ],
+  };
+  const result = toolResult('browser_snapshot', snapshot);
+  assert.equal(
+    result.structuredContent.elements[0].url,
+    snapshot.elements[0].url,
+  );
+  assert.deepEqual(
+    JSON.parse(result.content[0].text),
+    result.structuredContent,
+  );
+  const older = { ...snapshot.elements[0] };
+  delete older.url;
+  assert.equal(
+    toolResult('browser_snapshot', { ...snapshot, elements: [older] })
+      .structuredContent.elements[0].url,
+    undefined,
+  );
+  for (const url of [
+    'javascript:alert(1)',
+    'file:///private',
+    'https://user:synthetic@example.org/',
+    'invalid',
+  ])
+    assert.throws(
+      () =>
+        toolResult('browser_snapshot', {
+          ...snapshot,
+          elements: [{ ...older, url }],
+        }),
+      { code: 'invalid_tool_result' },
+    );
+});
+
 test('screenshot and analysis preserve image blocks without duplicating binary data in structured JSON', () => {
   const data = Buffer.from('synthetic image bytes').toString('base64');
   const shot = toolResult('desktop_screenshot', {
