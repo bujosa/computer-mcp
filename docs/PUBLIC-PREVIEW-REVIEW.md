@@ -1,7 +1,9 @@
 # Product and commit review — 27 October 2026
 
-Review baseline: `68eca5a`, on `bujosa/mcp-readiness-contracts`; default branch
-`main` was `a0b282d`. Follow-up: `bujosa/public-preview-review`.
+Review baseline: `68eca5a`, on `bujosa/mcp-readiness-contracts`; the local
+default-branch reference was `a0b282d`. A read-only remote check found actual
+`main` at `6d2c0e3` (PR #11, merged 17 October), also reviewed below.
+Follow-up: `bujosa/public-preview-review`.
 This is a source/contract/product review and bounded QA, not an external security
 certification or a claim of reliable automation for arbitrary tasks.
 
@@ -88,6 +90,25 @@ clock. Retention correctly removed the old event, so the test could not find it.
 The reopened test store now uses the same simulated wall/monotonic clocks.
 Runtime retention rules were not weakened or changed.
 
+### Browser interoperability with the existing default branch
+
+PR #11 already added bounded visible-control selectors and safe HTTP(S) link
+URLs in `runtime/browser.js`. The pending structured-result contract would strip
+that additive element `url` field after the branches were combined. It now
+preserves an optional credential-free HTTP(S) URL, while accepting older guests
+without the field. A regression verifies preservation/text parity and rejects
+invalid protocols and embedded credentials.
+
+A clean local Git merge tree of the review branch and actual `main` passed all
+156 tests, formatting, lint and build. Its runtime was temporarily built only on
+the owned public-b QA PC. A real named MCP attempt observed the safe link,
+omitted unsafe URLs/password/hidden/file controls, filled a generated selector,
+clicked Save and observed the supplied value. Its agent report remained
+unverified by the owner. The fixture was guest-loopback only, temporary and
+unprivileged with a scrubbed environment. No GitHub merge, Piblo dependency,
+existing Piblo access or change in guest authority was introduced. The QA PC was
+then restored to the reviewed checkout runtime.
+
 ### Public operator packaging and licensing
 
 David selected **MIT** for code and skill. Added canonical notices, separate
@@ -121,7 +142,7 @@ Private evidence stays ignored under `artifacts/public-preview-review-20261027/`
 
 | Validation                                                | Result                                                                                                                                                                                                                                                                                                                                 |
 | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                                                | **155 passed**, zero failures/skips after fixes. Baseline failure is retained above.                                                                                                                                                                                                                                                   |
+| `npm test`                                                | **156 passed**, zero failures/skips after fixes. Baseline failure is retained above.                                                                                                                                                                                                                                                   |
 | `npm run lint`, `npm run build`                           | Passed; syntax build covers **79 JS modules**.                                                                                                                                                                                                                                                                                         |
 | `npm run check:skill`                                     | Passed canonical three-file MIT operator and harness metadata.                                                                                                                                                                                                                                                                         |
 | Skill-creator `quick_validate.py skills/sendtry-computer` | Passed. Its older compatibility whitelist rejected the optional `compatibility` field; environment requirements use supported string metadata instead.                                                                                                                                                                                 |
@@ -135,6 +156,7 @@ Private evidence stays ignored under `artifacts/public-preview-review-20261027/`
 | `scripts/integration.mjs` on public-b                     | Passed actual modern/legacy MCP, auth/identity, files/browser/terminal/PNG, process limits, takeover/cancellation, Teach/export/reuse and VNC boundaries.                                                                                                                                                                              |
 | `scripts/teach-integration.mjs` on public-b               | Passed real four-frame/19,564-byte WebM, active recording/info, PNG sampling/proposal/review/reuse, consent/read boundaries and cleanup.                                                                                                                                                                                               |
 | `scripts/desktop-integration.mjs` on public-b             | Passed actual guest MCP/X11 input, key/button cleanup, takeover, read scope, correlated Teach and observed browser result.                                                                                                                                                                                                             |
+| Local integration with `main` PR #11                      | Clean merge tree; 156 tests, formatting/lint/build and actual named MCP browser link/selector/result contract passed. This was an integration-only source export, not a branch or GitHub merge.                                                                                                                                        |
 | Manual browser review                                     | Desktop and 390×844 skill-install view reviewed, including legal link and readable wrapping. Console skill download completed once. A repeated browser download-event wait timed out; it is not counted as a pass. Final skill and MIT HTTP resources both returned 200 and exactly matched canonical source. No generated UI harness. |
 
 The installer initially rejected the unsupported `--list --json` combination;
@@ -143,6 +165,9 @@ a separate Cursor folder, but CLI 1.7.4 uses the shared `.agents` directory; the
 actual installation was retained/verified. Neither correction changed product
 permissions or hid a product failure. Guest rebuilds retained PC/workspace IDs;
 legacy compatibility used for tests was restored to disabled.
+The additional browser probe initially supplied `value` instead of the declared
+fill `text`, then read verification at the wrong response level. Those probe
+assertions failed; the corrected client used the actual schemas and passed.
 
 ## Publication and remaining product limits
 

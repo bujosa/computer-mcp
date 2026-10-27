@@ -11,6 +11,8 @@
 - Teach trace/optional guest video → consented external agent analysis → editable
   proposal → owner review → exact-revision skill reuse with supplied inputs.
 - Actual stdio readiness checks and structured output contracts for all 20 tools.
+- Preserve the default branch's safe browser link observations through structured
+  MCP results, with compatibility for older guests.
 - MIT generic operator in standard `skills/` layout, standalone notice, optional
   harness UI metadata and reproducible skill/package checks.
 - Public-preview review patches Zod/body-parser/qs advisories, removes failed
