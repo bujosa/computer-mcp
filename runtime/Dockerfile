@@ -4,10 +4,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils 
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/computer-mcp
 COPY package.json npm-shrinkwrap.json ./
+COPY LICENSE TRADEMARKS.md THIRD_PARTY_NOTICES.md ./
 RUN npm ci --omit=dev && npx playwright install --with-deps chromium \
     && chmod -R a+rX /opt/pw-browsers
 COPY runtime ./runtime
 COPY ui ./ui
+COPY skills ./skills
 COPY scripts/build-ui.mjs ./scripts/build-ui.mjs
 COPY src/catalog.js src/connection.js src/assigned-connections.js src/assigned-task.js src/command-line.js src/operations-contract.js src/audit-contract.js src/desktop-contract.js src/skill-use.js src/task-request.js ./src/
 RUN node scripts/build-ui.mjs

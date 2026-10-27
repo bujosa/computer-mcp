@@ -1,4 +1,4 @@
-# Security boundary of this private MVP
+# Security boundary and reporting
 
 Use this product for a new owned agent guest. It is not a hardened malicious-code
 service or a substitute for a VM. No native host control adapter is installed.
@@ -120,6 +120,17 @@ service or a substitute for a VM. No native host control adapter is installed.
   lose unflushed writes. A closed browser can be reopened only through a leased
   navigation without a stale page ID; read tools do not relaunch it.
 
-For a report, use a private issue or direct private contact with the repository
-owner. Do not attach credential files, Docker environment dumps, screenshots of
-secrets or recordings of private customer data.
+## Reporting
+
+Before public access, enable GitHub private vulnerability reporting and verify
+[Report a vulnerability](https://github.com/bujosa/computer-mcp/security/advisories/new)
+from an external account. This endpoint has not been verified as available for
+outside reporters while the repository is private. That remains a publication
+gate; do not describe the link as an active public reporting channel yet.
+
+During the private preview, authorized collaborators can contact the repository
+owner through its existing private collaboration channel. Do not open public
+issues for vulnerabilities. Include the affected commit/version, host/guest OS,
+minimal synthetic reproduction and impact. Do not attach credential files,
+Docker environment dumps, secret screenshots, customer data or raw recordings.
+No response-time SLA or external security certification is claimed.

@@ -19,17 +19,10 @@
         { "type": "positional", "value": "mcp" },
         {
           "type": "named",
-          "name": "--state",
-          "description": "Absolute private state directory of a computer already created and started by its owner. Do not share its contents.",
+          "name": "--connection",
+          "description": "Absolute private named-connection JSON file for an already running PC. Create a read grant for observation; work grants need owner-assigned tasks. Never share the file contents.",
           "format": "filepath",
           "isRequired": true
-        },
-        {
-          "type": "named",
-          "name": "--access",
-          "description": "Connection scope; work permits leased guest mutations.",
-          "choices": ["read", "work"],
-          "default": "read"
         }
       ]
     }

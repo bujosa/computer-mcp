@@ -15,7 +15,7 @@ import { version } from '../src/metadata.js';
 const exec = promisify(execFile);
 const cli = path.resolve('src/cli.js');
 test('private package inventory rejects state, media, env, development and generated assets', () => {
-  const pkg = { private: true, license: 'UNLICENSED' };
+  const pkg = { private: true, license: 'MIT' };
   const files = requiredPackageFiles.map((path) => ({ path }));
   assert.equal(validatePackageInventory(pkg, files).files, files.length);
   for (const path of [
@@ -105,12 +105,11 @@ test('unpublished registry template matches package identity/version and explici
   assert.deepEqual(entry.transport, { type: 'stdio' });
   assert.equal(entry.packageArguments[0].value, 'mcp');
   assert.equal(
-    entry.packageArguments.find((x) => x.name === '--state').isRequired,
+    entry.packageArguments.find((x) => x.name === '--connection').isRequired,
     true,
   );
-  assert.equal(
-    entry.packageArguments.find((x) => x.name === '--access').default,
-    'read',
-  );
+  assert.deepEqual(entry.packageArguments.map((x) => x.name).filter(Boolean), [
+    '--connection',
+  ]);
   assert.equal(draft.remotes, undefined);
 });

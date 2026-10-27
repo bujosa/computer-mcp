@@ -144,7 +144,7 @@ operate independently of whether a client installs an Agent Skill.
 
 ## Two kinds of skill
 
-**Operator:** [sendtry-computer](../ui/skills/sendtry-computer/SKILL.md), version 9.
+**Operator:** [sendtry-computer](../skills/sendtry-computer/SKILL.md), version 10.
 Teaches the agent identity/access checks, observation, leases, narrow tools,
 verification, recovery and Teach analysis. Download/CLI output does not install
 it. Follow the selected harness's project skill path and verify discovery.

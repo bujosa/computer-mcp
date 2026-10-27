@@ -1,9 +1,10 @@
-# Contributing to the private preview
+# Contributing
 
-Sendtry Computer is currently private and UNLICENSED. This guide is for
-authorized collaborators. It does not grant public redistribution rights or
-select a future open-source license. Sendtry marks/assets are a separate release
-decision from the code license.
+The code and generic operator skill use [MIT](LICENSE). Sendtry marks and SVG
+artwork have [separate terms](TRADEMARKS.md); dependency notices are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Repository access remains
+restricted during publication preparation. See [publication](docs/PUBLICATION.md)
+for the current release gates; a license does not publish a package or merge a PR.
 
 ## Development
 
@@ -17,6 +18,7 @@ npm run lint
 npm run build
 npm test
 npm run check:package
+npm run check:skill
 ```
 
 The package check is a dry-run inventory, not publication or a Docker test.
@@ -55,13 +57,13 @@ versions, host and actual guest OS, expected/observed behavior and reproducible
 steps. Share only sanitized diagnostic status/check summaries. Private state,
 tokens, owner URLs, Docker environment dumps, workspace paths, recordings and
 customer data do not belong in issues or PRs. Security reports follow
-[SECURITY.md](SECURITY.md); a usable public private-reporting channel remains a
-gate before any public release.
+[SECURITY.md](SECURITY.md). Enable and verify GitHub private vulnerability reporting
+before opening the repository to external users; do not use public issues for vulnerabilities.
 
 ## Distribution
 
 `private: true` remains enabled. The manifest in `docs/registry/` is a draft;
 metadata/schema validation is not Registry registration or ownership approval.
 No workflow publishes npm packages, containers, releases or Registry entries.
-The [distribution policy](docs/DISTRIBUTION.md) records pending license,
-namespace, notices, artifact and support decisions.
+The [distribution policy](docs/DISTRIBUTION.md) records remaining
+namespace, artifact, image-notice and support decisions. Code/skill licensing is MIT.

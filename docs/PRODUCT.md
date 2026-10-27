@@ -19,11 +19,11 @@ repository/CLI. David's Sendtry identity provides the mark, warm paper canvas,
 white surfaces, salmon actions and ink text. This product has its own runtime and
 data; Sendtry's delivery backend and Piblo's bot/billing layers are not dependencies.
 
-The intended future distribution is open source under Sendtry. Today this is a
-private preview, with `private: true` and `UNLICENSED`. Code license, dependency
-notices, trademark/brand asset terms, public packaging and release policy remain
-pending. Brand ownership is separate from a future permission to redistribute
-code/assets.
+The code and generic operator skill use [MIT](../LICENSE), selected by David
+on 27 October 2026. [Sendtry brand terms](../TRADEMARKS.md) are separate. The
+repository remains private during [publication preparation](PUBLICATION.md),
+and the npm manifest retains `private: true`. Source notices are recorded; exact
+binary-image notices, public release policy and managed lifecycle remain open.
 
 ## Experience
 

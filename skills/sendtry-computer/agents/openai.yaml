@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Sendtry Computer'
+  short_description: 'Operate an assigned computer and reuse reviewed tasks'
+  default_prompt: 'Use $sendtry-computer to work on my assigned computer and verify the result.'

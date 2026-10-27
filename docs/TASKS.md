@@ -4,7 +4,7 @@
 named assignment flow with reviewed skills and independent owner verification.
 
 Start an owned computer, connect its exact MCP entry to your local harness and
-load the [operator skill](../ui/skills/sendtry-computer/SKILL.md). The model and
+load the [operator skill](../skills/sendtry-computer/SKILL.md). The model and
 conversation run in that harness; Sendtry Computer supplies the Linux guest and
 its tools. See [setup](SETUP.md) for client paths and commands.
 
