@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { requireThat } from './errors.js';
 import { desktopTrace } from '../src/desktop-contract.js';
+import { normalizeTaskParameters } from '../src/skill-use.js';
 
 export function desktopProcedure(step) {
   const input = step.desktop;
@@ -60,7 +61,14 @@ export function instructions(workflow) {
 }
 export function reviewWorkflow(
   workflow,
-  { expectedResult, notes = '', procedure, expectedRevision, draftId },
+  {
+    expectedResult,
+    notes = '',
+    procedure,
+    expectedRevision,
+    draftId,
+    parameters,
+  },
 ) {
   requireThat(
     workflow.status === 'ready' &&
@@ -104,11 +112,20 @@ export function reviewWorkflow(
     'Provide a procedure up to 12000 characters.',
   );
   const reviewed = structuredClone(workflow);
+  const parameterSource =
+    parameters === undefined
+      ? (reviewed.draft?.parameters ?? reviewed.review?.parameters)
+      : parameters;
+  const taskParameters =
+    parameterSource == null
+      ? undefined
+      : normalizeTaskParameters(parameterSource, requireThat);
   for (const [index, step] of reviewed.steps.entries()) {
     if (step.type === 'file_write' && !step.parameter)
       step.parameter = `input_${index + 1}`;
   }
   reviewed.review = {
+    ...(taskParameters !== undefined ? { parameters: taskParameters } : {}),
     procedure: (
       procedure ||
       reviewed.draft?.procedure ||

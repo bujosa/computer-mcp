@@ -259,6 +259,18 @@ this MVP. The stdio bridge must run on the same host as the CLI/state; a cloud o
 remote agent needs a separately implemented and authorized adapter. No global
 skills directory or existing client configuration is modified by download.
 
+Verify the actual loader response/body, not only the agent's claim that it used
+a skill. In the 17 October Claude Code 2.1.302 evaluation, `--restricted`
+suppressed project discovery even alongside `--setting-sources project`.
+Both `Skill(...)` calls returned `Unknown skill`; one run still completed from
+`workflow_get`, which proves MCP task execution but not exported-skill loading.
+A separate read-only probe without `--restricted` loaded both actual bodies,
+with `--tools Skill`, exact Skill/MCP grants and project-only settings retained.
+No permission-bypass flag, host shell tool or global configuration change was
+used. Repeated real task execution then verified the corrected setup. See
+[the evaluation](LEARNING-EVALUATION.md) and the official
+[restricted-mode contract](https://code.claude.com/docs/en/cli-reference).
+
 For taught skills,
 **Teach & skills** → select a completed recording → correct the procedure and expected result → **Confirm review** → **Export SKILL.md**; use the exact
 folder name displayed below the export button. Review the URLs, selectors,
@@ -272,8 +284,10 @@ Each taught export pins the computer, workspace and saved reviewed revision.
 Its instructions require fetching the current `workflow_get` record before
 effects; a different revision, pending proposal or unavailable record stops
 reuse. Download the skill again after changes instead of using older embedded
-instructions. Re-export pre-version-4 downloads to include the explicit
-post-acquisition review check; await it before any mutation, including navigation.
+instructions. Re-export pre-version-5 downloads after reviewing task inputs.
+Version 4 added the explicit post-acquisition review check; await it before any
+mutation, including navigation. Version 5 exports the owner's named task inputs
+when present, with the captured-input fallback for older reviews.
 This is agent guidance; credential scopes, identity pins and leases are the enforced
 tool boundaries.
 

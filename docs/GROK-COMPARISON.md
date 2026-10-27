@@ -126,7 +126,7 @@ application or ready to promise mass-market unattended operation. Priorities:
    concurrent foreign-container removal failure. See [host QA](HOST-VALIDATION.md).
    The private tarball's real guest build was exercised on local macOS; new
    artifacts on other hosts and editor/desktop UI registration need their own
-   acceptance. Hosted CI remains blocked by account billing. See
+   acceptance. Hosted CI is intentionally disabled by owner request; local checks remain required. See
    [client acceptance](CLIENT-VALIDATION.md) and [distribution](DISTRIBUTION.md).
 2. Broaden task evaluation beyond the six fresh-input form repetitions and
    three deliberate timeouts now checked in those CLIs. Graceful Claude CLI

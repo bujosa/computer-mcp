@@ -1,8 +1,29 @@
 # Validation record
 
-Private Sendtry Computer MVP reviewed on 10–14 October 2026 (UTC).
+Private Sendtry Computer MVP reviewed on 10–17 October 2026 (UTC).
 Results describe exercised paths; portable code and a CI matrix do not establish
 platform support.
+
+## Reviewed task inputs and actual harness reuse (17 October)
+
+See [the full learning evaluation](LEARNING-EVALUATION.md) and
+[the input/publication design](LEARNING-DESIGN.md). PASS four actual task runs
+with Claude Code and Codex, including each client's own reviewed v5 export and
+the other client's export on the owning computer. PASS four negative cases:
+invalid-source reporter failure and stale review pins in each harness. Native
+operator/task bodies loaded in all eight final cases; independent reads checked
+reports, unchanged input hashes, saved cards after reload and absent effects.
+The initial restricted-Claude skill discovery failures and correction remain
+documented. This used synthetic data and one owned Linux ARM64 guest, not a
+general reliability benchmark or a new multi-host certification.
+
+PASS format/lint/build, 94/94 contracts with no failures/skips, private package
+inventory, actual Teach media/consent/review/legacy-input integration and owner
+HTTP input/access rejection. Manual owner UI review covered input editing,
+publication, compact/desktop layouts and unsaved changes blocking use/export;
+no generated UI test suite. GitHub Check is intentionally disabled at David's
+request, and the workflow source is manual-dispatch-only. Local gates remain
+required; historical billing-blocked jobs below are not retroactively passed.
 
 ## MCP distribution preparation (14 October, subsequent slice)
 

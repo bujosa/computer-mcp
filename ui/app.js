@@ -1,5 +1,10 @@
 import RFB from '/vendor/rfb.js';
-import { formatSkillUse } from '/vendor/skill-use.js';
+import {
+  formatSkillUse,
+  skillParameters,
+  normalizeTaskParameters,
+  taskParameterLimits,
+} from '/vendor/skill-use.js';
 import { prepareComputerTask } from '/vendor/task-request.js';
 const $ = (id) => document.getElementById(id);
 const pages = {
@@ -216,8 +221,85 @@ function reviewChanged() {
       $('skill-expected-result').value.trim() !==
         selectedSkill.review.expectedResult.trim() ||
       $('skill-notes').value.trim() !==
-        (selectedSkill.review.notes || '').trim())
+        (selectedSkill.review.notes || '').trim() ||
+      JSON.stringify(reviewParameterValues()) !==
+        JSON.stringify(selectedSkill.review.parameters ?? null))
   );
+}
+function reviewParameterValues() {
+  if (!$('skill-parameters-custom').checked) return null;
+  return [...$('skill-parameters-list').children].map((row) => ({
+    name: row.querySelector('[data-name]').value.trim(),
+    description: row.querySelector('[data-description]').value.trim(),
+  }));
+}
+function markReviewChange() {
+  reviewingSkillId = selectedSkill?.id;
+  if (skillUse) previewSkillUse();
+  renderTeachGuide();
+}
+function updateParameterEditor() {
+  const custom = $('skill-parameters-custom').checked;
+  $('skill-parameters-editor').hidden = !custom;
+  $('skill-parameters-captured').hidden = custom;
+  $('skill-parameter-add').disabled =
+    $('skill-parameters-list').children.length >= taskParameterLimits.count;
+}
+function addParameterRow(parameter = { name: '', description: '' }) {
+  if ($('skill-parameters-list').children.length >= taskParameterLimits.count)
+    return;
+  const row = document.createElement('div');
+  row.className = 'task-parameter-row';
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Input name';
+  const name = document.createElement('input');
+  name.dataset.name = '';
+  name.value = parameter.name;
+  name.maxLength = 64;
+  name.autocomplete = 'off';
+  name.placeholder = 'csv_path';
+  name.setAttribute('aria-label', 'Input name');
+  nameLabel.append(name);
+  const descriptionLabel = document.createElement('label');
+  descriptionLabel.textContent = 'What should someone supply?';
+  const description = document.createElement('textarea');
+  description.dataset.description = '';
+  description.value = parameter.description;
+  description.rows = 2;
+  description.maxLength = taskParameterLimits.description;
+  description.autocomplete = 'off';
+  description.placeholder =
+    'Relative path to the current CSV in the guest workspace.';
+  description.setAttribute('aria-label', 'Input description');
+  descriptionLabel.append(description);
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.textContent = 'Remove';
+  remove.setAttribute('aria-label', 'Remove input');
+  remove.onclick = () => {
+    const next = row.nextElementSibling || row.previousElementSibling;
+    row.remove();
+    updateParameterEditor();
+    markReviewChange();
+    (next?.querySelector('input') || $('skill-parameter-add')).focus();
+  };
+  row.append(nameLabel, descriptionLabel, remove);
+  $('skill-parameters-list').append(row);
+  updateParameterEditor();
+}
+function loadReviewParameters() {
+  const definitions =
+    selectedSkill.draft?.parameters ?? selectedSkill.review?.parameters;
+  const captured = skillParameters({ steps: selectedSkill.steps });
+  $('skill-parameters-custom').checked = definitions !== undefined;
+  $('skill-parameters-list').replaceChildren();
+  for (const parameter of definitions ??
+    (captured.length <= taskParameterLimits.count ? captured : []))
+    addParameterRow(parameter);
+  $('skill-parameters-captured').textContent = captured.length
+    ? `Using ${captured.length} captured action inputs. Customize them to describe the task instead of individual commands or clicks.`
+    : 'No action inputs were captured. Add task inputs if the procedure needs values for future runs.';
+  updateParameterEditor();
 }
 function renderTeachGuide() {
   const settingUp = !$('teach-builder').hidden;
@@ -343,6 +425,23 @@ function renderTeachGuide() {
       ? 'Review video & analysis'
       : 'Review manually';
   $('teach-alternative').disabled = !info || busy;
+  const dirty = reviewChanged();
+  const reusable =
+    !!info &&
+    skill?.status === 'ready' &&
+    !!skill.review &&
+    !skill.draft &&
+    !stale &&
+    !dirty &&
+    !busy;
+  for (const id of ['skill-use-open', 'skill-download', 'skill-copy'])
+    $(id).disabled = !reusable;
+  if (skill?.review && !skill.draft)
+    $('skill-export-hint').textContent = dirty
+      ? 'Save your review changes before using or exporting this skill.'
+      : stale
+        ? 'Refresh the changed review before preparing a new request or export.'
+        : 'Reviewed instructions can be tried with new inputs or exported. Check the actual result; review is not proof of execution.';
 }
 function refresh({ force = false } = {}) {
   if (!actor) return Promise.resolve();
@@ -724,6 +823,7 @@ async function selectSkill(id) {
     selectedSkill.review?.expectedResult ||
     '';
   $('skill-notes').value = selectedSkill.review?.notes || '';
+  loadReviewParameters();
   $('skill-review-state').textContent = reviewed
     ? 'Reviewed by you'
     : 'Needs review';
@@ -782,13 +882,14 @@ const useInputs = () =>
   );
 function previewSkillUse() {
   try {
+    requireSavedReview();
     $('skill-use-request').textContent = formatSkillUse(skillUse, useInputs());
     const missing = skillUse.parameters.filter(
       (parameter) => !useInputs()[parameter.name],
     ).length;
     $('skill-use-status').textContent = missing
-      ? `${missing} captured ${missing === 1 ? 'input is' : 'inputs are'} blank. Your agent will ask for missing values.`
-      : 'Captured inputs supplied. Your agent still checks prerequisites and the expected result.';
+      ? `${missing} ${missing === 1 ? 'input is' : 'inputs are'} blank. Your agent will ask for missing values.`
+      : 'Listed inputs supplied. Your agent still checks prerequisites and the expected result.';
     $('skill-use-copy').disabled = false;
   } catch (error) {
     $('skill-use-request').textContent = '';
@@ -805,15 +906,17 @@ async function prepareSkillRequest() {
   const fields = [
     $('skill-use-intent'),
     ...$('skill-use-inputs').querySelectorAll('textarea'),
-    ...$('skill-review-form').querySelectorAll('textarea'),
+    ...$('skill-review-form').querySelectorAll('input, textarea, button'),
   ];
+  const disabledBefore = fields.map((field) => field.disabled);
   for (const field of fields) field.disabled = true;
   $('skill-use-copy').disabled = true;
   $('skill-use-status').textContent = 'Checking the saved review…';
   try {
     return await request(`/api/workflows/${selectedSkill.id}/use`, input);
   } finally {
-    for (const field of fields) field.disabled = false;
+    for (const [index, field] of fields.entries())
+      field.disabled = disabledBefore[index];
     if (skillUse) previewSkillUse();
   }
 }
@@ -1250,7 +1353,7 @@ async function finishTeaching() {
 }
 async function copyAnalysisRequest() {
   await copy(
-    `Analyze demonstration ${selectedSkill.id} using this computer’s MCP server. Call workflow_analyze, inspect frames and the action trace without executing effects, then call workflow_propose with the returned sourceRevision. Parameterize inputs and commands, explain uncertainties and unsupported actions, and define how to verify success. Leave the draft for me to correct and review in Skills.`,
+    `Analyze demonstration ${selectedSkill.id} using this computer’s MCP server. Call workflow_analyze, inspect frames and the action trace without executing effects, then call workflow_propose with the returned sourceRevision. Propose meaningful task inputs in parameters (names and descriptions only, no values/defaults), use those names consistently in the procedure and distinguish supplied inputs from derived results. Explain uncertainties and unsupported actions, and define how to verify success. Leave the draft for me to correct and review in Skills.`,
   );
   notice(
     'Analysis request copied. Send it to your connected vision agent, then refresh this skill to check for a proposal. Analysis has not started in this console.',
@@ -1275,11 +1378,16 @@ $('teach-next').onclick = guarded(() => followTeachGuide(teachNextAction));
 $('teach-alternative').onclick = guarded(() =>
   followTeachGuide(teachAlternativeAction),
 );
-for (const field of $('skill-review-form').querySelectorAll('textarea'))
-  field.addEventListener('input', () => {
-    reviewingSkillId = selectedSkill?.id;
-    renderTeachGuide();
-  });
+$('skill-review-form').addEventListener('input', markReviewChange);
+$('skill-parameters-custom').onchange = () => {
+  updateParameterEditor();
+  markReviewChange();
+};
+$('skill-parameter-add').onclick = () => {
+  addParameterRow();
+  markReviewChange();
+  $('skill-parameters-list').lastElementChild?.querySelector('input').focus();
+};
 for (const button of document.querySelectorAll('[data-connect-step]'))
   button.onclick = () => setConnectStep(Number(button.dataset.connectStep));
 $('connect-to-skill').onclick = () => setConnectStep(2);
@@ -1469,7 +1577,10 @@ $('teach-form').onsubmit = guarded(async () => {
 });
 $('teach-stop').onclick = guarded(finishTeaching);
 $('skill-review-form').onsubmit = guarded(async () => {
+  const parameters = reviewParameterValues();
   await request(`/api/workflows/${selectedSkill.id}/review`, {
+    parameters:
+      parameters === null ? null : normalizeTaskParameters(parameters),
     procedure: $('skill-procedure').value,
     expectedRevision: selectedSkill.revision,
     ...(selectedSkill.draft ? { draftId: selectedSkill.draft.id } : {}),

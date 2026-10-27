@@ -48,6 +48,8 @@ installing it is a separate way to make the reviewed method discoverable later.
    model is bundled into Sendtry Computer.
 6. The agent calls `workflow_analyze` to inspect samples/trace, requests additional
    timestamps if needed and calls `workflow_propose` with the source revision.
+   It can propose up to 16 task inputs such as `csv_path` or `project_name`, with
+   names/descriptions only. Values and defaults are not part of a definition.
    No lease is needed for this metadata/media handoff. The agent must explain
    uncertainties, missing inputs, failed attempts and unsupported desktop actions,
    without executing the demonstrated effects or copying credentials.
@@ -150,15 +152,18 @@ example authorizes replacing that practice note, not appending a history or
 changing unrelated files/sites. Remove secrets and incorrect assumptions before
 **Confirm review**. An agent cannot perform that owner-only approval.
 
-The input form is derived from captured parameters, not a new arbitrary input
-schema inferred from prose. If the proposal needs an input absent from the
-trace, supply it separately to the agent or let the agent ask for it. Do not
-pretend an uncaptured value has an automatically generated form field.
+In **Inputs for future runs**, review the agent's proposed input definitions or
+choose **Customize task inputs**. For this form, `project_name` and `next_step`
+can describe the values more clearly than captured `input_N` names; update the
+procedure to use the same names. Add/remove inputs with their descriptions, then
+save the review. Definitions contain no values/defaults, and are not compiled
+into a script. Without customization, older skills keep their captured inputs.
 
 ### 4. Reuse with different inputs
 
 In **Try with new inputs**, supply `Workshop plan` and `List the tools needed
-for Saturday.` in the parameters corresponding to the two fields. Start with
+for Saturday.` in the parameters corresponding to the two fields. If you
+customized them, those are `project_name` and `next_step`. Start with
 **Prepare a plan first** if you want to inspect the intended steps. A plan must
 not acquire control or change the practice note.
 
@@ -239,14 +244,25 @@ Exported `SKILL.md` files carry the same computer/workspace and exact revision
 pins. They require fetching the current saved workflow, including after a wait
 or reconnect, rather than falling back to the embedded procedure if it changes
 or becomes unavailable. Export again after changes; older downloads need a
-fresh version-4 export. After acquiring control, await another successful
+fresh version-5 export for reviewed task-input definitions. After acquiring control, await another successful
 ready/reviewed/exact-revision `workflow_get` check before any mutation, including
 navigation. Never run that check in parallel with an action. General MCP action tools do not bind effects to that
 reviewed revision, so these checks remain agent instructions.
 
-Input names/descriptions come from captured steps, including command cwd, file
-content and guest window focus. Other values may still be missing from the
-reviewed procedure. Blank fields mean ask for a value, not an instruction to
+Input names/descriptions use the owner's published `review.parameters` when
+present. Up to 16 definitions have unique lowercase names (1–64 characters,
+letters/digits/underscores, starting with a letter) and descriptions of 1–300
+characters. The owner can edit an agent's proposed list before confirming it,
+explicitly publish no named inputs, or return to captured action inputs.
+Draft definitions never replace the current review automatically. A change
+creates a new revision and invalidates previous requests/exports.
+
+Older reviews fall back to captured steps, including command cwd, file content
+and guest window focus. A higher-level procedure can now ask for a CSV path and
+report destination rather than the raw demonstrated terminal command; the agent
+still derives only actions authorized by the reviewed procedure and new request.
+The protocol stores no executable binding or permission grant in a definition.
+Other values may still be missing. Blank fields mean ask for a value, not an instruction to
 write an empty value. Inputs are limited to 2,048 characters each and 16,384 in
 total; larger inputs need a separate authorized handoff. Values are literal JSON
 data in the copied request. They stay in the open owner form, are never sent to

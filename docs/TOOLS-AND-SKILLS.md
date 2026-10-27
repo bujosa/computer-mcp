@@ -35,24 +35,24 @@ All inputs have strict schemas. Empty input is `{}`. Runtime checks repeat
 authorization, validation and identity checks; MCP annotations are hints for
 clients, never the permission boundary.
 
-| Tool                 | Access    | Control             | Purpose and principal input                                                                                                                |
-| -------------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `computer_info`      | read/work | none                | Identity, guest OS, capabilities, limits, network, Teach and current lease. Empty input.                                                   |
-| `browser_snapshot`   | read/work | none                | Visible main-frame text, actionable selectors and page IDs; optional `pageId`.                                                             |
-| `desktop_screenshot` | read/work | none                | PNG of the guest desktop, never the host screen. Empty input.                                                                              |
-| `files_list`         | read/work | none                | Contained workspace directory; `path` defaults to `.`.                                                                                     |
-| `files_read`         | read/work | none                | Regular UTF-8 workspace file at `path`.                                                                                                    |
-| `workflow_list`      | read/work | none                | Saved demonstrations/procedures for this computer. Empty input.                                                                            |
-| `workflow_get`       | read/work | none                | Saved procedure, review state and revision by UUID `id`. Pending proposals block reuse.                                                    |
-| `control_acquire`    | work      | obtains own lease   | Claim/renew this session's exclusive control; fails busy rather than taking over. Empty input.                                             |
-| `control_renew`      | work      | own lease           | Renew this session's current lease. Empty input.                                                                                           |
-| `control_release`    | work      | own lease           | Release this session's lease and cancel its active command. Empty input.                                                                   |
-| `browser_action`     | work      | own lease           | `action`: `navigate` + `url`, `click` + `selector`, `fill` + `selector`/`text`, or `press` + `key`/optional `selector`; optional `pageId`. |
-| `desktop_action`     | work      | own lease           | `action`: `move`, `click`, `scroll`, `type` or `key` on the focused Linux guest window.                                                    |
-| `terminal_run`       | work      | own lease           | Guest Bash `command`, relative workspace `cwd` (default `.`), `timeoutMs` (default 10,000).                                                |
-| `files_write`        | work      | own lease           | Replace/create regular workspace UTF-8 file with `path` and `text`; parent must exist.                                                     |
-| `workflow_analyze`   | work      | none; owner consent | Sample saved video/trace by UUID `id`; optional `atSeconds` array. Returns evidence for the external agent to interpret.                   |
-| `workflow_propose`   | work      | none; owner consent | Save a draft using UUID `id`/`expectedRevision`, `procedure`, `expectedResult` and `uncertainties`. Cannot approve or execute it.          |
+| Tool                 | Access    | Control             | Purpose and principal input                                                                                                                                   |
+| -------------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `computer_info`      | read/work | none                | Identity, guest OS, capabilities, limits, network, Teach and current lease. Empty input.                                                                      |
+| `browser_snapshot`   | read/work | none                | Visible main-frame text, actionable selectors and page IDs; optional `pageId`.                                                                                |
+| `desktop_screenshot` | read/work | none                | PNG of the guest desktop, never the host screen. Empty input.                                                                                                 |
+| `files_list`         | read/work | none                | Contained workspace directory; `path` defaults to `.`.                                                                                                        |
+| `files_read`         | read/work | none                | Regular UTF-8 workspace file at `path`.                                                                                                                       |
+| `workflow_list`      | read/work | none                | Saved demonstrations/procedures for this computer. Empty input.                                                                                               |
+| `workflow_get`       | read/work | none                | Saved procedure, review state and revision by UUID `id`. Pending proposals block reuse.                                                                       |
+| `control_acquire`    | work      | obtains own lease   | Claim/renew this session's exclusive control; fails busy rather than taking over. Empty input.                                                                |
+| `control_renew`      | work      | own lease           | Renew this session's current lease. Empty input.                                                                                                              |
+| `control_release`    | work      | own lease           | Release this session's lease and cancel its active command. Empty input.                                                                                      |
+| `browser_action`     | work      | own lease           | `action`: `navigate` + `url`, `click` + `selector`, `fill` + `selector`/`text`, or `press` + `key`/optional `selector`; optional `pageId`.                    |
+| `desktop_action`     | work      | own lease           | `action`: `move`, `click`, `scroll`, `type` or `key` on the focused Linux guest window.                                                                       |
+| `terminal_run`       | work      | own lease           | Guest Bash `command`, relative workspace `cwd` (default `.`), `timeoutMs` (default 10,000).                                                                   |
+| `files_write`        | work      | own lease           | Replace/create regular workspace UTF-8 file with `path` and `text`; parent must exist.                                                                        |
+| `workflow_analyze`   | work      | none; owner consent | Sample saved video/trace by UUID `id`; optional `atSeconds` array. Returns evidence for the external agent to interpret.                                      |
+| `workflow_propose`   | work      | none; owner consent | Save a draft using UUID `id`/`expectedRevision`, `procedure`, `expectedResult`, `uncertainties` and optional task `parameters`. Cannot approve or execute it. |
 
 Seven observation tools need no lease. Analysis and proposals require work access
 but no desktop lease. Four effect tools require an owned lease: browser input,
@@ -107,17 +107,24 @@ operate independently of whether a client installs an Agent Skill.
 
 ## Two kinds of skill
 
-**Operator:** [sendtry-computer](../ui/skills/sendtry-computer/SKILL.md), version 7.
+**Operator:** [sendtry-computer](../ui/skills/sendtry-computer/SKILL.md), version 8.
 Teaches the agent identity/access checks, observation, leases, narrow tools,
 verification, recovery and Teach analysis. Download/CLI output does not install
 it. Follow the selected harness's project skill path and verify discovery.
 
-**Taught task:** exported `sendtry-<task>-<id>/SKILL.md`, version 4. Contains the
+**Taught task:** exported `sendtry-<task>-<id>/SKILL.md`, version 5. Contains the
 owner-reviewed procedure and computer/workspace/workflow/revision pins. Export
 requires a completed recording, saved review, observable expected result and no
 pending draft. It preserves that task's local binding; it is not a portable grant
 to operate any person's PC. Re-export earlier downloads after review changes or
 to receive the explicit post-acquisition check.
+
+Proposals may include up to 16 task-level `parameters`, each a unique lowercase
+`name` and a `description` of 1–300 characters. The owner edits/approves these
+alongside the procedure. Published definitions drive new-input requests and
+exports; older reviews retain the captured-action fallback. Empty definitions
+mean no named inputs, not permission to infer secrets. No values/defaults or
+automatic shell bindings are accepted. A review change advances its revision.
 
 The folder/Markdown format follows [Agent Skills](https://agentskills.io/specification).
 Format validation does not prove a model loaded the skill or follows it reliably.

@@ -1,8 +1,6 @@
 name: Check
 on:
-  pull_request:
-  push:
-    branches: ['bujosa/**']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

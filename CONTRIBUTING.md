@@ -20,6 +20,10 @@ npm run check:package
 ```
 
 The package check is a dry-run inventory, not publication or a Docker test.
+GitHub's `Check` workflow is intentionally disabled for this private development
+phase; its repository trigger is manual-only in this change. Run these local
+gates before a commit/PR. No deployment or publishing workflow is enabled. See
+[manual validation and CI policy](docs/QA.md#manual-validation-and-ci-policy).
 For an authorized, new QA computer on a local engine, see [QA](docs/QA.md).
 Use an explicit context and new catalog. Preserve existing computers, volumes,
 profiles and Docker defaults. Never target a personal/shared active computer.

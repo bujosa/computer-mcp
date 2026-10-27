@@ -1,5 +1,32 @@
 # Reproduce the private MVP checks
 
+## Manual validation and CI policy
+
+On 17 October 2026 UTC, David requested disabling CI/CD while evaluating real
+agent behavior. The repository's only Actions workflow, `Check`, was disabled
+through GitHub and verified as `disabled_manually`. This change also replaces
+push/PR triggers with `workflow_dispatch`; it does not delete the checks.
+No package, container or production publishing pipeline is enabled.
+
+Local validation remains required by risk. Code changes use format/lint/build
+and affected contract tests; a real harness evaluation additionally records
+client/model versions, task inputs, evidence, observed effects and independent
+result verification. Do not equate an agent's final answer or a zero CLI exit
+with a successful task. UI presentation is reviewed manually.
+
+To inspect the current hosted state without starting jobs:
+
+```sh
+gh workflow list --repo bujosa/computer-mcp --all --json name,state
+```
+
+Future reactivation is a separate owner action: enable `check.yml` in GitHub
+and explicitly dispatch it once the intended workflow revision is on the
+default branch. Automatic push/PR triggers remain absent in this change.
+Older billing-blocked runs remain historical failures, not passing validation.
+
+## Local contract and integration checks
+
 Use a source checkout, Node 22.13+ and Docker Engine 28+ with a local Linux
 container engine. Install with `npm ci`, then run:
 
