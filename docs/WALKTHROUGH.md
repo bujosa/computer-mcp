@@ -1,6 +1,6 @@
 # Your first local computer, from setup to a taught task
 
-[Español](es/GUIA.md) · [Documentation](README.md) · [Command reference](SETUP.md)
+[Documentation](README.md) · [Command reference](SETUP.md)
 
 This walkthrough connects one local agent to one dedicated Linux desktop. You
 will create a file, check the result yourself, then teach a small browser task

@@ -41,7 +41,6 @@
     ".dockerignore",
     "docs/README.md",
     "docs/WALKTHROUGH.md",
-    "docs/es/GUIA.md",
     "docs/SETUP.md",
     "docs/PUBLICATION.md",
     "docs/RECOVERY.md",

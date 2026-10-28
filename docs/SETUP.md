@@ -1,7 +1,7 @@
 # Setup and harness integration
 
-New here? Use the [complete local stdio walkthrough](WALKTHROUGH.md) or
-[guía en español](es/GUIA.md) for a first verified task and Teach trial.
+New here? Use the [complete local stdio walkthrough](WALKTHROUGH.md)
+for a first verified task and Teach trial.
 This page is the detailed command/configuration reference.
 
 ## Install/run from the public source

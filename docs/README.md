@@ -6,7 +6,6 @@ reviewed tasks. Start with one computer and one agent connection.
 | Start here                                          | What you will finish with                                                               |
 | --------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | [Local stdio walkthrough](WALKTHROUGH.md)           | A running computer, connected harness, verified first task and a reusable taught method |
-| [Guía completa en español](es/GUIA.md)              | El mismo recorrido: instalación, conexión, primera tarea, Teach y uso diario            |
 | [Public installation and licensing](PUBLICATION.md) | Source installation, generic operator skill, MIT and distribution status                |
 
 ## Use the computer

@@ -6,9 +6,9 @@ A computer to work in. Skills to work with.
 
 Give your MCP agent a dedicated computer, and share its screen when you want to help.
 
-**First time?** Follow the [complete local stdio walkthrough](docs/WALKTHROUGH.md)
-or the [guía completa en español](docs/es/GUIA.md): setup, client connection,
-first verified task, Teach and daily use. Browse the [documentation hub](docs/README.md)
+**First time?** Follow the [complete local stdio walkthrough](docs/WALKTHROUGH.md):
+setup, client connection, first verified task, Teach and daily use.
+Browse the [documentation hub](docs/README.md)
 for task guides and reference material.
 
 Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-from-github).

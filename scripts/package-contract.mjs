@@ -25,7 +25,6 @@ export const requiredPackageFiles = [
   'ui/index.html',
   'docs/README.md',
   'docs/WALKTHROUGH.md',
-  'docs/es/GUIA.md',
   'skills/sendtry-computer/SKILL.md',
   'skills/sendtry-computer/LICENSE.txt',
   'skills/sendtry-computer/agents/openai.yaml',
