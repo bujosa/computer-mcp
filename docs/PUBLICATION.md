@@ -1,5 +1,9 @@
 # Install the Sendtry Computer preview
 
+For a guided first run, follow the [local stdio walkthrough](WALKTHROUGH.md).
+This page covers distribution and
+skill installation; [setup](SETUP.md) is the command reference.
+
 Status: 27 October 2026. The complete [repository and history](https://github.com/bujosa/computer-mcp)
 are public. Code and the generic operator use **MIT**, with separate Sendtry
 [brand terms](../TRADEMARKS.md) and [dependency notices](../THIRD_PARTY_NOTICES.md).
