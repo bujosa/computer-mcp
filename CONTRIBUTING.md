@@ -39,6 +39,9 @@ UI harnesses. Keep the existing runtime and data ownership boundaries.
 
 ## Changes and review
 
+Write public documentation and guides in English. Keep one canonical onboarding
+walkthrough and link to it from reference pages instead of duplicating it.
+
 Use an isolated worktree if the checkout is dirty. Name branches `bujosa/<purpose>`,
 use Conventional Commits and stage only your changes. Open a focused PR against
 the repository's intended base; include behavior, exact validation/skips,

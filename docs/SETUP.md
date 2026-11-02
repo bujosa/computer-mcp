@@ -1,5 +1,9 @@
 # Setup and harness integration
 
+New here? Use the [complete local stdio walkthrough](WALKTHROUGH.md)
+for a first verified task and Teach trial.
+This page is the detailed command/configuration reference.
+
 ## Install/run from the public source
 
 Use Node 22.13+.
@@ -280,7 +284,9 @@ merge the full JSON into a local project `.mcp.json`, or use its
 [documented stdio MCP add flow](https://code.claude.com/docs/en/mcp). Its
 `add-json` command takes the inner server entry, not the full `mcpServers` wrapper.
 In Cursor merge it into `.cursor/mcp.json` in your project, or use its
-[MCP settings](https://cursor.com/docs/mcp). Approve/enable this exact server;
+[MCP settings](https://cursor.com/docs/mcp). Add `"type": "stdio"` inside this
+server's entry, alongside `command` and `args`, for Cursor's current format.
+Approve/enable this exact server;
 loading the skill alone does not approve its MCP connection. In Cursor CLI use
 `agent mcp enable computer-coding-0123456789ab`, then
 `agent mcp list-tools computer-coding-0123456789ab` to inspect its
@@ -335,13 +341,20 @@ checks the actual result separately. [Task assignment](TASKS.md) describes the
 flow and privacy. A legacy shared configuration is available separately when
 the owner enables it. Registration in a specific harness UI still needs validation.
 
-The operator skill downloads as `SKILL.md`. Place it in a folder named
-`sendtry-computer` in your local harness's supported skills directory.
+For the generic operator, prefer the [project-scoped installer](PUBLICATION.md#install-from-github)
+or copy the whole `skills/sendtry-computer/` directory, retaining its MIT
+`LICENSE.txt`. The console download provides `SKILL.md` alone; keep the notice
+alongside it when redistributing the generic operator.
 
 From the source checkout, `node src/cli.js skill` also prints its exact Markdown
 to stdout with no setup, Docker, state or installation side effects. Save that
 output at the project path below; preserve any existing skill. This is the same
 artifact as the console download, not a separate installer or global setting.
+
+The table below describes manual placement. The pinned installer documented in
+[publication](PUBLICATION.md#install-from-github) uses the shared `.agents/skills/`
+directory for Codex/Cursor; the historical Cursor probe below used its
+client-specific `.cursor/skills/` directory.
 
 | Local client | Project skill file                         | Official instructions                                        |
 | ------------ | ------------------------------------------ | ------------------------------------------------------------ |
@@ -398,7 +411,7 @@ reuse. Download the skill again after changes instead of using older embedded
 instructions. Re-export pre-version-6 downloads after reviewing task inputs.
 Version 4 added the explicit post-acquisition review check; version 5 added named
 task-input descriptions. Version 6 explains named assignments, `task_start`,
-reports and own-attempt cleanup. The operator is version 9. On named work,
+reports and own-attempt cleanup. The operator is version 10. On named work,
 execution also needs an owner assignment pinned to the reviewed workflow;
 tracked effects are bound to that active task/session/lease, and the method
 cannot change during its running attempt. Inputs and outcome verification still
@@ -406,9 +419,11 @@ require careful agent/owner inspection.
 
 The format follows the [Agent Skills specification](https://agentskills.io/specification):
 a skill folder containing YAML-frontmatter `SKILL.md` and Markdown instructions.
-The repo uses required name/description and string metadata, without an
-`allowed-tools` declaration or a license assertion. This keeps the artifact
-usable with the included local skill validator. Actual discovery and installation
+The generic operator uses required name/description, `license: MIT`, string
+metadata and a bundled MIT notice, with no `allowed-tools` declaration.
+Owner-exported taught skills contain local task data; the generic operator's
+license is not a license assertion for that data. Both formats are checked by
+the included local validator. Actual discovery and installation
 paths depend on the harness; exporting a valid file does not prove every
 harness has loaded it. No host configuration or global skill directory is changed
 by download.

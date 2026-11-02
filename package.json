@@ -39,6 +39,8 @@
     "THIRD_PARTY_NOTICES.md",
     "scripts/build-ui.mjs",
     ".dockerignore",
+    "docs/README.md",
+    "docs/WALKTHROUGH.md",
     "docs/SETUP.md",
     "docs/PUBLICATION.md",
     "docs/RECOVERY.md",

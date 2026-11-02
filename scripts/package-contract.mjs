@@ -23,6 +23,8 @@ export const requiredPackageFiles = [
   'runtime/chromium-agent.sh',
   'scripts/build-ui.mjs',
   'ui/index.html',
+  'docs/README.md',
+  'docs/WALKTHROUGH.md',
   'skills/sendtry-computer/SKILL.md',
   'skills/sendtry-computer/LICENSE.txt',
   'skills/sendtry-computer/agents/openai.yaml',
