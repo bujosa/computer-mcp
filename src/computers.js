@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
 import * as z from 'zod';
-import { atomicJSON } from '../runtime/store.js';
+import { atomicJSON } from './atomic-json.js';
 import { readConfig, setup, statePath } from './config.js';
 import { RuntimeClient } from './client.js';
 

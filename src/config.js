@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { atomicJSON } from '../runtime/store.js';
+import { atomicJSON } from './atomic-json.js';
 import { computerSubnets } from './network.js';
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
