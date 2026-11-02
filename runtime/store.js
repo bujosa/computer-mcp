@@ -2,30 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { requireThat } from './errors.js';
-
-export async function atomicJSON(target, value) {
-  const temporary = `${target}.${randomUUID()}.tmp`;
-  let handle;
-  let created = false;
-  try {
-    handle = await fs.open(temporary, 'wx', 0o600);
-    created = true;
-    await handle.writeFile(JSON.stringify(value, null, 2) + '\n');
-    await handle.sync();
-    await handle.close();
-    handle = undefined;
-    await fs.rename(temporary, target);
-  } finally {
-    try {
-      await handle?.close();
-    } finally {
-      if (created)
-        await fs.unlink(temporary).catch((error) => {
-          if (error.code !== 'ENOENT') throw error;
-        });
-    }
-  }
-}
+import { atomicJSON } from '../src/atomic-json.js';
+export { atomicJSON } from '../src/atomic-json.js';
 export class Store {
   constructor(root) {
     this.root = root;

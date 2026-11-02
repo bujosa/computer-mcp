@@ -759,10 +759,15 @@ for (const access of ['work', 'read'])
       path.join(home, '.computer-mcp', 'registry.json'),
       '{damaged',
     );
-    const client = new Client({ name: 'named-bridge-test', version: '0.1.0' });
+    const launch = JSON.parse(
+      (await run(['config', '--connection', file, '--client', 'stdio'])).stdout,
+    );
+    assert.deepEqual(Object.keys(launch).sort(), ['args', 'command']);
+    assert.deepEqual(launch, connectionEntryFromFile(file));
+    noCredentials(JSON.stringify(launch), config.token);
+    const client = new Client({ name: 'independent-agent', version: '0.1.0' });
     const transport = new StdioClientTransport({
-      command: process.execPath,
-      args: [cli, 'mcp', '--connection', file],
+      ...launch,
       env: { ...process.env, HOME: home, USERPROFILE: home },
       stderr: 'pipe',
     });

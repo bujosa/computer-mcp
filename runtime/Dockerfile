@@ -11,7 +11,7 @@ COPY runtime ./runtime
 COPY ui ./ui
 COPY skills ./skills
 COPY scripts/build-ui.mjs ./scripts/build-ui.mjs
-COPY src/catalog.js src/connection.js src/assigned-connections.js src/assigned-task.js src/command-line.js src/operations-contract.js src/audit-contract.js src/desktop-contract.js src/skill-use.js src/task-request.js ./src/
+COPY src/catalog.js src/connection.js src/assigned-connections.js src/assigned-task.js src/command-line.js src/operations-contract.js src/audit-contract.js src/desktop-contract.js src/skill-use.js src/task-request.js src/atomic-json.js ./src/
 RUN node scripts/build-ui.mjs
 RUN chmod +x runtime/entrypoint.sh runtime/chromium-agent.sh
 EXPOSE 7070

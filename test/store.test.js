@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { atomicJSON } from '../runtime/store.js';
+import { atomicJSON } from '../src/atomic-json.js';
 
 for (const phase of ['writeFile', 'sync', 'close', 'rename'])
   test(`failed JSON checkpoint ${phase} preserves the published state and leaves no staged content`, async (t) => {

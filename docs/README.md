@@ -21,6 +21,9 @@ reviewed tasks. Start with one computer and one agent connection.
 
 ## Configure and understand it
 
+For a custom harness, start with [provider-independent integration](INTEGRATION.md).
+It separates MCP transport, optional skills, client settings and guest adapters.
+
 | Reference                                     | Covers                                                                |
 | --------------------------------------------- | --------------------------------------------------------------------- |
 | [Setup and commands](SETUP.md)                | CLI options, local state, networks, clients and multiple PCs          |
