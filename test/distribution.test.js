@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { ESLint } from 'eslint';
 import {
   requiredPackageFiles,
   validatePackageInventory,
@@ -14,6 +15,26 @@ import { version } from '../src/metadata.js';
 
 const exec = promisify(execFile);
 const cli = path.resolve('src/cli.js');
+test('lint matcher selects source and browser rules while excluding generated and private artifacts', async () => {
+  const lint = new ESLint();
+  for (const file of ['src/cli.js', 'runtime/server.js', 'ui/app.js'])
+    assert.equal(await lint.isPathIgnored(file), false);
+  for (const file of ['artifacts/proof.js', 'ui/vendor/rfb.js'])
+    assert.equal(await lint.isPathIgnored(file), true);
+  const [unused] = await lint.lintText('const unused = 1;\n', {
+    filePath: 'src/lint-proof.js',
+  });
+  assert.ok(unused.messages.some((item) => item.ruleId === 'no-unused-vars'));
+  const [browser] = await lint.lintText('document.title;\n', {
+    filePath: 'ui/lint-proof.js',
+  });
+  assert.equal(browser.errorCount, 0);
+  const [server] = await lint.lintText('document.title;\n', {
+    filePath: 'runtime/lint-proof.js',
+  });
+  assert.ok(server.messages.some((item) => item.ruleId === 'no-undef'));
+});
+
 test('private package inventory rejects state, media, env, development and generated assets', () => {
   const pkg = { private: true, license: 'MIT' };
   const files = requiredPackageFiles.map((path) => ({ path }));

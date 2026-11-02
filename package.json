@@ -41,6 +41,7 @@
     ".dockerignore",
     "docs/README.md",
     "docs/WALKTHROUGH.md",
+    "docs/OPERATIONS.md",
     "docs/SETUP.md",
     "docs/PUBLICATION.md",
     "docs/RECOVERY.md",
@@ -84,6 +85,9 @@
     "playwright": "1.64.0",
     "ws": "8.22.0",
     "zod": "4.6.7"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
