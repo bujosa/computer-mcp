@@ -11,6 +11,10 @@ setup, client connection, first verified task, Teach and daily use.
 Browse the [documentation hub](docs/README.md)
 for task guides and reference material.
 
+The [November closeout](docs/PREVIEW-CLOSEOUT.md) records fresh two-PC lifecycle,
+Teach and named stdio acceptance. See [operations](docs/OPERATIONS.md) for source
+updates and retiring access. This remains a developer source preview.
+
 Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-from-github).
 It requires a configured MCP connection; installation alone does not grant a computer.
 

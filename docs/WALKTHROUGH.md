@@ -348,7 +348,8 @@ attempt. Your harness launches/reconnects the stdio process separately. A ready
 `start` reuses the running guest. After deliberately updating a clean checkout
 and running `npm ci`, use `start --name my-computer --rebuild` to load new
 runtime/UI code. Rebuild interrupts sessions/leases; inspect active work first,
-then reconnect the harness. [Recovery](RECOVERY.md).
+then reconnect the harness. Follow the [source update and retirement runbook](OPERATIONS.md)
+or [recovery](RECOVERY.md).
 
 For a second PC, use a fresh name, then start it and create another grant:
 

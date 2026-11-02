@@ -516,6 +516,8 @@ by download.
 Stop retains the named volume, profile and recordings. There is no automated
 cleanup/deletion command. For backups stop the owned computer before exporting
 its Docker volume, and back up private host config separately.
+See [daily operations and source updates](OPERATIONS.md) for stopping work,
+updating a clean checkout and retiring a grant without deleting private data.
 
 ## Primary references checked for implementation
 

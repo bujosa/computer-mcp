@@ -10,13 +10,14 @@ reviewed tasks. Start with one computer and one agent connection.
 
 ## Use the computer
 
-| Guide                   | Use it for                                                          |
-| ----------------------- | ------------------------------------------------------------------- |
-| [Tasks](TASKS.md)       | Assign work, report results and record your independent check       |
-| [Teach](TEACH.md)       | Record, share evidence, review a proposal and test with new inputs  |
-| [Desktop](DESKTOP.md)   | Browser, terminal, files, screenshots and bounded guest input       |
-| [Activity](ACTIVITY.md) | Inspect connection/task attribution, timestamps and audit limits    |
-| [Recovery](RECOVERY.md) | Check a connection and recover from interrupted or unavailable work |
+| Guide                       | Use it for                                                                   |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| [Tasks](TASKS.md)           | Assign work, report results and record your independent check                |
+| [Teach](TEACH.md)           | Record, share evidence, review a proposal and test with new inputs           |
+| [Desktop](DESKTOP.md)       | Browser, terminal, files, screenshots and bounded guest input                |
+| [Activity](ACTIVITY.md)     | Inspect connection/task attribution, timestamps and audit limits             |
+| [Recovery](RECOVERY.md)     | Check a connection and recover from interrupted or unavailable work          |
+| [Operations](OPERATIONS.md) | Start/stop, update a source checkout, retire access and protect private data |
 
 ## Configure and understand it
 
@@ -30,6 +31,9 @@ reviewed tasks. Start with one computer and one agent connection.
 | [Contributing](../CONTRIBUTING.md)            | Focused changes and local validation                                  |
 
 ## Read the evidence
+
+[November closeout](PREVIEW-CLOSEOUT.md) records fresh two-PC lifecycle, Teach,
+named-connection acceptance and the dependency audit correction.
 
 [Public source acceptance](PUBLIC-LAUNCH.md) records the published preview's
 checks. [Named two-PC acceptance](ASSIGNMENT-VALIDATION.md) and
