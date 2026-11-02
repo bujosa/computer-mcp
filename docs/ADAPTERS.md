@@ -1,5 +1,9 @@
 # Adapter contract and support roadmap
 
+Model/client independence is a separate boundary from OS adapter support.
+See [generic integration](INTEGRATION.md): no model provider is required by the
+server, but the implemented computer adapter remains Docker Linux.
+
 The only implemented runtime adapter is **docker-linux**, using a local Docker
 Linux engine. The host bridge and guest service are separate boundaries: a new
 adapter must implement computer execution/identity, not introduce model routing

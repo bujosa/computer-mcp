@@ -18,6 +18,12 @@ The implemented adapter is a dedicated Linux Docker container with a local
 owner console. Host OS and guest OS are separate properties. Native, VM and
 remote adapters are design seams, not advertised implementations.
 
+Provider/client independence is specified in [integration](docs/INTEGRATION.md).
+The bridge and guest import no inference-provider SDK and require no model API
+key. `--client stdio` returns only the launch command/args; the existing JSON,
+TOML and VS Code serializers adapt client settings without changing authority.
+Optional MCP prompts and skill loaders are not prerequisites for tool calls.
+
 ## Modules and dependency direction
 
 The named connection and assignment contracts are detailed in
@@ -53,6 +59,13 @@ PCs, and verifies ownership before reading a running guest's filesystem capacity
 Stopped guests remain stopped. Host free space and unmeasured guest capacity stay
 distinct; results never imply runtime, harness or task readiness. The command has
 no MCP exposure, resource cleanup or schema/state writes.
+
+`src/atomic-json.js` is the shared Node-only persistence primitive for host config,
+host catalog and guest workflow checkpoints. Host lifecycle no longer imports
+the guest Store. `runtime/store.js` re-exports the prior symbol for compatibility;
+serialization, exclusive 0600 staging, sync/rename and failure cleanup are unchanged.
+The guest Dockerfile copies this shared dependency explicitly. It introduces no
+model, transport, state schema or provider dependency.
 
 Diagnostics separately warn about a non-ASCII **source checkout** path: some
 BuildKit session headers reject it even though Node/MCP accepts Unicode paths.
@@ -100,6 +113,9 @@ The fixed console URLs serve only the operator and MIT notice; no user path or
 credential enters those routes. Docker/npm include that same folder. The dev-only
 `check:skill` gate parses YAML, validates its Agent Skills metadata and exact asset
 inventory, rejects symlinks/extra private files and checks canonical attribution.
+The portable skill needs only its instruction file and MIT notice. The optional
+`agents/openai.yaml` is validated only when present; the canonical bundle keeps
+it for Codex display metadata. It is not an execution dependency or model choice.
 It installs nothing and never connects to an MCP or model provider. Taught skill
 exports remain a separate owner-content/binding contract, not a public template.
 
@@ -107,6 +123,13 @@ exports remain a separate owner-content/binding contract, not a public template.
 prints it unchanged. It runs before catalog selection, needs no computer/Docker
 and creates no state. The owner chooses where to save it in a harness project;
 printing does not install a skill, approve an MCP connection or grant control.
+
+The package retains an explicit allowlist of public documentation, research
+references and source/legal assets. The inventory check verifies that inline
+relative documentation links resolve within that exact package, including
+architecture and contributor guidance. It still excludes private state, media,
+environment files and QA artifacts; including the draft Registry reference is
+documentation, not Registry registration or npm publication.
 
 The noVNC build applies a guarded local cleanup to its WebCodecs feature probe,
 closing only that probe's frame/decoder. Dependency source is never rewritten;

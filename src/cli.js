@@ -66,10 +66,10 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   doctor [--context local]      Read-only setup/Compose/capacity checks; no PC required
   check --connection /absolute/private/file.json  Test actual MCP; no effects or lease
   stop | open                   Stop with data retained, or authorize owner console
-  config [--client generic|codex|vscode] Print pinned, credential-free MCP configuration
+  config [--client generic|stdio|codex|vscode] Print pinned, credential-free MCP configuration
          --connection /absolute/private/file.json (recommended named connection)
          [--access work|read] Legacy shared configuration for the selected PC
-  connection create <label> --name PC --access work|read [--client generic|codex|vscode]
+  connection create <label> --name PC --access work|read [--client generic|stdio|codex|vscode]
   connection list [--name PC|--state STATE] [--all]
   connection revoke <UUID> --name PC
   connection legacy enable|disable --name PC

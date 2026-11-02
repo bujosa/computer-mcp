@@ -3,7 +3,9 @@ import path from 'node:path';
 import { parseDocument } from 'yaml';
 import * as z from 'zod';
 
-const files = ['LICENSE.txt', 'SKILL.md', 'agents/openai.yaml'];
+const requiredFiles = ['LICENSE.txt', 'SKILL.md'];
+const optionalFiles = ['agents/openai.yaml'];
+const files = [...requiredFiles, ...optionalFiles];
 const frontmatter = z.strictObject({
   name: z
     .string()
@@ -64,7 +66,7 @@ export async function validateSkillDirectory(directory, license) {
   );
   const names = await inventory(directory);
   requireThat(
-    JSON.stringify(names) === JSON.stringify([...files].sort()),
+    requiredFiles.every((name) => names.includes(name)),
     'Incomplete skill package.',
   );
   const text = await fs.readFile(path.join(directory, 'SKILL.md'), 'utf8');
@@ -88,23 +90,25 @@ export async function validateSkillDirectory(directory, license) {
       license,
     'Skill must include the canonical MIT notice.',
   );
-  const ui = yaml(
-    await fs.readFile(path.join(directory, 'agents/openai.yaml'), 'utf8'),
-  );
-  const metadata = z
-    .strictObject({
-      interface: z.strictObject({
-        display_name: z.string().min(1),
-        short_description: z.string().min(25).max(64),
-        default_prompt: z.string().min(1),
-      }),
-    })
-    .safeParse(ui);
-  requireThat(
-    metadata.success &&
-      metadata.data.interface.default_prompt.includes(`$${parsed.data.name}`),
-    'Skill UI metadata must identify its invocation.',
-  );
+  if (names.includes('agents/openai.yaml')) {
+    const ui = yaml(
+      await fs.readFile(path.join(directory, 'agents/openai.yaml'), 'utf8'),
+    );
+    const metadata = z
+      .strictObject({
+        interface: z.strictObject({
+          display_name: z.string().min(1),
+          short_description: z.string().min(25).max(64),
+          default_prompt: z.string().min(1),
+        }),
+      })
+      .safeParse(ui);
+    requireThat(
+      metadata.success &&
+        metadata.data.interface.default_prompt.includes(`$${parsed.data.name}`),
+      'Skill UI metadata must identify its invocation.',
+    );
+  }
   return {
     name: parsed.data.name,
     version: parsed.data.metadata?.version || null,

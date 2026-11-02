@@ -9,12 +9,38 @@ import { ESLint } from 'eslint';
 import {
   requiredPackageFiles,
   validatePackageInventory,
+  validatePackageDocumentation,
 } from '../scripts/package-contract.mjs';
 import { setup } from '../src/config.js';
 import { version } from '../src/metadata.js';
 
 const exec = promisify(execFile);
 const cli = path.resolve('src/cli.js');
+test('package documentation links resolve to shipped assets and reject omitted local references', async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cmcp-package-docs-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.mkdir(path.join(root, 'docs'));
+  await fs.writeFile(
+    path.join(root, 'README.md'),
+    '[Setup](docs/SETUP.md#install) [Web](https://example.com) [Here](#here)',
+  );
+  await fs.writeFile(
+    path.join(root, 'docs/SETUP.md'),
+    '[CLI](../src/cli.js) [Home](../README.md)',
+  );
+  const files = ['README.md', 'docs/SETUP.md', 'src/cli.js'].map((path) => ({
+    path,
+  }));
+  assert.equal(
+    (await validatePackageDocumentation(root, files)).documentationLinks,
+    3,
+  );
+  await assert.rejects(
+    validatePackageDocumentation(root, files.slice(0, 2)),
+    /Missing package documentation target/,
+  );
+});
+
 test('lint matcher selects source and browser rules while excluding generated and private artifacts', async () => {
   const lint = new ESLint();
   for (const file of ['src/cli.js', 'runtime/server.js', 'ui/app.js'])

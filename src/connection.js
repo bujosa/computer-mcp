@@ -107,8 +107,8 @@ export function connectionEntryFromFile(file) {
   };
 }
 export function validateConnectionClient(client = 'generic') {
-  if (!['generic', 'codex', 'vscode'].includes(client))
-    throw new Error('Choose generic, codex or vscode configuration.');
+  if (!['generic', 'stdio', 'codex', 'vscode'].includes(client))
+    throw new Error('Choose generic, stdio, codex or vscode configuration.');
   return client;
 }
 export function formatConnection(
@@ -124,6 +124,7 @@ export function formatConnection(
     /[\0\r\n]/.test(serverName)
   )
     throw new Error('Invalid MCP server name.');
+  if (client === 'stdio') return JSON.stringify(entry, null, 2) + '\n';
   if (client === 'codex')
     return `[mcp_servers.${/^[A-Za-z0-9_-]+$/.test(serverName) ? serverName : JSON.stringify(serverName)}]\ncommand = ${JSON.stringify(entry.command)}\nargs = ${JSON.stringify(entry.args)}\n`;
   if (client === 'generic')

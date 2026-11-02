@@ -20,6 +20,28 @@ test('operator package is self-contained, licensed and discoverable with optiona
   assert.equal(result.license, 'MIT');
   assert.equal(result.files.length, 3);
 });
+test('portable operator needs no provider metadata and still requires its instructions and MIT notice', async (t) => {
+  const directory = await copy(t);
+  await fs.rm(path.join(directory, 'agents'), { recursive: true });
+  const result = await validateSkillDirectory(directory, license);
+  assert.deepEqual(result.files, ['LICENSE.txt', 'SKILL.md']);
+  await fs.unlink(path.join(directory, 'LICENSE.txt'));
+  await assert.rejects(
+    validateSkillDirectory(directory, license),
+    /Incomplete/,
+  );
+});
+test('optional provider metadata is validated when bundled', async (t) => {
+  const directory = await copy(t);
+  await fs.writeFile(
+    path.join(directory, 'agents/openai.yaml'),
+    'interface:\n  display_name: Unrelated\n',
+  );
+  await assert.rejects(
+    validateSkillDirectory(directory, license),
+    /metadata must identify/,
+  );
+});
 test('skill package rejects missing attribution, private files and symlinks without exposing their data', async (t) => {
   const directory = await copy(t);
   const privateFile = path.join(directory, '.env');

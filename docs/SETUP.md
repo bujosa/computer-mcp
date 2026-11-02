@@ -211,6 +211,7 @@ For an existing grant, reprint the same configuration without creating another:
 
 ```sh
 node src/cli.js config --connection /absolute/private/connection.json --client generic
+node src/cli.js config --connection /absolute/private/connection.json --client stdio
 node src/cli.js config --connection /absolute/private/connection.json --client codex
 node src/cli.js config --connection /absolute/private/connection.json --client vscode
 node src/cli.js check --connection /absolute/private/connection.json
@@ -220,6 +221,12 @@ node src/cli.js check --connection /absolute/private/connection.json
 It returns credential-free JSON and exit 0/1 for accepted/blocked readiness;
 ready work may still need an assignment or be busy. It never takes control,
 starts a task or registers a harness. [Checks and recovery](RECOVERY.md).
+
+`--client stdio` emits only `{command, args}` for any compatible subprocess
+launcher, with no client settings wrapper or provider credential. It uses the
+same pinned connection as every serializer. The default `generic` format uses
+`mcpServers`, which is a common client layout rather than an MCP protocol
+requirement. [Custom-agent integration](INTEGRATION.md).
 
 Replace the illustrative path with the exact file reported by creation. Access
 cannot be overridden on a named file; create the intended grant and revoke the

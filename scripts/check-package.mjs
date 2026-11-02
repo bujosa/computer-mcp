@@ -3,7 +3,10 @@ import fs from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { validatePackageInventory } from './package-contract.mjs';
+import {
+  validatePackageInventory,
+  validatePackageDocumentation,
+} from './package-contract.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 if (!process.env.npm_execpath)
@@ -18,10 +21,12 @@ const { stdout } = await promisify(execFile)(
 );
 const [pack] = JSON.parse(stdout);
 const result = validatePackageInventory(pkg, pack.files);
+const documentation = await validatePackageDocumentation(root, pack.files);
 process.stdout.write(
   JSON.stringify({
     result: 'passed',
     ...result,
+    ...documentation,
     compressedBytes: pack.size,
     unpackedBytes: pack.unpackedSize,
     private: pkg.private,

@@ -11,6 +11,10 @@ setup, client connection, first verified task, Teach and daily use.
 Browse the [documentation hub](docs/README.md)
 for task guides and reference material.
 
+Building a custom agent? Use the [provider-independent integration guide](docs/INTEGRATION.md)
+and `--client stdio` to obtain plain command/args without a client settings wrapper.
+Your harness supplies the model; this server requires no inference-provider account.
+
 The [November closeout](docs/PREVIEW-CLOSEOUT.md) records fresh two-PC lifecycle,
 Teach and named stdio acceptance. See [operations](docs/OPERATIONS.md) for source
 updates and retiring access. This remains a developer source preview.
