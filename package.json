@@ -1,7 +1,10 @@
 {
-  "name": "@bujosa/computer-mcp",
+  "name": "@sendtry/computer-mcp",
   "version": "0.1.0",
   "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "description": "An owned Linux desktop for any MCP agent",
   "repository": {

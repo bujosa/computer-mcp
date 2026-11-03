@@ -80,6 +80,21 @@ const documents = new Set([
 ]);
 export function validatePackageInventory(pkg, files) {
   assert.equal(
+    pkg.name,
+    '@sendtry/computer-mcp',
+    'Use the official @sendtry/computer-mcp package scope.',
+  );
+  assert.equal(
+    pkg.bin?.['computer-mcp'],
+    'src/cli.js',
+    'Expose the computer-mcp CLI binary.',
+  );
+  assert.equal(
+    pkg.publishConfig?.access,
+    'public',
+    'Configure public access for future scoped npm releases.',
+  );
+  assert.equal(
     pkg.private,
     true,
     'npm publication remains disabled by this manifest.',
