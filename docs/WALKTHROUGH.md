@@ -191,6 +191,25 @@ Alternatively use your user configuration deliberately. `codex mcp list` checks
 registration; reconnect and check actual tools.
 [Official Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
 
+### Gemini through Antigravity CLI
+
+Use the generic JSON from step 4 in the agent project's
+`.agents/mcp_config.json`, keeping the `mcpServers` wrapper and generated key.
+Merge the entry; preserve existing configuration. This is the workspace
+configuration path for **Antigravity CLI**, not a Gemini API key or the desktop
+editor's settings. Start `agy` from this project and inspect `agy mcp list`.
+Use `agy models` to choose an available Gemini model, then launch
+`agy --model MODEL_ID`. Review the exact MCP server's permissions and confirm
+real tool discovery before assigning work.
+
+For the operator, manually copy the whole `skills/sendtry-computer/` folder
+into this project's `.agents/skills/sendtry-computer/`, retaining `LICENSE.txt`.
+Ask Gemini to read that `SKILL.md` and use the connected computer tools.
+Antigravity may present tool definitions and returned images as local cached
+files; those are client-managed artifacts, not extra guest filesystem access.
+See [official Antigravity MCP configuration](https://antigravity.google/docs/mcp)
+and [current client acceptance](REAL-CLIENT-VALIDATION.md).
+
 ### Cursor
 
 Use the generic JSON above in the agent project's `.cursor/mcp.json`. Inside
@@ -212,6 +231,13 @@ Compare its IDs to the intended PC in the owner console/status. A named work
 connection currently exposes 20 tools; a named read connection exposes 9.
 Tool names may have a harness prefix. Registration alone, or an agent claiming
 it has access without a real tool response, is insufficient.
+
+Client approval and the guest assignment are separate boundaries. A work grant
+does not override your client's permission policy. If a non-interactive client
+denies a mutation because approval is unavailable, stop and configure its
+documented approval/review mechanism for the intended server. Do not disable
+all permission checks or move work to the host. The [real-client record](REAL-CLIENT-VALIDATION.md)
+documents the tested Codex review configuration and Antigravity limits.
 
 ## 6. Give the agent its operator skill
 

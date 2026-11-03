@@ -1,9 +1,10 @@
 # Tools, skills and agent execution
 
 Sendtry Computer supplies an assigned **Linux guest**, MCP tools and reusable
-instructions. The connected Claude/Codex/Cursor/other agent supplies reasoning.
+instructions. The connected Claude/Codex/Gemini/other agent supplies reasoning.
 A skill does not start an agent, train a model or add permissions. This is a
-private preview; public distribution and license decisions remain pending.
+public source preview: code and the generic operator use MIT. Sendtry marks
+have separate terms; npm, Registry and image publication remain pending.
 
 ## Discover the actual connection
 
@@ -236,9 +237,12 @@ against a deterministic runtime double. Live guest acceptance is recorded in
 
 Named grants/revocation and bounded saved task attempts are now implemented;
 the separate [new two-PC acceptance](ASSIGNMENT-VALIDATION.md) records actual
-Claude/Codex named analysis/execution and owner verification. Remaining work
-includes schema-backed results, checkpoint/resume for long work, broader real
-acceptance of assignment/revocation/recovery, verified actor identity/task evaluation, more task pilots
-and public packaging/support gates. See [readiness](READINESS.md). Existing
-evidence supports a working private MVP, not arbitrary tasks, every model or
-isolated macOS/Windows guests.
+Claude/Codex named analysis/execution and owner verification. Schema-backed
+results with separate image blocks are implemented. The [current real-client
+acceptance](REAL-CLIENT-VALIDATION.md) records Claude Code, Codex and Gemini
+through Antigravity, including rejected attempts and client configuration limits.
+Remaining work includes checkpoint/resume for long work, broader real acceptance
+of assignment/revocation/recovery, verified actor identity/task evaluation, more
+task pilots and public package/support gates. See [readiness](READINESS.md).
+This evidence covers a bounded working preview; it does not certify arbitrary
+tasks, every model or isolated macOS/Windows guests.
