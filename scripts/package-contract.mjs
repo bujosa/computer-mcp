@@ -16,6 +16,7 @@ export const requiredPackageFiles = [
   'docs/ADAPTERS.md',
   'docs/ASSIGNMENT-VALIDATION.md',
   'docs/CLIENT-VALIDATION.md',
+  'docs/REAL-CLIENT-VALIDATION.md',
   'docs/DESIGN-DIRECTION.md',
   'docs/DESIGN-REVIEW.md',
   'docs/DISTRIBUTION.md',

@@ -35,6 +35,10 @@ It separates MCP transport, optional skills, client settings and guest adapters.
 
 ## Read the evidence
 
+[Current real-client acceptance](REAL-CLIENT-VALIDATION.md) records actual Claude
+Code, Codex and Gemini-through-Antigravity Teach and task runs, independent owner
+checks, permission setup failures and the rejected initial scenario.
+
 [November closeout](PREVIEW-CLOSEOUT.md) records fresh two-PC lifecycle, Teach,
 named-connection acceptance and the dependency audit correction.
 
