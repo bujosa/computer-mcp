@@ -65,9 +65,13 @@ npm ci
 node src/cli.js --version
 ```
 
-All owner commands below run from this checkout. Do not move/delete it after
-configuring the harness without regenerating its absolute paths. There is no
-published Sendtry npm server package to install; `npm ci` installs dependencies
+All owner commands below use `node src/cli.js <command>` from this checkout.
+If you prefer running `computer-mcp <command>` from any directory, run
+`npm link` (or `npm install -g .`) once after `npm ci`. Both modes generate
+the same pinned absolute `stdio` bridge entry for your harness. Do not
+move/delete the checkout after configuring the harness without regenerating its
+absolute paths. The package is scoped as `@sendtry/computer-mcp` (`private: true`
+until the npm registry release is published); `npm ci` installs dependencies
 from source. [Distribution status](PUBLICATION.md#is-npm-required).
 
 Check the explicitly selected local engine:

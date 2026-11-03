@@ -1,7 +1,10 @@
 # MCP distribution and release preparation
 
-Current update, 27 October 2026: code and generic skill now use MIT. The
-operator has a standard `skills/sendtry-computer/` package; see
+Current update, 3 November 2026: the package manifest is scoped under
+`@sendtry/computer-mcp` (`v0.1.0`) with `publishConfig.access = "public"`, CLI
+binary `computer-mcp` and `private: true` until the npm registry release is
+published. Code and generic skill use MIT. The operator has a standard
+`skills/sendtry-computer/` package; see
 [public source/skill installation](PUBLICATION.md). The full repository/history
 and reviewed default branch are public. npm, Registry, GitHub Releases and
 prebuilt images remain unpublished. The dated

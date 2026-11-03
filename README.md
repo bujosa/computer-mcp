@@ -15,33 +15,36 @@ Building a custom agent? Use the [provider-independent integration guide](docs/I
 and `--client stdio` to obtain plain command/args without a client settings wrapper.
 Your harness supplies the model; this server requires no inference-provider account.
 
-The [November closeout](docs/PREVIEW-CLOSEOUT.md) records fresh two-PC lifecycle,
-Teach and named stdio acceptance. See [operations](docs/OPERATIONS.md) for source
-updates and retiring access. This remains a developer source preview.
+The [November closeout](docs/PREVIEW-CLOSEOUT.md) and
+[real client acceptance](docs/REAL-CLIENT-VALIDATION.md) record fresh two-PC
+lifecycle, Teach and named stdio acceptance across Claude Code, Codex and
+Gemini through Antigravity. See [operations](docs/OPERATIONS.md) for local
+updates and retiring access.
 
 Looking for the skill? [Install the generic operator](docs/PUBLICATION.md#install-from-github).
 It requires a configured MCP connection; installation alone does not grant a computer.
 
-This developer preview runs a dedicated **Linux desktop in Docker**, with Chromium,
-a bounded command runner, a workspace file explorer, screenshots, bounded guest
-mouse/keyboard input and **Teach**: record a demonstration, review reusable instructions and export
-a `SKILL.md` pinned to its computer, workspace and reviewed revision. A small Node CLI
-starts the computer; your harness launches a separate MCP bridge over stdio.
-Named read/work connections can be revoked separately. Work connections execute
-owner-assigned tasks, report their outcome and leave verification to the owner.
-There is no model subscription, chatbot, gateway, cloud provisioning or Piblo
-backend dependency.
+Sendtry Computer (`@sendtry/computer-mcp`, CLI `computer-mcp`) runs a dedicated
+**Linux desktop in Docker**, with Chromium, a bounded command runner, a
+workspace file explorer, screenshots, bounded guest mouse/keyboard input and
+**Teach**: record a demonstration, review reusable instructions and export a
+`SKILL.md` pinned to its computer, workspace and reviewed revision. The local
+CLI starts the computer; your harness launches a separate MCP bridge over
+`stdio`. Named read/work connections can be revoked separately. Work connections
+execute owner-assigned tasks, report their outcome and leave verification to the
+owner. There is no model subscription, chatbot, gateway, cloud provisioning or
+Piblo backend dependency.
 
-Product assessment, GitHub comparison and earlier preview readiness work:
+Product assessment, GitHub comparison and earlier readiness work:
 [market review](docs/MARKET.md), [release gaps](docs/READINESS.md) and
 [executed validation](docs/VALIDATION.md). The current [screen-first design](docs/DESIGN-DIRECTION.md)
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
 maps computer/Teach behavior, practical use and truthful gaps. Code and the generic operator use
 [MIT](LICENSE); [Sendtry marks](TRADEMARKS.md) have separate terms. The complete
 source and skill are public on GitHub. npm, Registry and prebuilt images remain
-unpublished; use the source setup below.
+unpublished; use the local installation options below.
 
-[Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
+[Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Real client acceptance](docs/REAL-CLIENT-VALIDATION.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
 
 ## How a demonstration becomes a skill
@@ -99,7 +102,18 @@ cross-client reuse, independent checks and the failed setups we corrected.
 Requirements: Node **22.13+**, Docker Engine **28+** with Compose v2 and a **local
 Linux container engine**. On macOS/Windows, install Docker Desktop and start it.
 The first build downloads Chromium and Linux desktop dependencies; later starts
-reuse the image and data. Clone the public source, then create your computer:
+reuse the image and data.
+
+Choose any local installation mode (all generate pinned absolute `stdio` entries):
+
+| Local option                        | How to install and run                                                                                           |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Source checkout**                 | `git clone https://github.com/bujosa/computer-mcp.git && cd computer-mcp && npm ci` then `node src/cli.js <cmd>` |
+| **Global `computer-mcp` command**   | Inside the checkout after `npm ci`, run `npm link` (or `npm install -g .`) to use `computer-mcp <cmd>` anywhere  |
+| **Local packed `@sendtry` tarball** | `npm pack --ignore-scripts` then `npm install -g ./sendtry-computer-mcp-0.1.0.tgz --ignore-scripts`              |
+
+Clone the repository, install dependencies, and create your computer (using
+`computer-mcp` after `npm link` / `npm install -g .`, or `node src/cli.js` directly):
 
 ```sh
 git clone https://github.com/bujosa/computer-mcp.git
@@ -178,12 +192,13 @@ change existing networks or Docker's global pools. [IPAM details](docs/SETUP.md)
 
 ## Connect an agent
 
-Start the computer first, then create a separate named connection for each agent:
+Start the computer first, then create a separate named connection for each local `stdio` agent:
 
 ```sh
 node src/cli.js connection create claude-work --name my-computer --access work
 node src/cli.js connection create codex-work --name my-computer --access work --client codex
 node src/cli.js connection create observer --name my-computer --access read --client vscode
+node src/cli.js connection create custom-agent --name my-computer --access work --client stdio
 node src/cli.js skill
 ```
 
@@ -191,7 +206,13 @@ Creation saves a private scoped credential file under
 `<catalog>/connections/<computerId>/<connectionId>.json` and prints only the
 credential-free MCP configuration to stdout. Copy its unique server entry into
 your harness settings, preserving its generated `computer-…` key and absolute
-paths. The second command emits Codex TOML; the third emits VS Code JSON.
+paths:
+
+- `--client generic` (default): JSON `mcpServers` entry for Claude Code, Cursor, Antigravity and compatible clients.
+- `--client codex`: TOML `mcp_servers` entry for Codex CLI.
+- `--client vscode`: JSON `servers` entry with `type: "stdio"` for VS Code.
+- `--client stdio`: Plain `{ "command", "args" }` subprocess launch descriptor for custom harnesses and SDK clients.
+
 To reprint an existing grant's configuration in another format, use
 `config --connection /absolute/private/connection.json --client codex`.
 The file supplies PC/workspace/access and cannot be combined with
@@ -217,13 +238,13 @@ without that policy flag retain compatibility. Use
 `connection legacy disable --name my-computer` to disable it.
 [Full setup and legacy options](docs/SETUP.md).
 
-Earlier Claude Code and Codex CLI agents passed work/read/control and video-to-reviewed-task scenarios;
-see [harness validation](docs/HARNESS-VALIDATION.md) for versions and evidence.
-Cursor CLI also passed actual project skill loading, read/work tasks and timeout
-recovery. See [client acceptance](docs/CLIENT-VALIDATION.md), including initial
-approval/cap failures and independent result checks. Those historical runs used
-the preceding connection/task contract; they do not prove this named-assignment
-slice. Persistent desktop/IDE registration remains untested.
+Claude Code, Codex CLI and Gemini through Antigravity passed real
+named-assignment Teach and task execution with independent owner checks; see
+[real client acceptance](docs/REAL-CLIENT-VALIDATION.md). Earlier runs on the
+preceding connection/task contract also covered Claude Code, Codex CLI and
+Cursor CLI; see [harness validation](docs/HARNESS-VALIDATION.md) and
+[client acceptance](docs/CLIENT-VALIDATION.md). Persistent desktop/IDE
+registration remains untested.
 
 In **Tasks → New task**, choose an active named work connection and supply the
 goal, success criterion and optional scope. **Assign task & copy request** saves
@@ -339,8 +360,8 @@ Docker installation or editor integration.
 
 ## Boundaries and development
 
-CI is intentionally disabled during this developer preview. The checks
-below run locally; the Actions workflow is retained for future manual use.
+CI is intentionally disabled in GitHub Actions; the validation suite below runs
+locally, and the Actions workflow is retained for manual use.
 See [QA and CI policy](docs/QA.md#manual-validation-and-ci-policy).
 
 Every computer gets a UUID, pinned workspace UUID, unique Compose project,
@@ -380,12 +401,13 @@ the tools → computer → taught-skill flow. Read
 [arquitecture.md](arquitecture.md) for modules, identity, permissions, execution
 and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 
-**Developer preview, MIT code and skill.** See [LICENSE](LICENSE),
+**MIT code and skill (`@sendtry/computer-mcp` v0.1.0).** See [LICENSE](LICENSE),
 [Sendtry brand rules](TRADEMARKS.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
-The source and generic skill are public on GitHub. The npm manifest remains
-`private: true`; no public npm/Registry/container release exists.
+The source and generic skill are public on GitHub. The npm manifest is scoped as
+`@sendtry/computer-mcp` with `publishConfig.access = "public"` and `private: true`
+until the npm registry release is published.
 [Installation and publication](docs/PUBLICATION.md) explains the verified public
-skill install, supported boundaries and separate package-release gates.
+skill install, local setup options and separate package-release gates.
 The [distribution policy](docs/DISTRIBUTION.md) records primary-market research,
-the private artifact check and a schema-checked draft Registry manifest. The
-package is not on a public registry; use the public source checkout today.
+the private artifact check and a schema-checked draft Registry manifest. Use the
+public source checkout or local CLI installation today.

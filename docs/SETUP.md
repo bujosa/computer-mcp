@@ -4,7 +4,7 @@ New here? Use the [complete local stdio walkthrough](WALKTHROUGH.md)
 for a first verified task and Teach trial.
 This page is the detailed command/configuration reference.
 
-## Install/run from the public source
+## Install and run locally
 
 Use Node 22.13+.
 
@@ -14,9 +14,17 @@ cd computer-mcp
 npm ci
 ```
 
-No package publication or global installation is
-needed. Commands are `node src/cli.js <command>`. `npm start -- <command>` is also
-available for owner commands. `init` (`setup` is a compatible alias) checks a local
+The package is scoped as `@sendtry/computer-mcp` (`v0.1.0`) and exposes the
+`computer-mcp` binary (`src/cli.js`). You can run owner commands in any of
+these ways (all generate pinned absolute `stdio` entries for MCP clients):
+
+- **Direct checkout:** `node src/cli.js <command>` (or `npm start -- <command>`).
+- **Global CLI command:** run `npm link` (or `npm install -g .`) inside the
+  checkout after `npm ci`, then invoke `computer-mcp <command>` from anywhere.
+- **Packed local tarball:** run `npm pack --ignore-scripts` and install the
+  resulting `sendtry-computer-mcp-0.1.0.tgz` in a local or global prefix.
+
+`init` (`setup` is a compatible alias) checks a local
 Docker Linux engine, creates private computer state and registers it in a local
 catalog. It refuses to replace an existing config. Names contain lowercase
 letters, digits and hyphens; each computer gets a distinct console port.

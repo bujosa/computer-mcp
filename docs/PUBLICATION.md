@@ -1,19 +1,21 @@
-# Install the Sendtry Computer preview
+# Install Sendtry Computer (`@sendtry/computer-mcp`)
 
 For a guided first run, follow the [local stdio walkthrough](WALKTHROUGH.md).
-This page covers distribution and
-skill installation; [setup](SETUP.md) is the command reference.
+This page covers distribution, local CLI setup and skill installation;
+[setup](SETUP.md) is the command reference.
 
-Status: 27 October 2026. The complete [repository and history](https://github.com/bujosa/computer-mcp)
+Status: 3 November 2026. The complete [repository and history](https://github.com/bujosa/computer-mcp)
 are public. Code and the generic operator use **MIT**, with separate Sendtry
 [brand terms](../TRADEMARKS.md) and [dependency notices](../THIRD_PARTY_NOTICES.md).
-The reviewed stack #9 → #10 → #12 → #13 → #14 is integrated into `main`.
-The npm manifest remains `private: true`; npm, Registry, prebuilt images and
-GitHub Releases are not published.
+The package manifest is scoped under `@sendtry/computer-mcp` (`v0.1.0`) with
+`publishConfig.access = "public"`, CLI binary `computer-mcp` and `private: true`
+until the npm registry release is published. npm, Registry, prebuilt images and
+GitHub Releases remain unpublished.
 
 [Publication acceptance](https://github.com/bujosa/computer-mcp/blob/main/docs/PUBLIC-LAUNCH.md)
 records the exact source commit, anonymous installation, actual MCP checks and
-limits. [The earlier review](https://github.com/bujosa/computer-mcp/blob/main/docs/PUBLIC-PREVIEW-REVIEW.md)
+limits. [Real client acceptance](REAL-CLIENT-VALIDATION.md) records Claude Code,
+Codex CLI and Gemini-through-Antigravity task flows. [The earlier review](https://github.com/bujosa/computer-mcp/blob/main/docs/PUBLIC-PREVIEW-REVIEW.md)
 is a dated preparation record, including the failures corrected before launch.
 
 ## What is being shared
@@ -30,7 +32,7 @@ access or train a model. The configured external harness supplies inference.
 Only the owner assigns work and verifies an agent report. Teaching analysis is
 explicitly consented and produces a draft for owner correction/review.
 
-## Install the server from source
+## Install and run the server locally
 
 Use Node 22.13+ and a local Docker Linux engine (Engine 28+ with Compose).
 
@@ -38,6 +40,22 @@ Use Node 22.13+ and a local Docker Linux engine (Engine 28+ with Compose).
 git clone https://github.com/bujosa/computer-mcp.git
 cd computer-mcp
 npm ci
+```
+
+Choose your local execution style (all produce pinned absolute `stdio` bridge
+paths when you create or print a connection):
+
+1. **Direct source checkout:** run `node src/cli.js <command>` from the clone.
+2. **Global `computer-mcp` CLI from the checkout:** run `npm link` (or
+   `npm install -g .`) once after `npm ci`, then run `computer-mcp <command>`
+   from any directory.
+3. **Packed local `@sendtry/computer-mcp` tarball:** run
+   `npm pack --ignore-scripts` and install the resulting
+   `sendtry-computer-mcp-0.1.0.tgz` in a local prefix or global environment.
+
+Then check prerequisites and start your computer:
+
+```sh
 node src/cli.js doctor --context desktop-linux
 node src/cli.js init --name my-computer --context desktop-linux
 node src/cli.js start --name my-computer --open
@@ -47,7 +65,8 @@ On Linux use the name of the validated local context, commonly `default`.
 Docker Desktop on macOS/Windows supplies a **Linux guest**, not an isolated
 macOS/Windows desktop. The CLI refuses remote Docker endpoints and never switches
 the global context. See [setup](SETUP.md) for named read/work grants, defaults,
-multiple computers and credential-free harness configuration.
+multiple computers and credential-free harness configuration (`--client generic`,
+`--client codex`, `--client vscode` and `--client stdio`).
 
 ## Install from GitHub
 
@@ -65,7 +84,8 @@ Without `--global`, installation is project scoped. In CLI 1.7.4, Codex/Cursor
 share `.agents/skills/sendtry-computer/` and Claude Code uses
 `.claude/skills/sendtry-computer/`. All three canonical assets matched the public
 source. This proves installer acceptance; check that your actual harness session
-loads the skill before executing tasks. No new three-model trial is claimed.
+loads the skill before executing tasks. See
+[real client acceptance](REAL-CLIENT-VALIDATION.md) for subsequent live model runs.
 
 The environment variable opts out of the installer's telemetry. Review the
 installation plan. PowerShell syntax:
@@ -98,13 +118,14 @@ the exact workflow/revision and fresh inputs.
 
 No. MCP stdio lets the client [launch a local process](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#stdio).
 The configured `node /absolute/path/src/cli.js mcp --connection PRIVATE_FILE`
-works from a source installation. `npm ci` installs this checkout's dependencies;
-it does not publish the server.
+works from a source installation or a locally linked `computer-mcp` binary.
+`npm ci` installs this checkout's dependencies; it does not publish the server.
 
-A future npm release would simplify versioned installation and `npx` launch. It
-requires a separately authorized package/version release, verified npm namespace,
-reviewed artifact/provenance and a manifest change: `private: true` currently
-blocks `npm publish`. Do not claim `npx @bujosa/computer-mcp` is available today.
+A future npm release under `@sendtry/computer-mcp` will simplify versioned
+installation. It requires a separately authorized package/version release,
+verified `@sendtry` npm namespace, reviewed artifact/provenance and removing
+`private: true` (which currently blocks `npm publish`). Do not claim
+`npx @sendtry/computer-mcp` is available on the public npm registry today.
 
 The [MCP Registry](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/generic-server-json.md)
 is a discovery catalog, separate from npm and the [Agent Skills format](https://agentskills.io/specification).
@@ -133,4 +154,4 @@ with the generic operator.
 
 The current adapter is local Docker Linux. Managed backups, broad unattended
 reliability, persistent IDE onboarding, native host control and isolated
-macOS/Windows guests remain outside this source preview's supported paths.
+macOS/Windows guests remain outside the supported paths today.

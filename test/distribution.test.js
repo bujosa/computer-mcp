@@ -62,7 +62,13 @@ test('lint matcher selects source and browser rules while excluding generated an
 });
 
 test('private package inventory rejects state, media, env, development and generated assets', () => {
-  const pkg = { private: true, license: 'MIT' };
+  const pkg = {
+    name: '@sendtry/computer-mcp',
+    bin: { 'computer-mcp': 'src/cli.js' },
+    publishConfig: { access: 'public' },
+    private: true,
+    license: 'MIT',
+  };
   const files = requiredPackageFiles.map((path) => ({ path }));
   assert.equal(validatePackageInventory(pkg, files).files, files.length);
   for (const path of [
@@ -76,6 +82,13 @@ test('private package inventory rejects state, media, env, development and gener
     '../computer.json',
   ])
     assert.throws(() => validatePackageInventory(pkg, [...files, { path }]));
+  assert.throws(() =>
+    validatePackageInventory({ ...pkg, name: '@bujosa/computer-mcp' }, files),
+  );
+  assert.throws(() => validatePackageInventory({ ...pkg, bin: {} }, files));
+  assert.throws(() =>
+    validatePackageInventory({ ...pkg, publishConfig: {} }, files),
+  );
   assert.throws(() =>
     validatePackageInventory({ ...pkg, private: false }, files),
   );
@@ -141,9 +154,13 @@ test('VS Code config from the executable preserves absolute pinned read/work ent
 
 test('unpublished registry template matches package identity/version and explicit scoped CLI setup', async () => {
   const pkg = JSON.parse(await fs.readFile('package.json'));
+  const shrinkwrap = JSON.parse(await fs.readFile('npm-shrinkwrap.json'));
   const draft = JSON.parse(
     await fs.readFile('docs/registry/server.template.json'),
   );
+  assert.equal(pkg.name, '@sendtry/computer-mcp');
+  assert.equal(shrinkwrap.name, pkg.name);
+  assert.equal(shrinkwrap.packages?.['']?.name, pkg.name);
   assert.equal(draft.name, pkg.mcpName);
   assert.equal(draft.version, pkg.version);
   const [entry] = draft.packages;

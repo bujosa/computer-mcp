@@ -1,11 +1,11 @@
 {
-  "name": "@bujosa/computer-mcp",
+  "name": "@sendtry/computer-mcp",
   "version": "0.1.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "@bujosa/computer-mcp",
+      "name": "@sendtry/computer-mcp",
       "version": "0.1.0",
       "license": "MIT",
       "dependencies": {

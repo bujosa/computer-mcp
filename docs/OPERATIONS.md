@@ -1,11 +1,13 @@
-# Operate the local source preview
+# Operate a local installation
 
 [First setup](WALKTHROUGH.md) · [Recovery](RECOVERY.md) · [Command reference](SETUP.md)
 
-Use these procedures from your dedicated source checkout. Keep its path stable:
-your harness configuration contains absolute Node, CLI and private connection
-paths. Replace example names/paths with your own. Each command acts on one named
-computer; a CLI default change never retargets an existing MCP connection.
+Use these procedures from your dedicated local installation (`node src/cli.js`
+from a checkout, or `computer-mcp` if linked/installed globally from that
+checkout). Keep its path stable: your harness configuration contains absolute
+Node, CLI and private connection paths. Replace example names/paths with your
+own. Each command acts on one named computer; a CLI default change never
+retargets an existing MCP connection.
 
 ## Start, inspect and stop
 
@@ -93,7 +95,7 @@ videos and credentials can be sensitive. Do not upload them with the public
 operator skill or repository. Docker documents its underlying
 [volume backup/restore mechanism](https://docs.docker.com/engine/storage/volumes/#back-up-restore-or-migrate-data-volumes).
 
-Managed backup/restore and complete erasure remain outside this source preview.
+Managed backup/restore and complete erasure remain outside the current scope.
 No tested cross-host restore or portable taught-skill rebinding is claimed.
 Do not start a cloned identity alongside the original or restore an untrusted
 archive over a working PC. A restore procedure must preserve ownership,
