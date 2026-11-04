@@ -96,8 +96,8 @@ export function validatePackageInventory(pkg, files) {
   );
   assert.equal(
     pkg.private,
-    true,
-    'npm publication remains disabled by this manifest.',
+    false,
+    'Enable public npm package manifest under @sendtry/computer-mcp.',
   );
   assert.equal(
     pkg.license,

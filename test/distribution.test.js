@@ -61,12 +61,12 @@ test('lint matcher selects source and browser rules while excluding generated an
   assert.ok(server.messages.some((item) => item.ruleId === 'no-undef'));
 });
 
-test('private package inventory rejects state, media, env, development and generated assets', () => {
+test('package inventory rejects state, media, env, development and generated assets', () => {
   const pkg = {
     name: '@sendtry/computer-mcp',
     bin: { 'computer-mcp': 'src/cli.js' },
     publishConfig: { access: 'public' },
-    private: true,
+    private: false,
     license: 'MIT',
   };
   const files = requiredPackageFiles.map((path) => ({ path }));
@@ -90,7 +90,7 @@ test('private package inventory rejects state, media, env, development and gener
     validatePackageInventory({ ...pkg, publishConfig: {} }, files),
   );
   assert.throws(() =>
-    validatePackageInventory({ ...pkg, private: false }, files),
+    validatePackageInventory({ ...pkg, private: true }, files),
   );
   assert.throws(() => validatePackageInventory(pkg, files.slice(1)));
 });

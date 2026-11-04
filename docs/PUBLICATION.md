@@ -7,10 +7,9 @@ This page covers distribution, local CLI setup and skill installation;
 Status: 3 November 2026. The complete [repository and history](https://github.com/bujosa/computer-mcp)
 are public. Code and the generic operator use **MIT**, with separate Sendtry
 [brand terms](../TRADEMARKS.md) and [dependency notices](../THIRD_PARTY_NOTICES.md).
-The package manifest is scoped under `@sendtry/computer-mcp` (`v0.1.0`) with
-`publishConfig.access = "public"`, CLI binary `computer-mcp` and `private: true`
-until the npm registry release is published. npm, Registry, prebuilt images and
-GitHub Releases remain unpublished.
+The package manifest is published under `@sendtry/computer-mcp` (`v0.1.0`) with
+`publishConfig.access = "public"`, `private: false` and CLI binary `computer-mcp`.
+Registry and prebuilt images remain unpublished.
 
 [Publication acceptance](https://github.com/bujosa/computer-mcp/blob/main/docs/PUBLIC-LAUNCH.md)
 records the exact source commit, anonymous installation, actual MCP checks and
@@ -36,19 +35,15 @@ explicitly consented and produces a draft for owner correction/review.
 
 Use Node 22.13+ and a local Docker Linux engine (Engine 28+ with Compose).
 
-```sh
-git clone https://github.com/bujosa/computer-mcp.git
-cd computer-mcp
-npm ci
-```
-
 Choose your local execution style (all produce pinned absolute `stdio` bridge
 paths when you create or print a connection):
 
-1. **Direct source checkout:** run `node src/cli.js <command>` from the clone.
-2. **Global `computer-mcp` CLI from the checkout:** run `npm link` (or
-   `npm install -g .`) once after `npm ci`, then run `computer-mcp <command>`
-   from any directory.
+1. **Global npm package:** run `npm install -g @sendtry/computer-mcp`, then
+   invoke `computer-mcp <command>` from any directory.
+2. **Direct source checkout:** run
+   `git clone https://github.com/bujosa/computer-mcp.git && cd computer-mcp && npm ci`,
+   then `node src/cli.js <command>` from the clone (or `npm link` /
+   `npm install -g .` to expose `computer-mcp` globally).
 3. **Packed local `@sendtry/computer-mcp` tarball:** run
    `npm pack --ignore-scripts` and install the resulting
    `sendtry-computer-mcp-0.1.0.tgz` in a local prefix or global environment.
@@ -79,7 +74,8 @@ DISABLE_TELEMETRY=1 npx --yes skills@1.7.4 add bujosa/computer-mcp \
 
 This exact public repository source was installed without GitHub credentials in
 a fresh project on 27 October 2026. The pinned CLI is Vercel's third-party
-[skills installer](https://skills.sh/docs/cli), not a Sendtry npm server package.
+[skills installer](https://skills.sh/docs/cli), not the `@sendtry/computer-mcp`
+server package.
 Without `--global`, installation is project scoped. In CLI 1.7.4, Codex/Cursor
 share `.agents/skills/sendtry-computer/` and Claude Code uses
 `.claude/skills/sendtry-computer/`. All three canonical assets matched the public
@@ -118,14 +114,10 @@ the exact workflow/revision and fresh inputs.
 
 No. MCP stdio lets the client [launch a local process](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#stdio).
 The configured `node /absolute/path/src/cli.js mcp --connection PRIVATE_FILE`
-works from a source installation or a locally linked `computer-mcp` binary.
-`npm ci` installs this checkout's dependencies; it does not publish the server.
-
-A future npm release under `@sendtry/computer-mcp` will simplify versioned
-installation. It requires a separately authorized package/version release,
-verified `@sendtry` npm namespace, reviewed artifact/provenance and removing
-`private: true` (which currently blocks `npm publish`). Do not claim
-`npx @sendtry/computer-mcp` is available on the public npm registry today.
+works whether installed via `npm install -g @sendtry/computer-mcp` or from a
+source checkout. Because `connection create` and `config` emit pinned absolute
+Node and CLI paths, your harness launches the local `stdio` bridge directly
+without runtime package downloads during the MCP startup deadline.
 
 The [MCP Registry](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/generic-server-json.md)
 is a discovery catalog, separate from npm and the [Agent Skills format](https://agentskills.io/specification).
