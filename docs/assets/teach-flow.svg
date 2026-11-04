@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 152" width="1120" height="152" role="img" aria-labelledby="t d">
+<title id="t">How a demonstration becomes a skill</title>
+<desc id="d">Step 1, demonstration: a trace and optional video. The owner shares evidence. Step 2, agent analysis: a proposed procedure. Step 3, owner review: a published skill. With new inputs and a task request, step 4, agent execution: the agent verifies and reports the outcome.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker></defs>
+<rect width="1120" height="152" rx="14" fill="#f8fafc"/>
+<rect x="24" y="24" width="190" height="104" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+<text x="119.0" y="54" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0f766e" letter-spacing="1">STEP 1</text>
+<text x="119.0" y="82" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="600" fill="#0f172a">Demonstration</text>
+<text x="119.0" y="106" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#475569">trace and optional video</text>
+<rect x="318" y="24" width="190" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="413.0" y="54" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0f766e" letter-spacing="1">STEP 2</text>
+<text x="413.0" y="82" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="600" fill="#0f172a">Agent analysis</text>
+<text x="413.0" y="106" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#475569">proposed procedure</text>
+<rect x="612" y="24" width="190" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="707.0" y="54" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0f766e" letter-spacing="1">STEP 3</text>
+<text x="707.0" y="82" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="600" fill="#0f172a">Owner review</text>
+<text x="707.0" y="106" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#475569">published skill</text>
+<rect x="906" y="24" width="190" height="104" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+<text x="1001.0" y="54" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0f766e" letter-spacing="1">STEP 4</text>
+<text x="1001.0" y="82" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="600" fill="#0f172a">Agent execution</text>
+<text x="1001.0" y="106" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#475569">verifies and reports outcome</text>
+<line x1="220" y1="86.0" x2="312" y2="86.0" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+<text x="266.0" y="62.0" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#475569">Owner shares</text>
+<text x="266.0" y="77.0" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#475569">evidence</text>
+<line x1="514" y1="86.0" x2="606" y2="86.0" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+<line x1="808" y1="86.0" x2="900" y2="86.0" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+<text x="854.0" y="62.0" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#475569">New inputs and</text>
+<text x="854.0" y="77.0" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#475569">task request</text>
+</svg>

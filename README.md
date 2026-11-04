@@ -53,12 +53,9 @@ Show the task on the agent's computer, let your connected agent understand the
 evidence, review its proposed method, then ask it to do the task with new inputs.
 This is the demonstration-to-skill experience we provide.
 
-```mermaid
-flowchart TD
-    A[Demonstration: trace and optional video] -->|Owner shares evidence| B[Agent analysis: proposed procedure]
-    B --> C[Owner review: published skill]
-    C -->|New inputs and task request| D[Agent execution: verify and report outcome]
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/bujosa/computer-mcp/main/docs/assets/teach-flow.svg" alt="Step 1, demonstration with a trace and optional video. The owner shares evidence. Step 2, agent analysis proposes a procedure. Step 3, owner review publishes the skill. With new inputs and a task request, step 4, the agent executes, verifies and reports the outcome." width="100%" />
+</p>
 
 Finishing a recording saves a **completed workflow**, not a running analysis job.
 It has a stable ID, name, goal, action trace and revision, with optional local
