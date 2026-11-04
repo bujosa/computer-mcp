@@ -66,13 +66,12 @@ node src/cli.js --version
 ```
 
 All owner commands below use `node src/cli.js <command>` from this checkout.
-If you prefer running `computer-mcp <command>` from any directory, run
+If you prefer running `computer-mcp <command>` from any directory, install
+`@sendtry/computer-mcp` globally (`npm install -g @sendtry/computer-mcp`) or run
 `npm link` (or `npm install -g .`) once after `npm ci`. Both modes generate
 the same pinned absolute `stdio` bridge entry for your harness. Do not
-move/delete the checkout after configuring the harness without regenerating its
-absolute paths. The package is scoped as `@sendtry/computer-mcp` (`private: true`
-until the npm registry release is published); `npm ci` installs dependencies
-from source. [Distribution status](PUBLICATION.md#is-npm-required).
+move/delete the installation after configuring the harness without regenerating
+its absolute paths. [Distribution status](PUBLICATION.md#is-npm-required).
 
 Check the explicitly selected local engine:
 

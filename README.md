@@ -41,8 +41,8 @@ Product assessment, GitHub comparison and earlier readiness work:
 keeps work, teaching and setup clear. The [official Grok Bot comparison](docs/GROK-COMPARISON.md)
 maps computer/Teach behavior, practical use and truthful gaps. Code and the generic operator use
 [MIT](LICENSE); [Sendtry marks](TRADEMARKS.md) have separate terms. The complete
-source and skill are public on GitHub. npm, Registry and prebuilt images remain
-unpublished; use the local installation options below.
+source, `@sendtry/computer-mcp` package and generic skill are public. Registry
+and prebuilt images remain unpublished; use the local installation options below.
 
 [Setup](docs/SETUP.md) · [Connection check & recovery](docs/RECOVERY.md) · [Teach](docs/TEACH.md) · [Real client acceptance](docs/REAL-CLIENT-VALIDATION.md) · [Client acceptance](docs/CLIENT-VALIDATION.md) ·
 [Assigned computers and tasks](docs/ASSIGNMENTS.md) · [Two-PC Claude/Codex acceptance](docs/ASSIGNMENT-VALIDATION.md) · [Distribution research](docs/DISTRIBUTION.md) · [Contributing](CONTRIBUTING.md)
@@ -108,12 +108,13 @@ Choose any local installation mode (all generate pinned absolute `stdio` entries
 
 | Local option                        | How to install and run                                                                                           |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **npm global CLI**                  | `npm install -g @sendtry/computer-mcp` then `computer-mcp <cmd>`                                                 |
 | **Source checkout**                 | `git clone https://github.com/bujosa/computer-mcp.git && cd computer-mcp && npm ci` then `node src/cli.js <cmd>` |
 | **Global `computer-mcp` command**   | Inside the checkout after `npm ci`, run `npm link` (or `npm install -g .`) to use `computer-mcp <cmd>` anywhere  |
 | **Local packed `@sendtry` tarball** | `npm pack --ignore-scripts` then `npm install -g ./sendtry-computer-mcp-0.1.0.tgz --ignore-scripts`              |
 
-Clone the repository, install dependencies, and create your computer (using
-`computer-mcp` after `npm link` / `npm install -g .`, or `node src/cli.js` directly):
+Install the CLI (or clone the repository) and create your computer (using
+`computer-mcp` from global install, or `node src/cli.js` directly):
 
 ```sh
 git clone https://github.com/bujosa/computer-mcp.git
@@ -403,11 +404,8 @@ and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 
 **MIT code and skill (`@sendtry/computer-mcp` v0.1.0).** See [LICENSE](LICENSE),
 [Sendtry brand rules](TRADEMARKS.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
-The source and generic skill are public on GitHub. The npm manifest is scoped as
-`@sendtry/computer-mcp` with `publishConfig.access = "public"` and `private: true`
-until the npm registry release is published.
+The source, `@sendtry/computer-mcp` npm package and generic skill are public.
 [Installation and publication](docs/PUBLICATION.md) explains the verified public
-skill install, local setup options and separate package-release gates.
+skill install, local setup options and distribution status.
 The [distribution policy](docs/DISTRIBUTION.md) records primary-market research,
-the private artifact check and a schema-checked draft Registry manifest. Use the
-public source checkout or local CLI installation today.
+artifact checks and a schema-checked draft Registry manifest.
