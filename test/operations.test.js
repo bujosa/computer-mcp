@@ -533,7 +533,13 @@ test('lease loss, revocation and guarded owner cancellation preserve terminal un
 
 test('a new boot closes presence and interrupts only unfinished attempts', async (t) => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cmcp-ops-restart-'));
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  let second;
+  // Close the database before removing its directory: Windows cannot
+  // unlink an open SQLite file, and t.after hooks run in registration order.
+  t.after(async () => {
+    second?.close();
+    await fs.rm(root, { recursive: true, force: true });
+  });
   const base = {
     computerId: randomUUID(),
     workspaceId: randomUUID(),
@@ -554,12 +560,11 @@ test('a new boot closes presence and interrupts only unfinished attempts', async
   first.db.close();
   first.closed = true;
 
-  const second = await new Operations(
+  second = await new Operations(
     root,
     { ...base, bootId: randomUUID() },
     { legacyEnabled: true },
   ).init();
-  t.after(() => second.close());
   const recovered = second.task(running.id);
   assert.equal(recovered.status, 'interrupted');
   assert.equal(recovered.attempt.interruptionReason, 'runtime_restart');

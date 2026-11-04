@@ -326,8 +326,12 @@ test('shared shell formatter preserves literal arguments and owner metadata uses
     ],
   };
   const formatted = formatCommandEntry(entry, 'posix');
-  const result = await exec('/bin/sh', ['-c', formatted]);
-  assert.deepEqual(JSON.parse(result.stdout), args);
+  // Round-trip the POSIX format through a real shell where one exists.
+  // Windows runners have no /bin/sh; the win32 format is asserted below.
+  if (process.platform !== 'win32') {
+    const result = await exec('/bin/sh', ['-c', formatted]);
+    assert.deepEqual(JSON.parse(result.stdout), args);
+  }
   assert.equal(
     formatCommandEntry(
       { command: "C:\\Owner's Node\\node.exe", args: ["a'b", '$HOME'] },
