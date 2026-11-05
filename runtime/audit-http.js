@@ -62,6 +62,12 @@ export function activityAction(req) {
       return 'connection.legacy';
     return null;
   }
+  if (/^\/routines(?:\/|$)/.test(ownerPath)) {
+    if (req.kind !== 'human') return 'routine.denied';
+    if (req.method !== 'POST') return null;
+    if (ownerPath === '/routines') return 'routine.create';
+    return ownerPath.endsWith('/delete') ? 'routine.delete' : 'routine.update';
+  }
   if (/^\/(?:tasks|attempts)(?:\/|$)/.test(ownerPath)) {
     if (req.kind !== 'human')
       return ownerPath.startsWith('/attempts')

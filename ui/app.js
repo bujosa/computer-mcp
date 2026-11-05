@@ -11,6 +11,7 @@ const $ = (id) => document.getElementById(id);
 const pages = {
   desktop: 'Screen',
   tasks: 'Tasks',
+  routines: 'Routines',
   files: 'Files',
   terminal: 'Terminal',
   teach: 'Teach & skills',
@@ -222,8 +223,9 @@ async function showView(next) {
   renderOperations();
   if (info && view === 'files') await browse();
   if (info && view === 'teach') await recording();
-  if (info && ['tasks', 'connect'].includes(view))
-    await loadOperations({ tasks: view === 'tasks' });
+  if (info && ['tasks', 'connect', 'routines'].includes(view))
+    await loadOperations({ tasks: view !== 'connect' });
+  if (info && view === 'routines') await loadRoutines();
   if (view === 'computers') renderComputers();
   if (info && view === 'activity') await loadActivity();
 }
@@ -566,6 +568,7 @@ async function refreshComputer(task) {
         current,
         signal: task.controller.signal,
       });
+    if (view === 'routines' && current()) await loadRoutines();
   } catch (error) {
     // A superseded read cannot mark the newer owner/control state offline.
     if (current()) throw error;
@@ -1443,6 +1446,7 @@ async function loadOperations({
   renderOperations();
 }
 function renderOperations() {
+  if (view === 'routines') renderRoutines();
   renderConnections();
   renderLegacy();
   renderCheck();
@@ -3295,6 +3299,216 @@ $('owner-task').onclick = guarded(async () => {
   selectTask(id);
 });
 $('tasks-refresh').onclick = guarded(() => loadOperations({ tasks: true }));
+
+// Routines: owner-saved tasks the runtime assigns again on a schedule.
+let routines = [],
+  routinesLoaded = false,
+  routineDeleteId;
+const routineStates = {
+  scheduled: 'Scheduled',
+  running: 'Run in progress',
+  waiting_check: 'Waiting for your check',
+  paused: 'Paused',
+  off: 'Off',
+};
+const routinePauses = {
+  last_run_failed: 'the last run failed',
+  last_run_rejected: 'you rejected the last run',
+  last_run_interrupted: 'the last run was interrupted',
+  last_run_cancelled: 'the last run was cancelled',
+  connection_revoked: 'its connection was revoked',
+  connection_inactive: 'its connection is no longer active',
+};
+function routineEvery(every) {
+  const unit = every.value === 1 ? every.unit.replace(/s$/, '') : every.unit;
+  return `every ${every.value === 1 ? '' : every.value + ' '}${unit}`;
+}
+async function loadRoutines() {
+  if (!info || !actor) return;
+  try {
+    const data = await request('/api/routines');
+    routines = Array.isArray(data.routines) ? data.routines : [];
+    routinesLoaded = true;
+    $('routines-error').hidden = true;
+  } catch (error) {
+    $('routines-error').hidden = false;
+    setText('routines-error', `Couldn’t load routines: ${readError(error)}`);
+  }
+  renderRoutines();
+}
+function routineCard(routine) {
+  const item = element('li');
+  const card = element('div', 'workflow-card task-card routine-card');
+  const badges = element('span', 'task-card-badges');
+  badges.append(
+    element(
+      'span',
+      `task-status routine-${routine.state}`,
+      routineStates[routine.state] || routine.state,
+    ),
+  );
+  const meta = [
+    connectionName(routine.connectionId),
+    routineEvery(routine.every),
+  ];
+  if (routine.runs)
+    meta.push(`${routine.runs} ${routine.runs === 1 ? 'run' : 'runs'}`);
+  card.append(
+    element('strong', '', routine.name),
+    badges,
+    element('span', '', meta.join(' · ')),
+  );
+  const detail =
+    routine.state === 'paused'
+      ? `Paused because ${routinePauses[routine.pausedReason] || routine.pausedReason}. Inspect it, then turn it on again.`
+      : routine.state === 'waiting_check'
+        ? 'The last run reported done. Check it in Tasks to release the next run.'
+        : routine.state === 'running'
+          ? 'The current run is queued or running.'
+          : routine.state === 'scheduled' && routine.nextRunAt
+            ? `Next run ${activityTime(routine.nextRunAt)}.`
+            : 'Turned off. No runs are assigned.';
+  card.append(element('span', 'caption', detail));
+  const actions = element('span', 'actions routine-actions');
+  const toggle = actionButton(
+    routine.enabled ? 'Turn off' : 'Turn on',
+    'toggle',
+    `routine:${routine.id}:toggle`,
+    routine.enabled ? '' : 'primary',
+  );
+  toggle.onclick = guarded(async () => {
+    const data = await request(`/api/routines/${routine.id}`, {
+      enabled: !routine.enabled,
+    });
+    notice(
+      data.routine.enabled
+        ? `Routine “${routine.name}” is on.`
+        : `Routine “${routine.name}” is off. No new runs will be assigned.`,
+    );
+    await loadOperations({ tasks: true });
+    await loadRoutines();
+  });
+  actions.append(toggle);
+  if (routine.lastRun) {
+    const last = actionButton(
+      'View last run',
+      'last',
+      `routine:${routine.id}:last`,
+    );
+    last.onclick = guarded(async () => {
+      await showView('tasks');
+      selectTask(routine.lastRun.id);
+    });
+    actions.append(last);
+  }
+  const confirming = routineDeleteId === routine.id;
+  const remove = actionButton(
+    confirming ? 'Confirm delete' : 'Delete',
+    'delete',
+    `routine:${routine.id}:delete`,
+    confirming ? 'danger' : 'quiet',
+  );
+  remove.onclick = guarded(async () => {
+    if (!confirming) {
+      routineDeleteId = routine.id;
+      return renderRoutines();
+    }
+    routineDeleteId = undefined;
+    await request(`/api/routines/${routine.id}/delete`, {});
+    notice(`Deleted routine “${routine.name}”. Its past runs stay in Tasks.`);
+    await loadRoutines();
+  });
+  actions.append(remove);
+  card.append(actions);
+  item.append(card);
+  return item;
+}
+function renderRoutines() {
+  const on = routines.filter((routine) => routine.enabled).length;
+  setText(
+    'routines-summary',
+    !routinesLoaded
+      ? 'Repeat a task for one work connection on a schedule.'
+      : `${routines.length} ${routines.length === 1 ? 'routine' : 'routines'} · ${on} on · each run waits for your check of the last one.`,
+  );
+  renderList(
+    'routines',
+    $('routines-list'),
+    JSON.stringify([
+      routines,
+      routineDeleteId,
+      operations.connections.map((c) => c.label),
+    ]),
+    () =>
+      routines.length
+        ? routines.map(routineCard)
+        : [
+            element(
+              'li',
+              'caption',
+              routinesLoaded
+                ? 'No routines yet. Create one to repeat a task on a schedule.'
+                : 'Loading routines…',
+            ),
+          ],
+  );
+  renderSelect(
+    'routine-connection',
+    $('routine-connection'),
+    [
+      {
+        label: 'Work connections',
+        options: activeConnections()
+          .filter((connection) => connection.access === 'work')
+          .map((connection) => ({
+            value: connection.id,
+            label: connection.label,
+          })),
+      },
+    ],
+    { label: 'Choose a work connection', disabled: true },
+  );
+}
+$('routines-refresh').onclick = guarded(async () => {
+  await loadOperations({ tasks: true });
+  await loadRoutines();
+});
+$('routine-clear').onclick = () => {
+  for (const id of [
+    'routine-name',
+    'routine-goal',
+    'routine-result',
+    'routine-scope',
+  ])
+    $(id).value = '';
+  $('routine-error').hidden = true;
+};
+$('routine-form').onsubmit = guarded(async () => {
+  $('routine-error').hidden = true;
+  try {
+    const data = await request('/api/routines', {
+      name: $('routine-name').value,
+      connectionId: $('routine-connection').value,
+      goal: $('routine-goal').value,
+      expectedResult: $('routine-result').value,
+      scope: $('routine-scope').value,
+      every: {
+        value: Number($('routine-every').value),
+        unit: $('routine-unit').value,
+      },
+    });
+    $('routine-clear').onclick();
+    notice(
+      `Routine “${data.routine.name}” is on. Run 1 is assigned to ${connectionName(data.routine.connectionId)}.`,
+    );
+    await loadOperations({ tasks: true });
+    await loadRoutines();
+  } catch (error) {
+    $('routine-error').hidden = false;
+    setText('routine-error', readError(error));
+  }
+});
+
 $('task-new').onclick = showTaskForm;
 $('task-back').onclick = () => {
   if (busy) return;
