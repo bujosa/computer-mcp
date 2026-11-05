@@ -54,6 +54,11 @@ export const requiredPackageFiles = [
   'runtime/Dockerfile',
   'runtime/entrypoint.sh',
   'runtime/chromium-agent.sh',
+  'runtime/shell.js',
+  'runtime/shell/tint2rc',
+  'runtime/shell/openbox-rc.xml',
+  'runtime/shell/bin/owner-only',
+  'runtime/shell/wallpaper.png',
   'scripts/build-ui.mjs',
   'ui/index.html',
   'docs/README.md',
@@ -113,6 +118,9 @@ export function validatePackageInventory(pkg, files) {
         /^runtime\/[a-z0-9-]+\.(?:sh|py)$/.test(name) ||
         /^ui\/[a-z0-9-]+\.(?:js|html|css)$/.test(name) ||
         /^ui\/assets\/[a-z0-9-]+\.svg$/.test(name) ||
+        /^runtime\/shell\/(?:tint2rc|openbox-rc\.xml|terminalrc|bashrc|wallpaper\.png|theme\/openbox-3\/themerc|apps\/[a-z]+\.desktop|icons\/[a-z]+\.png|bin\/[a-z-]+)$/.test(
+          name,
+        ) ||
         /^skills\/sendtry-computer\/(?:SKILL\.md|LICENSE\.txt|agents\/openai\.yaml)$/.test(
           name,
         ));

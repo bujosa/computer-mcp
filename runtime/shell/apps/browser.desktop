@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Browser
+Comment=The agent's Chromium window
+Exec=/opt/computer-mcp/runtime/shell/bin/sendtry-browser
+Icon=/opt/computer-mcp/runtime/shell/icons/browser.png
+Terminal=false

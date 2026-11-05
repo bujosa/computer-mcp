@@ -1,0 +1,6 @@
+# Guest terminal for the owner. Runs as the unprivileged guest user.
+[ -f /etc/bash.bashrc ] && . /etc/bash.bashrc
+PS1='\[\e[1;38;5;209m\]guest\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+cd /data/workspace 2>/dev/null
+alias ls='ls --color=auto'
+printf '\033[38;5;209mSendtry Computer\033[0m · Linux guest workspace (/data/workspace)\n\n'

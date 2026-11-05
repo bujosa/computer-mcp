@@ -40,6 +40,26 @@ a window. There is no automatic location inference or blind replay.
 the correct app received it, a file was saved or a task succeeded. Inspect the
 result with browser/file tools or a new guest screenshot, then release control.
 
+## The desktop you see
+
+The guest starts with a Sendtry wallpaper and a dock along the bottom 48 px:
+**Show desktop**, **Browser** (raises the runtime's Chromium window), **Files**
+(Thunar in `/data/workspace`), **Terminal** (a guest shell in the workspace),
+the open windows and a clock. Chromium opens at 1280×752 above the dock; tool
+coordinates still use the full 1280×800 screen.
+
+**Files and Terminal are owner apps.** They open only while the owner holds
+control from the console, and they close as soon as an agent takes control. The
+runtime publishes the current holder (`owner`, `agent` or `free`) in the
+root-owned `/run/computer-mcp/desktop-apps`; the dock launchers read it and show
+a notice instead of opening. While an agent holds control the runtime also
+closes those apps every second, so launching the terminal binary through
+`terminal_run` does not leave an unbounded shell on screen. Agents keep using the
+browser, `desktop_action`, and the bounded `files_*` and `terminal_run` tools,
+whose effects stay in Activity. A missing or unreadable holder file is treated
+as "not the owner". Openbox has no root menu or program key bindings. These are
+guest processes in the container, not host access.
+
 ## Authority, cancellation and recovery
 
 Work access and the exclusive lease are required. Read access cannot invoke

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+Comment=Guest terminal (owner only while you have control)
+Exec=/opt/computer-mcp/runtime/shell/bin/sendtry-terminal
+Icon=/opt/computer-mcp/runtime/shell/icons/terminal.png
+Terminal=false

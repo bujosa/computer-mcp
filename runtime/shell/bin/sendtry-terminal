@@ -1,0 +1,8 @@
+#!/bin/sh
+/opt/computer-mcp/runtime/shell/bin/owner-only Terminal || exit 0
+conf="$HOME/.config/xfce4/terminal"
+if [ ! -f "$conf/terminalrc" ]; then
+  mkdir -p "$conf" && cp /opt/computer-mcp/runtime/shell/terminalrc "$conf/terminalrc"
+fi
+exec xfce4-terminal --disable-server --working-directory=/data/workspace \
+  --title=Terminal -x bash --rcfile /opt/computer-mcp/runtime/shell/bashrc -i

@@ -1,0 +1,96 @@
+# Sendtry Computer dock (tint2). Launchers, open windows and a clock.
+# Backgrounds: 1 panel, 2 task, 3 active task, 4 launcher hover
+rounded = 0
+border_width = 0
+background_color = #121419 92
+border_color = #ffffff 8
+
+rounded = 8
+border_width = 0
+background_color = #ffffff 6
+border_color = #ffffff 0
+background_color_hover = #ffffff 14
+
+rounded = 8
+border_width = 0
+background_color = #d06a54 38
+border_color = #d06a54 0
+background_color_hover = #d06a54 50
+
+rounded = 8
+border_width = 0
+background_color = #ffffff 0
+border_color = #ffffff 0
+background_color_hover = #ffffff 16
+
+panel_items = LTC
+panel_size = 100% 48
+panel_margin = 0 0
+panel_padding = 10 6 10
+panel_background_id = 1
+panel_position = bottom center horizontal
+panel_layer = top
+panel_monitor = all
+wm_menu = 0
+panel_dock = 0
+strut_policy = follow_size
+autohide = 0
+disable_transparency = 0
+font_shadow = 0
+
+launcher_padding = 4 4 6
+launcher_background_id = 0
+launcher_icon_background_id = 4
+launcher_icon_size = 34
+launcher_icon_asb = 100 0 0
+launcher_tooltip = 1
+launcher_item_app = /opt/computer-mcp/runtime/shell/apps/home.desktop
+launcher_item_app = /opt/computer-mcp/runtime/shell/apps/browser.desktop
+launcher_item_app = /opt/computer-mcp/runtime/shell/apps/files.desktop
+launcher_item_app = /opt/computer-mcp/runtime/shell/apps/terminal.desktop
+
+taskbar_mode = single_desktop
+taskbar_padding = 12 4 6
+taskbar_background_id = 0
+taskbar_active_background_id = 0
+taskbar_name = 0
+taskbar_hide_inactive_tasks = 0
+taskbar_distribute_size = 0
+
+task_text = 1
+task_icon = 1
+task_centered = 0
+task_maximum_size = 220 36
+task_padding = 10 4 6
+task_font = DejaVu Sans 9
+task_font_color = #e8e6e3 90
+task_active_font_color = #ffffff 100
+task_background_id = 2
+task_active_background_id = 3
+task_urgent_background_id = 3
+task_iconified_background_id = 2
+task_iconified_font_color = #e8e6e3 55
+task_tooltip = 1
+mouse_left = toggle_iconify
+mouse_middle = none
+mouse_right = close
+mouse_scroll_up = none
+mouse_scroll_down = none
+
+time1_format = %H:%M
+time2_format = %a %d %b
+time1_font = DejaVu Sans Bold 10
+time2_font = DejaVu Sans 8
+clock_font_color = #f4f2f0 92
+clock_padding = 8 0
+clock_background_id = 0
+clock_tooltip = %A %d %B %Y
+clock_lclick_command =
+clock_rclick_command =
+
+tooltip_show_timeout = 0.4
+tooltip_hide_timeout = 0.1
+tooltip_padding = 8 6
+tooltip_background_id = 1
+tooltip_font_color = #f4f2f0 100
+tooltip_font = DejaVu Sans 9

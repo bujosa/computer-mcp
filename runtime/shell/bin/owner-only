@@ -1,0 +1,11 @@
+#!/bin/sh
+# Desktop apps other than the browser run only while the owner holds control.
+# The runtime (root) writes the current holder; guests cannot change it, and it
+# closes these apps when an agent takes control. See docs/DESKTOP.md.
+state=$(cat /run/computer-mcp/desktop-apps 2>/dev/null || echo unknown)
+if [ "$state" != owner ]; then
+  GTK_THEME=Adwaita:dark zenity --info --title="$1" --width=360 --timeout=5 --no-wrap \
+    --text="$1 is available to the owner while they have control.\nAgents work through the browser and their files/terminal tools." \
+    >/dev/null 2>&1 &
+  exit 1
+fi

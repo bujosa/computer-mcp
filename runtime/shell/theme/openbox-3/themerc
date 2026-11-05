@@ -1,0 +1,60 @@
+# Sendtry: flat dark window frames for the guest desktop.
+border.width: 1
+padding.width: 8
+padding.height: 6
+window.handle.width: 0
+window.client.padding.width: 0
+window.client.padding.height: 0
+window.active.border.color: #2f333b
+window.inactive.border.color: #24272d
+window.active.title.bg: flat solid
+window.active.title.bg.color: #22252b
+window.inactive.title.bg: flat solid
+window.inactive.title.bg.color: #1a1c21
+window.active.label.bg: parentrelative
+window.inactive.label.bg: parentrelative
+window.active.label.text.color: #f4f2f0
+window.inactive.label.text.color: #8d8f96
+window.label.text.justify: center
+window.active.button.unpressed.bg: parentrelative
+window.active.button.unpressed.image.color: #c9cbd1
+window.active.button.hover.bg: flat solid
+window.active.button.hover.bg.color: #d06a54
+window.active.button.hover.image.color: #ffffff
+window.active.button.pressed.bg: flat solid
+window.active.button.pressed.bg.color: #b85844
+window.active.button.pressed.image.color: #ffffff
+window.inactive.button.unpressed.bg: parentrelative
+window.inactive.button.unpressed.image.color: #6b6e75
+window.inactive.button.hover.bg: parentrelative
+window.inactive.button.hover.image.color: #c9cbd1
+window.inactive.button.pressed.bg: parentrelative
+window.inactive.button.pressed.image.color: #c9cbd1
+window.active.handle.bg: flat solid
+window.active.handle.bg.color: #22252b
+window.inactive.handle.bg: flat solid
+window.inactive.handle.bg.color: #1a1c21
+window.active.grip.bg: flat solid
+window.active.grip.bg.color: #22252b
+window.inactive.grip.bg: flat solid
+window.inactive.grip.bg.color: #1a1c21
+menu.border.width: 1
+menu.border.color: #2f333b
+menu.items.bg: flat solid
+menu.items.bg.color: #1d2026
+menu.items.text.color: #e6e6e3
+menu.items.active.bg: flat solid
+menu.items.active.bg.color: #d06a54
+menu.items.active.text.color: #ffffff
+menu.title.bg: flat solid
+menu.title.bg.color: #22252b
+menu.title.text.color: #f4f2f0
+osd.bg: flat solid
+osd.bg.color: #1d2026
+osd.border.width: 1
+osd.border.color: #2f333b
+osd.label.text.color: #f4f2f0
+osd.hilight.bg: flat solid
+osd.hilight.bg.color: #d06a54
+osd.unhilight.bg: flat solid
+osd.unhilight.bg.color: #2f333b

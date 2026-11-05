@@ -7,6 +7,11 @@
   that one connection. Owner verification and review are unchanged.
 - The `assigned-task` and `analyze-demonstration` prompts accept an omitted `id`
   and pick the oldest queued task or the newest demonstration awaiting analysis.
+- The guest desktop now has a Sendtry wallpaper, window theme and a dock with
+  Show desktop, Browser, Files (Thunar) and Terminal launchers, open windows and
+  a clock. Files and Terminal are owner-only: they open while the owner holds
+  control and close when an agent takes it. Chromium opens at 1280×752 above the
+  dock; desktop coordinates stay 1280×800. Rebuild existing computers to get it.
 
 ## 0.1.0 — public source preview (27 October 2026)
 
