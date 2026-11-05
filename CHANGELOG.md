@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `worker --connection FILE --agent claude|codex` starts that agent CLI for each
+  newly queued assignment and each demonstration opened for analysis, scoped to
+  that one connection. Owner verification and review are unchanged.
+- The `assigned-task` and `analyze-demonstration` prompts accept an omitted `id`
+  and pick the oldest queued task or the newest demonstration awaiting analysis.
+
 ## 0.1.0 — public source preview (27 October 2026)
 
 The complete GitHub source/history and generic skill are public under MIT.

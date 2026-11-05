@@ -250,6 +250,22 @@ requirements for that grant; send the request to your existing agent. The consol
 does not launch a model. Inspect its eventual report and actual files/pages before
 recording your own checked or rejected verdict. [Task assignment and recovery](docs/TASKS.md).
 
+To skip the copy and paste, leave a worker running on the host for that connection:
+
+```bash
+node src/cli.js worker --connection /absolute/private/file.json --agent claude   # or codex
+```
+
+It checks `task_list` and `workflow_list` every 5 seconds (`--interval`). It starts
+`claude -p` or `codex exec --sandbox read-only` for each newly queued task and for each
+finished demonstration you allow for analysis, one at a time and never twice. The
+agent gets only this connection's MCP server. It prints tool calls and messages, but
+not tool results. A worker run is still an agent report: you still check the result
+and review proposals in the console. Tasks pinned to a skill with inputs still need
+the copied request, because input values are never saved with the task. `--once`
+handles what is queued now and exits. In an interactive agent, the `assigned-task`
+and `analyze-demonstration` prompts now pick the next item when you omit `id`.
+
 For a small first task, ask your agent to:
 
 > Read computer_info and task_get for this assignment. Use task_start to take
