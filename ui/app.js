@@ -3436,6 +3436,7 @@ function renderRoutines() {
     $('routines-list'),
     JSON.stringify([
       routines,
+      routinesLoaded,
       routineDeleteId,
       operations.connections.map((c) => c.label),
     ]),

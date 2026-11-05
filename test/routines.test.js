@@ -219,3 +219,22 @@ test('owner routine changes are recorded in Activity; agents are denied', () => 
   assert.equal(act('/routines', 'GET'), null);
   assert.equal(act('/routines', 'GET', 'agent'), 'routine.denied');
 });
+
+test('worker queue polls stay out of Activity; agent calls do not', () => {
+  const call = (name, client) =>
+    activityAction({
+      path: '/call',
+      method: 'POST',
+      kind: 'agent',
+      body: { name, args: {} },
+      auditClient: client,
+    });
+  const worker = { source: 'mcp', name: 'computer-mcp-worker claude' };
+  assert.equal(call('task_list', worker), null);
+  assert.equal(call('workflow_list', worker), null);
+  assert.equal(call('task_start', worker), 'tool.task_start');
+  assert.equal(
+    call('task_list', { source: 'mcp', name: 'claude-code' }),
+    'tool.task_list',
+  );
+});
