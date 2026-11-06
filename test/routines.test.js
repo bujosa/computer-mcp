@@ -211,6 +211,15 @@ test('owner routine changes are recorded in Activity; agents are denied', () => 
   const act = (path, method, kind = 'human') =>
     activityAction({ path, method, kind, body: {} });
   assert.equal(act('/routines', 'POST'), 'routine.create');
+  const toggle = (enabled) =>
+    activityAction({
+      path: `/routines/${randomUUID()}`,
+      method: 'POST',
+      kind: 'human',
+      body: { enabled },
+    });
+  assert.equal(toggle(true), 'routine.enable');
+  assert.equal(toggle(false), 'routine.disable');
   assert.equal(act(`/routines/${randomUUID()}`, 'POST'), 'routine.update');
   assert.equal(
     act(`/routines/${randomUUID()}/delete`, 'POST'),

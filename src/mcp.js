@@ -47,10 +47,12 @@ export async function serveMCP(config) {
   let heartbeat;
   let heldClient;
   let heldGeneration;
+  // The last declared client, so closing the session is attributed to it too.
+  let lastClient;
   const metadata = (ctx) => {
     const envelope = ctx?.mcpReq?.envelope;
     // Modern metadata is per request; absent clientInfo must stay unknown.
-    return declaredClient(
+    return (lastClient = declaredClient(
       'mcp',
       envelope
         ? envelope['io.modelcontextprotocol/clientInfo']
@@ -58,7 +60,7 @@ export async function serveMCP(config) {
       envelope
         ? envelope['io.modelcontextprotocol/protocolVersion']
         : server.server.getNegotiatedProtocolVersion(),
-    );
+    ));
   };
   const stopHeartbeat = () => {
     clearInterval(heartbeat);
@@ -329,7 +331,7 @@ export async function serveMCP(config) {
         await client
           .call('control_release', {}, undefined, heldClient)
           .catch(() => {});
-      await client.endSession().catch(() => {});
+      await client.endSession(lastClient || metadata()).catch(() => {});
     })());
   server.server.onclose = () => {
     void cleanup();

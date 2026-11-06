@@ -740,10 +740,13 @@ for (const access of ['work', 'read'])
     const root = await temporary(t);
     const config = assigned({ access });
     const paths = [];
+    let ended;
     config.port = await mockRuntime(t, (req) => {
       assert.ok(req.headers.authorization === `Bearer ${config.token}`);
       assert.equal(req.headers['x-connection-id'], config.connectionId);
       paths.push(req.url);
+      if (req.url === '/api/session/end')
+        ended = JSON.parse(req.headers['x-audit-client']);
       return {
         value:
           req.url === '/api/info'
@@ -800,6 +803,10 @@ for (const access of ['work', 'read'])
       access === 'work',
     );
     await client.close();
+    for (let i = 0; !ended && i < 50; i++)
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    // Closing the session is attributed to the agent, not "unnamed".
+    assert.equal(ended?.name, 'independent-agent');
     assert.ok(paths.includes('/api/info'));
     assert.ok(
       paths.every((request) =>
