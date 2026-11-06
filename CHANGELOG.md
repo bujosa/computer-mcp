@@ -9,6 +9,8 @@
 - Activity names every recorded action, including agent task tools, task
   assignment and checks, connections and routines (turned on, turned off),
   instead of showing "Recorded action".
+- Closing an MCP agent session is attributed to the agent's declared name
+  instead of "MCP agent · unnamed".
 - The worker hands the request to the agent on stdin and the MCP config and
   skill in files, so npm-installed `claude.cmd`/`codex.cmd` start on Windows.
 - `worker --connection FILE --agent claude|codex` starts that agent CLI for each

@@ -170,7 +170,11 @@ export class RuntimeClient {
       signal?.removeEventListener('abort', abort);
     }
   }
-  async endSession() {
-    return this.request('/api/session/end', { body: {}, timeoutMs: 5000 });
+  async endSession(client) {
+    return this.request('/api/session/end', {
+      body: {},
+      timeoutMs: 5000,
+      client,
+    });
   }
 }
