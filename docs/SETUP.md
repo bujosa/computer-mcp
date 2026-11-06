@@ -14,7 +14,7 @@ cd computer-mcp
 npm ci
 ```
 
-The package is published as `@sendtry/computer-mcp` (`v0.1.0`) and exposes the
+The package is published as `@sendtry/computer-mcp` (`v0.2.0`) and exposes the
 `computer-mcp` binary (`src/cli.js`). You can run owner commands in any of
 these ways (all generate pinned absolute `stdio` entries for MCP clients):
 
@@ -24,7 +24,7 @@ these ways (all generate pinned absolute `stdio` entries for MCP clients):
 - **Global CLI from checkout:** run `npm link` (or `npm install -g .`) inside the
   checkout after `npm ci`, then invoke `computer-mcp <command>` from anywhere.
 - **Packed local tarball:** run `npm pack --ignore-scripts` and install the
-  resulting `sendtry-computer-mcp-0.1.0.tgz` in a local or global prefix.
+  resulting `sendtry-computer-mcp-0.2.0.tgz` in a local or global prefix.
 
 `init` (`setup` is a compatible alias) checks a local
 Docker Linux engine, creates private computer state and registers it in a local

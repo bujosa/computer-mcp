@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — Worker, guest desktop and Routines (6 November 2026)
 
 - **Routines** repeat an owner-saved task for one work connection on a schedule
   (1 minute to 30 days). Each run is an assigned task; the next run waits for the

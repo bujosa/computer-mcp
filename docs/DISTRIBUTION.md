@@ -1,7 +1,7 @@
 # MCP distribution and release preparation
 
 Current update, 3 November 2026: the package manifest is published under
-`@sendtry/computer-mcp` (`v0.1.0`) with `publishConfig.access = "public"`,
+`@sendtry/computer-mcp` (`v0.2.0`) with `publishConfig.access = "public"`,
 `private: false` and CLI binary `computer-mcp`. Code and generic skill use MIT.
 The operator has a standard `skills/sendtry-computer/` package; see
 [public source/skill installation](PUBLICATION.md). The full repository/history
