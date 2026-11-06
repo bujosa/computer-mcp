@@ -76,6 +76,8 @@ const help = `Sendtry Computer — an agent's own Linux desktop, managed locally
   skill                          Print the operator SKILL.md; no PC/setup required
   --version | -v                 Print the installed package version; no setup required
   mcp --connection /absolute/private/file.json  Serve one scoped named connection
+  worker --connection /absolute/private/file.json --agent claude|codex
+         [--interval 5] [--once] Start that agent for each assigned task or Teach analysis
   mcp [--access work|read]        Legacy stdio bridge when the owner enables it
 
 Selection: --state /absolute/path > --name <registered-name> > saved default.
@@ -101,6 +103,9 @@ const { positionals, values } = parseArgs({
     client: { type: 'string' },
     access: { type: 'string' },
     connection: { type: 'string' },
+    agent: { type: 'string' },
+    interval: { type: 'string' },
+    once: { type: 'boolean' },
     all: { type: 'boolean' },
     'legacy-access': { type: 'boolean' },
     open: { type: 'boolean' },
@@ -142,6 +147,7 @@ const allowedOptions = {
   connection: ['name', 'state', 'access', 'client', 'all'],
   skill: [],
   mcp: ['name', 'state', 'access', 'connection'],
+  worker: ['connection', 'agent', 'interval', 'once'],
 };
 async function lifecycleLock(state, fn) {
   const lock = path.join(state, 'lifecycle.lock');
@@ -442,6 +448,10 @@ async function main() {
     );
     return;
   }
+  if (command === 'worker' && values.connection === undefined)
+    throw new Error(
+      'Use worker --connection /absolute/private/file.json --agent claude|codex.',
+    );
   if (command === 'check' && values.connection === undefined)
     throw new Error(
       'Use check --connection /absolute/private/file.json. Run doctor for setup prerequisites.',
@@ -464,6 +474,18 @@ async function main() {
     }
     validateConnectionClient(values.client);
     const config = await readAssignedConnection(values.connection);
+    if (command === 'worker') {
+      const interval = Number(values.interval ?? 5);
+      if (!Number.isInteger(interval) || interval < 1 || interval > 3600)
+        throw new Error('Use --interval with whole seconds from 1 to 3600.');
+      const { runWorker } = await import('./worker.js');
+      await runWorker(config, values.connection, {
+        agent: values.agent,
+        interval,
+        once: !!values.once,
+      });
+      return;
+    }
     if (command === 'mcp') await serveMCP(config);
     else
       process.stdout.write(
