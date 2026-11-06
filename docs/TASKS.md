@@ -54,6 +54,23 @@ from the same bound session is an idempotent completion; conflicting reports fai
 The owner must create a new request for a retry. There is no automatic effect retry,
 model dispatch, checkpoint/resume engine or reassignment scheduler.
 
+## Repeat a task with a routine
+
+**Routines** (console sidebar) save a task for one named work connection and
+assign it again on a schedule, from every minute to every 30 days. Turning a
+routine on assigns run 1 right away. Each run is an ordinary assigned task named
+`<routine> · run N`; a running `computer-mcp worker` for that connection starts
+it, or an agent session picks it up with `task_list`. Agents get no new tool or
+authority, and the request reaches them only through the task.
+
+The next run waits until the previous one is finished **and checked by you**:
+an unchecked report shows "Waiting for your check". A failed, rejected,
+interrupted or cancelled run, or a revoked connection, pauses the routine.
+Turning it back on is your go-ahead for the next run. Turning it off stops new
+runs; a run already assigned stays in Tasks and can be cancelled there.
+Routine create, change and delete actions appear in Activity. Routines live in
+the computer's private control storage (`/data/control/routines.json`).
+
 ## Prepare a task directly through MCP
 
 Named work clients can retrieve `assigned-task` for an existing queued task:

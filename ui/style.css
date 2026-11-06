@@ -2664,3 +2664,46 @@ body[data-view='desktop'] main {
     min-height: 72px;
   }
 }
+
+/* Routines */
+.routine-card {
+  cursor: default;
+}
+.routine-card .caption {
+  margin: 0;
+}
+.routine-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.routine-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+}
+.routine-every-row {
+  display: flex;
+  gap: 8px;
+}
+.routine-every-row input {
+  max-width: 110px;
+}
+.task-status.routine-scheduled,
+.task-status.routine-running {
+  color: #1f5d43;
+  background: #e2f3ea;
+}
+.task-status.routine-waiting_check {
+  color: #7a4a10;
+  background: #fbefd9;
+}
+.task-status.routine-paused {
+  color: #8a2f22;
+  background: #fbe3de;
+}
+.task-status.routine-off {
+  color: #5d5a57;
+  background: #eeebe8;
+}

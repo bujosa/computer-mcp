@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Routines** repeat an owner-saved task for one work connection on a schedule
+  (1 minute to 30 days). Each run is an assigned task; the next run waits for the
+  owner's check of the last one, and a failed or rejected run pauses the routine.
+- Activity no longer records a worker's `task_list`/`workflow_list` queue polls.
 - `worker --connection FILE --agent claude|codex` starts that agent CLI for each
   newly queued assignment and each demonstration opened for analysis, scoped to
   that one connection. Owner verification and review are unchanged.

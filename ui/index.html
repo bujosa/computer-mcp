@@ -57,6 +57,10 @@
       <symbol id="i-menu" viewBox="0 0 24 24">
         <path d="M4 6h16M4 12h16M4 18h16" />
       </symbol>
+      <symbol id="i-routine" viewBox="0 0 24 24">
+        <path d="M20 11a8 8 0 0 0-14.3-4.9M4 13a8 8 0 0 0 14.3 4.9" />
+        <path d="M5 3v3.5h3.5M19 21v-3.5h-3.5M12 8v4l2.5 1.5" />
+      </symbol>
       <symbol id="i-task" viewBox="0 0 24 24">
         <rect x="4" y="3" width="16" height="18" rx="2" />
         <path d="m8 9 1.5 1.5L12 8m-4 7 1.5 1.5L12 14m3-4.5h2m-2 6h2" />
@@ -89,6 +93,9 @@
           </button>
           <button class="tab" data-view="tasks">
             <svg class="icon"><use href="#i-task" /></svg>Tasks
+          </button>
+          <button class="tab" data-view="routines">
+            <svg class="icon"><use href="#i-routine" /></svg>Routines
           </button>
           <button class="tab" data-view="teach">
             <svg class="icon"><use href="#i-skill" /></svg>Teach &amp;
@@ -436,6 +443,119 @@ Add a goal and a success criterion to prepare a request.</pre
                 </div>
                 <p id="task-action-hint" class="caption" role="status"></p>
               </div>
+            </div>
+          </div>
+        </section>
+        <section id="routines" class="view" hidden>
+          <div class="section-bar library-bar tasks-bar">
+            <div>
+              <strong>Routines</strong>
+              <p id="routines-summary">
+                Repeat a task for one work connection on a schedule.
+              </p>
+            </div>
+            <div class="actions">
+              <button id="routines-refresh" type="button">Refresh</button>
+            </div>
+          </div>
+          <p id="routines-error" class="inline-error" role="alert" hidden></p>
+          <div class="skill-layout task-layout">
+            <div class="panel saved task-list-panel">
+              <ol id="routines-list" class="task-list" aria-label="Routines">
+                <li class="caption">Loading routines…</li>
+              </ol>
+            </div>
+            <div class="panel task-detail">
+              <form id="routine-form" class="custom-task-form">
+                <div>
+                  <h2 tabindex="-1">Create a routine.</h2>
+                  <p class="subtitle">
+                    Each run becomes an assigned task. A running worker starts
+                    it; the next run waits until you check the last one, and a
+                    failed run pauses the routine.
+                  </p>
+                </div>
+                <div>
+                  <label for="routine-connection">Send to</label>
+                  <select id="routine-connection" required></select>
+                </div>
+                <div>
+                  <label for="routine-name">Routine name</label>
+                  <input
+                    id="routine-name"
+                    maxlength="100"
+                    autocomplete="off"
+                    placeholder="Weekly MCP research"
+                    required
+                  />
+                </div>
+                <div>
+                  <label for="routine-goal">What should the agent do?</label>
+                  <textarea
+                    id="routine-goal"
+                    rows="3"
+                    maxlength="4000"
+                    required
+                    placeholder="Research the newest MCP servers on GitHub and write reports/mcp-research.md with links."
+                  ></textarea>
+                </div>
+                <div>
+                  <label for="routine-result"
+                    >What does success look like?</label
+                  >
+                  <textarea
+                    id="routine-result"
+                    rows="2"
+                    maxlength="2000"
+                    required
+                    placeholder="reports/mcp-research.md lists five repositories with a link and one line each."
+                  ></textarea>
+                </div>
+                <div class="routine-every">
+                  <label for="routine-every">Repeat every</label>
+                  <div class="routine-every-row">
+                    <input
+                      id="routine-every"
+                      type="number"
+                      min="1"
+                      max="43200"
+                      value="1"
+                      required
+                    />
+                    <select id="routine-unit" aria-label="Interval unit">
+                      <option value="minutes">minutes</option>
+                      <option value="hours">hours</option>
+                      <option value="days" selected>days</option>
+                    </select>
+                  </div>
+                </div>
+                <details class="task-scope-options">
+                  <summary>Scope and limits (optional)</summary>
+                  <label for="routine-scope">Allowed work and boundaries</label>
+                  <textarea
+                    id="routine-scope"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Read public pages only. Write only inside reports/. No sign-ins, forms or purchases."
+                  ></textarea>
+                </details>
+                <p
+                  id="routine-error"
+                  class="inline-error"
+                  role="alert"
+                  hidden
+                ></p>
+                <div class="actions">
+                  <button id="routine-create" type="submit" class="primary">
+                    Create and start routine
+                  </button>
+                  <button id="routine-clear" type="button">Clear</button>
+                </div>
+                <p class="caption">
+                  The first run is assigned right away. Keep secrets out of
+                  routines; each run is saved privately like any task.
+                </p>
+              </form>
             </div>
           </div>
         </section>

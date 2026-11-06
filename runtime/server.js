@@ -14,6 +14,7 @@ import { spawn } from 'node:child_process';
 import { Store } from './store.js';
 import { Lease } from './lease.js';
 import { initDesktopApps, publishDesktopApps } from './shell.js';
+import { Routines } from './routines.js';
 import { FileService } from './file-service.js';
 import { execute } from './process.js';
 import { Browser } from './browser.js';
@@ -134,6 +135,15 @@ const assignments = new Assignments({
   identity,
   sync: syncSockets,
 });
+const routines = await new Routines({
+  file: '/data/control/routines.json',
+  assignments,
+  operations,
+}).init();
+const routineTimer = setInterval(() => {
+  if (operations.healthy !== false) void routines.tick().catch(() => {});
+}, 10000);
+routineTimer.unref();
 const publicWorkflow = (workflow, req) => {
   const result = {
     ...workflow,
@@ -878,6 +888,27 @@ app.post('/api/tasks/:id/cancel', async (req, res) => {
 app.post('/api/tasks/:id/verify', (req, res) => {
   ownerOnly(req);
   res.json(assignments.verify(req.params.id, req.body, req.actor));
+});
+app.get('/api/routines', (req, res) => {
+  ownerOnly(req);
+  res.json({ routines: routines.list() });
+});
+app.post('/api/routines', async (req, res) => {
+  ownerOnly(req);
+  const routine = await routines.create(req.body, req.actor);
+  await routines.tick();
+  res.json({ routine: routines.view(routines.find(routine.id)) });
+});
+app.post('/api/routines/:id', async (req, res) => {
+  ownerOnly(req);
+  const routine = await routines.update(req.params.id, req.body, req.actor);
+  if (routine.enabled) await routines.tick();
+  res.json({ routine: routines.view(routines.find(routine.id)) });
+});
+app.post('/api/routines/:id/delete', async (req, res) => {
+  ownerOnly(req);
+  emptyBody(req);
+  res.json(await routines.remove(req.params.id));
 });
 app.post('/api/session/end', (req, res) => {
   requireThat(

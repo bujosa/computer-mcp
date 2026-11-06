@@ -28,6 +28,13 @@ export function activityAction(req) {
     const name = req.body?.name;
     if (!Object.hasOwn(tools, name)) return 'tool.unknown';
     if (['computer_info', 'control_renew'].includes(name)) return null;
+    // A worker's queue polls (every few seconds) are not owner-relevant
+    // history; the tasks they start and every effect are still recorded.
+    if (
+      ['task_list', 'workflow_list'].includes(name) &&
+      req.auditClient?.name?.startsWith('computer-mcp-worker ')
+    )
+      return null;
     const action = req.body?.args?.action;
     const actions =
       name === 'browser_action'
@@ -61,6 +68,12 @@ export function activityAction(req) {
     if (ownerPath === '/legacy' && req.method === 'POST')
       return 'connection.legacy';
     return null;
+  }
+  if (/^\/routines(?:\/|$)/.test(ownerPath)) {
+    if (req.kind !== 'human') return 'routine.denied';
+    if (req.method !== 'POST') return null;
+    if (ownerPath === '/routines') return 'routine.create';
+    return ownerPath.endsWith('/delete') ? 'routine.delete' : 'routine.update';
   }
   if (/^\/(?:tasks|attempts)(?:\/|$)/.test(ownerPath)) {
     if (req.kind !== 'human')
