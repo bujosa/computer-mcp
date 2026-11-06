@@ -6,6 +6,11 @@
   (1 minute to 30 days). Each run is an assigned task; the next run waits for the
   owner's check of the last one, and a failed or rejected run pauses the routine.
 - Activity no longer records a worker's `task_list`/`workflow_list` queue polls.
+- Activity names every recorded action, including agent task tools, task
+  assignment and checks, connections and routines (turned on, turned off),
+  instead of showing "Recorded action".
+- The worker hands the request to the agent on stdin and the MCP config and
+  skill in files, so npm-installed `claude.cmd`/`codex.cmd` start on Windows.
 - `worker --connection FILE --agent claude|codex` starts that agent CLI for each
   newly queued assignment and each demonstration opened for analysis, scoped to
   that one connection. Owner verification and review are unchanged.

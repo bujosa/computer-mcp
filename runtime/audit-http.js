@@ -73,7 +73,12 @@ export function activityAction(req) {
     if (req.kind !== 'human') return 'routine.denied';
     if (req.method !== 'POST') return null;
     if (ownerPath === '/routines') return 'routine.create';
-    return ownerPath.endsWith('/delete') ? 'routine.delete' : 'routine.update';
+    if (ownerPath.endsWith('/delete')) return 'routine.delete';
+    return req.body?.enabled === true
+      ? 'routine.enable'
+      : req.body?.enabled === false
+        ? 'routine.disable'
+        : 'routine.update';
   }
   if (/^\/(?:tasks|attempts)(?:\/|$)/.test(ownerPath)) {
     if (req.kind !== 'human')
