@@ -23,31 +23,42 @@ export const workerAgents = ['claude', 'codex'];
 const SERVER = 'sendtry-computer';
 const cli = fileURLToPath(new URL('./cli.js', import.meta.url));
 
-export function agentCommand(agent, request, connectionFile, skill) {
+// The request goes to the agent on stdin and the MCP config and skill go in
+// files under dir: on Windows npm installs agents as .cmd shims, and cmd.exe
+// cuts command lines at 8191 characters and cannot carry newlines.
+export function agentCommand(agent, connectionFile, dir, skill) {
   const server = {
     command: process.execPath,
     args: [cli, 'mcp', '--connection', connectionFile],
   };
-  if (agent === 'claude')
+  if (agent === 'claude') {
+    const files = {
+      'mcp.json': JSON.stringify({ mcpServers: { [SERVER]: server } }),
+      ...(skill ? { 'skill.md': skill } : {}),
+    };
     return {
       command: 'claude',
+      files,
       args: [
         '-p',
-        request,
         '--mcp-config',
-        JSON.stringify({ mcpServers: { [SERVER]: server } }),
+        path.join(dir, 'mcp.json'),
         '--strict-mcp-config',
         '--allowedTools',
         `mcp__${SERVER}`,
         '--output-format',
         'stream-json',
         '--verbose',
-        ...(skill ? ['--append-system-prompt', skill] : []),
+        ...(skill
+          ? ['--append-system-prompt-file', path.join(dir, 'skill.md')]
+          : []),
       ],
     };
+  }
   if (agent === 'codex')
     return {
       command: 'codex',
+      files: {},
       args: [
         'exec',
         '--skip-git-repo-check',
@@ -61,7 +72,6 @@ export function agentCommand(agent, request, connectionFile, skill) {
         `mcp_servers.${SERVER}.args=${JSON.stringify(server.args)}`,
         '-c',
         `mcp_servers.${SERVER}.default_tools_approval_mode="approve"`,
-        request,
       ],
     };
   throw new Error(`Use --agent ${workerAgents.join(' or ')}.`);
@@ -94,13 +104,17 @@ export function describeEvent(agent, event) {
 
 async function runAgent(agent, request, file, skill, log) {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'computer-mcp-worker-'));
-  const { command, args } = agentCommand(agent, request, file, skill);
+  const { command, args, files } = agentCommand(agent, file, cwd, skill);
   try {
+    for (const [name, content] of Object.entries(files))
+      await fs.writeFile(path.join(cwd, name), content, { mode: 0o600 });
     return await new Promise((resolve) => {
       const child = spawn(command, args, {
         cwd,
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
+      child.stdin.on('error', () => {}); // An agent that exits early closes it.
+      child.stdin.end(request);
       readline.createInterface({ input: child.stdout }).on('line', (line) => {
         let event;
         try {

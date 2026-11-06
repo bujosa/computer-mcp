@@ -70,11 +70,20 @@ test('picks the newest demonstration opened for analysis without a proposal or r
 });
 
 test('agent commands expose only this connection and restrict other tools', () => {
-  const claude = agentCommand('claude', 'do it', '/private/c.json', 'SKILL');
+  const dir = path.join(os.tmpdir(), 'run');
+  const claude = agentCommand('claude', '/private/c.json', dir, 'SKILL');
   assert.equal(claude.command, 'claude');
-  const config = JSON.parse(
+  // Nothing long or multi-line is passed as an argument (Windows cmd shims).
+  assert.equal(
     claude.args[claude.args.indexOf('--mcp-config') + 1],
+    path.join(dir, 'mcp.json'),
   );
+  assert.equal(
+    claude.args[claude.args.indexOf('--append-system-prompt-file') + 1],
+    path.join(dir, 'skill.md'),
+  );
+  assert.equal(claude.files['skill.md'], 'SKILL');
+  const config = JSON.parse(claude.files['mcp.json']);
   assert.deepEqual(Object.keys(config.mcpServers), ['sendtry-computer']);
   assert.deepEqual(config.mcpServers['sendtry-computer'].args.slice(-3), [
     'mcp',
@@ -87,12 +96,12 @@ test('agent commands expose only this connection and restrict other tools', () =
     claude.args[claude.args.indexOf('--allowedTools') + 1],
     'mcp__sendtry-computer',
   );
-  const codex = agentCommand('codex', 'do it', '/private/c.json');
+  const codex = agentCommand('codex', '/private/c.json', dir);
   assert.equal(codex.command, 'codex');
   assert.equal(codex.args[codex.args.indexOf('--sandbox') + 1], 'read-only');
-  assert.equal(codex.args.at(-1), 'do it');
+  assert.ok(codex.args.every((arg) => !arg.includes('\n')));
   assert.throws(
-    () => agentCommand('other', 'x', '/c.json'),
+    () => agentCommand('other', '/c.json', dir),
     /--agent claude or codex/,
   );
 });
@@ -265,10 +274,10 @@ test('the worker hands each queued task to the agent once and stops in --once mo
   const bin = await fs.mkdtemp(path.join(os.tmpdir(), 'cmcp-fake-agent-'));
   t.after(() => fs.rm(bin, { recursive: true, force: true }));
   const seen = path.join(bin, 'seen.txt');
-  // A stand-in agent: records its prompt and prints one stream-json event.
+  // A stand-in agent: records its prompt from stdin and prints one stream-json event.
   // On Windows it is a .cmd shim in front of node, like an npm global install.
   const agent = [
-    `require('node:fs').writeFileSync(${JSON.stringify(seen)}, process.argv[3]);`,
+    `require('node:fs').writeFileSync(${JSON.stringify(seen)}, require('node:fs').readFileSync(0, 'utf8'));`,
     `console.log(JSON.stringify({type:'assistant',message:{content:[{type:'tool_use',name:'mcp__sendtry-computer__task_start'}]}}));`,
     `console.log(JSON.stringify({type:'result'}));`,
   ].join('\n');
