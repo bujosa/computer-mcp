@@ -7,7 +7,7 @@ This page covers distribution, local CLI setup and skill installation;
 Status: 3 November 2026. The complete [repository and history](https://github.com/bujosa/computer-mcp)
 are public. Code and the generic operator use **MIT**, with separate Sendtry
 [brand terms](../TRADEMARKS.md) and [dependency notices](../THIRD_PARTY_NOTICES.md).
-The package manifest is published under `@sendtry/computer-mcp` (`v0.1.0`) with
+The package manifest is published under `@sendtry/computer-mcp` (`v0.2.0`) with
 `publishConfig.access = "public"`, `private: false` and CLI binary `computer-mcp`.
 Registry and prebuilt images remain unpublished.
 
@@ -46,7 +46,7 @@ paths when you create or print a connection):
    `npm install -g .` to expose `computer-mcp` globally).
 3. **Packed local `@sendtry/computer-mcp` tarball:** run
    `npm pack --ignore-scripts` and install the resulting
-   `sendtry-computer-mcp-0.1.0.tgz` in a local prefix or global environment.
+   `sendtry-computer-mcp-0.2.0.tgz` in a local prefix or global environment.
 
 Then check prerequisites and start your computer:
 

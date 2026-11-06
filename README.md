@@ -108,7 +108,7 @@ Choose any local installation mode (all generate pinned absolute `stdio` entries
 | **npm global CLI**                  | `npm install -g @sendtry/computer-mcp` then `computer-mcp <cmd>`                                                 |
 | **Source checkout**                 | `git clone https://github.com/bujosa/computer-mcp.git && cd computer-mcp && npm ci` then `node src/cli.js <cmd>` |
 | **Global `computer-mcp` command**   | Inside the checkout after `npm ci`, run `npm link` (or `npm install -g .`) to use `computer-mcp <cmd>` anywhere  |
-| **Local packed `@sendtry` tarball** | `npm pack --ignore-scripts` then `npm install -g ./sendtry-computer-mcp-0.1.0.tgz --ignore-scripts`              |
+| **Local packed `@sendtry` tarball** | `npm pack --ignore-scripts` then `npm install -g ./sendtry-computer-mcp-0.2.0.tgz --ignore-scripts`              |
 
 Install the CLI (or clone the repository) and create your computer (using
 `computer-mcp` from global install, or `node src/cli.js` directly):
@@ -415,7 +415,7 @@ the tools → computer → taught-skill flow. Read
 [arquitecture.md](arquitecture.md) for modules, identity, permissions, execution
 and Teach flow; [reuse decision](docs/REUSE.md) explains Piblo separation.
 
-**MIT code and skill (`@sendtry/computer-mcp` v0.1.0).** See [LICENSE](LICENSE),
+**MIT code and skill (`@sendtry/computer-mcp` v0.2.0).** See [LICENSE](LICENSE),
 [Sendtry brand rules](TRADEMARKS.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
 The source, `@sendtry/computer-mcp` npm package and generic skill are public.
 [Installation and publication](docs/PUBLICATION.md) explains the verified public
