@@ -13,6 +13,7 @@ import {
 import { spawn } from 'node:child_process';
 import { Store } from './store.js';
 import { Lease } from './lease.js';
+import { initDesktopApps, publishDesktopApps } from './shell.js';
 import { FileService } from './file-service.js';
 import { execute } from './process.js';
 import { Browser } from './browser.js';
@@ -76,6 +77,8 @@ const operations = await new Operations(
   },
   { legacyEnabled: process.env.LEGACY_ACCESS !== '0' },
 ).init();
+const desktopShell =
+  process.env.COMPUTER_DESKTOP_SHELL === '1' && initDesktopApps();
 const lease = new Lease({
   onChange: (previous, current, reason) => {
     try {
@@ -89,6 +92,8 @@ const lease = new Lease({
           previous.generation !== current.generation)
       )
         operations.interruptActor(previous.owner, reason);
+      if (desktopShell && previous?.kind !== current?.kind)
+        publishDesktopApps(current);
     }
   },
 });

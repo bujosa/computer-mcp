@@ -66,7 +66,8 @@ export class Browser {
           '--no-sandbox',
           '--disable-dev-shm-usage',
           '--hide-crash-restore-bubble',
-          '--window-size=1280,800',
+          // The dock takes the bottom 48 px of the 1280x800 screen.
+          '--window-size=1280,752',
           '--window-position=0,0',
         ],
         env: {

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Raise the runtime-owned Chromium window; the runtime starts it, not this launcher.
+id=$(xdotool search --onlyvisible --class '[Cc]hrom' 2>/dev/null | head -1)
+[ -n "$id" ] || id=$(xdotool search --class '[Cc]hrom' 2>/dev/null | tail -1)
+[ -n "$id" ] && exec xdotool windowmap "$id" windowactivate "$id"

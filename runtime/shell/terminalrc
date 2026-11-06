@@ -1,0 +1,15 @@
+[Configuration]
+FontName=DejaVu Sans Mono 11
+MiscMenubarDefault=FALSE
+MiscToolbarDefault=FALSE
+MiscBordersDefault=TRUE
+MiscCursorBlinks=TRUE
+MiscDefaultGeometry=96x26
+ScrollingBar=TERMINAL_SCROLLBAR_NONE
+ColorForeground=#e6e6e3
+ColorBackground=#16181d
+ColorCursor=#d06a54
+ColorBold=#ffffff
+ColorBoldUseDefault=FALSE
+ColorPalette=#2a2d34;#e06c5c;#7ec27a;#e5b567;#6ea6e8;#c48be0;#5fc4c4;#d8d8d4;#5a5f6a;#f07f6f;#95d991;#f2c97e;#8bbaf2;#d6a3ee;#7fd8d8;#ffffff
+TitleMode=TERMINAL_TITLE_REPLACE

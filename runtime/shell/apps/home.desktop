@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Show desktop
+Comment=Minimize every window
+Exec=/opt/computer-mcp/runtime/shell/bin/sendtry-home
+Icon=/opt/computer-mcp/runtime/shell/icons/home.png
+Terminal=false

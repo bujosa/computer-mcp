@@ -30,6 +30,7 @@
     "runtime/*.py",
     "runtime/*.sh",
     "runtime/Dockerfile",
+    "runtime/shell/**",
     "ui/*.js",
     "ui/*.html",
     "ui/*.css",

@@ -1,6 +1,6 @@
 FROM node:22.21.1-bookworm-slim AS desktop
 ENV DEBIAN_FRONTEND=noninteractive DISPLAY=:1 PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
-RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils x11vnc openbox xdotool scrot util-linux fonts-dejavu-core ca-certificates python3 ffmpeg \
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils x11vnc openbox tint2 feh thunar xfce4-terminal zenity xdotool scrot util-linux fonts-dejavu-core ca-certificates python3 ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/computer-mcp
 COPY package.json npm-shrinkwrap.json ./
@@ -13,7 +13,8 @@ COPY skills ./skills
 COPY scripts/build-ui.mjs ./scripts/build-ui.mjs
 COPY src/catalog.js src/connection.js src/assigned-connections.js src/assigned-task.js src/command-line.js src/operations-contract.js src/audit-contract.js src/desktop-contract.js src/skill-use.js src/task-request.js src/atomic-json.js ./src/
 RUN node scripts/build-ui.mjs
-RUN chmod +x runtime/entrypoint.sh runtime/chromium-agent.sh
+RUN chmod +x runtime/entrypoint.sh runtime/chromium-agent.sh runtime/shell/bin/* \
+    && mkdir -p /usr/share/themes/Sendtry && cp -r runtime/shell/theme/openbox-3 /usr/share/themes/Sendtry/
 EXPOSE 7070
 ENTRYPOINT ["/opt/computer-mcp/runtime/entrypoint.sh"]
 

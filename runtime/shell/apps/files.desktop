@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+Comment=Workspace files (owner only while you have control)
+Exec=/opt/computer-mcp/runtime/shell/bin/sendtry-files
+Icon=/opt/computer-mcp/runtime/shell/icons/files.png
+Terminal=false
