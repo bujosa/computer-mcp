@@ -266,11 +266,24 @@ test('the worker hands each queued task to the agent once and stops in --once mo
   t.after(() => fs.rm(bin, { recursive: true, force: true }));
   const seen = path.join(bin, 'seen.txt');
   // A stand-in agent: records its prompt and prints one stream-json event.
-  await fs.writeFile(
-    path.join(bin, 'claude'),
-    `#!/bin/sh\nprintf '%s' "$2" > '${seen}'\necho '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"mcp__sendtry-computer__task_start"}]}}'\necho '{"type":"result"}'\n`,
-    { mode: 0o755 },
-  );
+  // On Windows it is a .cmd shim in front of node, like an npm global install.
+  const agent = [
+    `require('node:fs').writeFileSync(${JSON.stringify(seen)}, process.argv[3]);`,
+    `console.log(JSON.stringify({type:'assistant',message:{content:[{type:'tool_use',name:'mcp__sendtry-computer__task_start'}]}}));`,
+    `console.log(JSON.stringify({type:'result'}));`,
+  ].join('\n');
+  await fs.writeFile(path.join(bin, 'claude.js'), agent);
+  if (process.platform === 'win32')
+    await fs.writeFile(
+      path.join(bin, 'claude.cmd'),
+      `@"${process.execPath}" "%~dp0claude.js" %*\r\n`,
+    );
+  else
+    await fs.writeFile(
+      path.join(bin, 'claude'),
+      `#!/bin/sh\nexec '${process.execPath}' '${path.join(bin, 'claude.js')}' "$@"\n`,
+      { mode: 0o755 },
+    );
   const lines = [];
   const previous = process.env.PATH;
   process.env.PATH = `${bin}${path.delimiter}${previous}`;

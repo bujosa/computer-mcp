@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+// cross-spawn resolves PATHEXT and escapes arguments for npm's .cmd shims on Windows.
+import spawn from 'cross-spawn';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';

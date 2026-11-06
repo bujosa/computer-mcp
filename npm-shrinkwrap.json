@@ -12,6 +12,7 @@
         "@modelcontextprotocol/client": "2.3.1",
         "@modelcontextprotocol/server": "2.3.1",
         "@novnc/novnc": "https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz",
+        "cross-spawn": "7.0.6",
         "esbuild": "0.25.12",
         "express": "5.1.0",
         "playwright": "1.64.0",
